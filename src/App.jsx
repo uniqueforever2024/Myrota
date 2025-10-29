@@ -23,7 +23,7 @@ const SHIFTS = [
   { code: "RH", label: "Restricted Holiday" },
   { code: "CH", label: "Company Holiday" },
   { code: "WS", label: "Weekend Shift" },
-  { code: "W", label: "Weekend Off" },  
+  { code: "W", label: "Weekend Off" },
 ];
 
 // Employees list
@@ -42,26 +42,46 @@ const badgeColor = (code) => ({
   RH: "bg-violet-300 text-black",
   CH: "bg-violet-500 text-white",
   WS: "bg-red-500 text-white",
-  W: "bg-green-800 text-white",  
+  W: "bg-green-800 text-white",
 }[code] || "bg-gray-300 text-black");
 
-// Generate weekly dates for month
+/* ✅ FIXED — Generate correct weeks with correct weekday/date alignment */
 function generateWeeks(selectedYear, selectedMonthName) {
   const monthIndex = MONTHS_BY_YEAR[selectedYear].indexOf(selectedMonthName);
-  const weeks = [];
-  let current = new Date(selectedYear, monthIndex, 1);
 
-  while (current.getMonth() === monthIndex) {
+  const weeks = [];
+  const firstDay = new Date(selectedYear, monthIndex, 1);
+
+  // Convert to Monday-based index (Mon=0, Tue=1 ... Sun=6)
+  const startDayIndex = (firstDay.getDay() + 6) % 7;
+
+  let currentDate = new Date(selectedYear, monthIndex, 1);
+
+  // First Week → starts from actual date (NO padding)
+  const firstWeek = [];
+  for (let i = startDayIndex; i < 7; i++) {
+    firstWeek.push({
+      label: currentDate.toLocaleDateString("en-US", { weekday: "short" }),
+      day: currentDate.getDate()
+    });
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  weeks.push(firstWeek);
+
+  // Remaining Weeks → always Mon → Sun full weeks
+  while (currentDate.getMonth() === monthIndex) {
     const week = [];
     for (let i = 0; i < 7; i++) {
-      if (current.getMonth() !== monthIndex) break;
-      week.push(
-        `${current.toLocaleDateString("en-US", { weekday: "short" })}|${current.getDate()}`
-      );
-      current.setDate(current.getDate() + 1);
+      if (currentDate.getMonth() !== monthIndex) break;
+      week.push({
+        label: currentDate.toLocaleDateString("en-US", { weekday: "short" }),
+        day: currentDate.getDate()
+      });
+      currentDate.setDate(currentDate.getDate() + 1);
     }
     weeks.push(week);
   }
+
   return weeks;
 }
 
@@ -102,46 +122,22 @@ export default function App() {
 
         {/* HEADER */}
         <header className="p-4 flex justify-between items-center bg-white/10 backdrop-blur-xl shadow-lg">
+          <h1 className="text-3xl font-extrabold cursor-pointer" onClick={() => setPage("landing")}>
+            MyRota+
+          </h1>
 
-          <h1
-            className="text-3xl font-extrabold tracking-tight cursor-pointer"
-            onClick={() => setPage("landing")}
-          >MyRota+</h1>
-
-          <div className="flex gap-4">
-
-            {page !== "landing" && (
-              <button
-                onClick={() => setPage("landing")}
-                className="px-5 py-2 bg-white/20 backdrop-blur-lg border border-white/30 hover:bg-white/30 rounded-lg shadow text-white font-semibold flex items-center gap-2 transition"
-              >
-                🏚
-              </button>
-            )}
-
-            <button
-              onClick={() => setDarkMode(!darkMode)}
-              className="px-4 py-2 bg-white/20 backdrop-blur-lg border border-white/30 hover:bg-white/30 rounded-lg shadow text-white font-semibold transition"
-            >
-              {darkMode ? "☀" : "🌙"}
-            </button>
-
-          </div>
+          <button onClick={() => setDarkMode(!darkMode)} className="px-4 py-2 bg-white/20 rounded-lg font-bold">
+            {darkMode ? "☀" : "🌙"}
+          </button>
         </header>
 
         {/* LANDING PAGE */}
         {page === "landing" && (
           <div className="flex flex-col items-center justify-center py-32 text-center px-6">
-            <h1 className="text-6xl font-extrabold leading-tight">
-              Welcome to <span className="text-yellow-300">MyRota</span>
-            </h1>
-            <p className="max-w-2xl opacity-90 text-lg mb-10 mt-4">
-              The easiest way to manage rota, shifts, weekend support, and leaves.
-            </p>
-
+            <h1 className="text-6xl font-extrabold">Welcome to MyRota</h1>
             <button
               onClick={() => setPage("login")}
-              className="px-10 py-3 bg-white text-purple-700 font-bold rounded-full shadow-lg hover:scale-110 transition text-xl"
+              className="px-10 py-3 bg-white text-purple-700 font-bold rounded-full hover:scale-110 transition text-xl"
             >
               Get Started →
             </button>
@@ -154,9 +150,8 @@ export default function App() {
             <h2 className="text-4xl font-extrabold">Choose Role</h2>
 
             <div className="flex gap-6">
-
               <button
-                className="px-8 py-3 bg-white text-purple-700 font-bold rounded-lg shadow-lg hover:scale-110 transition"
+                className="px-8 py-3 bg-white text-purple-700 font-bold rounded-lg"
                 onClick={() => {
                   const pass = prompt("Enter Admin Password:");
                   if (pass === "password") {
@@ -171,7 +166,7 @@ export default function App() {
               </button>
 
               <button
-                className="px-8 py-3 bg-white/20 backdrop-blur-lg border border-white/40 hover:bg-white/30 text-white font-bold rounded-lg shadow-lg transition"
+                className="px-8 py-3 bg-white/20 text-white font-bold rounded-lg"
                 onClick={() => {
                   setIsAdmin(false);
                   setPage("dashboard");
@@ -179,7 +174,6 @@ export default function App() {
               >
                 Employee
               </button>
-
             </div>
           </div>
         )}
@@ -188,16 +182,12 @@ export default function App() {
         {page === "dashboard" && (
           <div className="p-6 pb-20">
 
-            {/* TITLE + DROPDOWN ROW */}
-            <div className="flex flex-col lg:flex-row justify-between items-center mb-6 gap-4">
-
-              <h2 className="text-3xl font-extrabold tracking-tight">
-                ROTA DASHBOARD — {selectedMonth.toUpperCase()}
-              </h2>
+            {/* Dropdowns */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-extrabold">ROTA — {selectedMonth} {selectedYear}</h2>
 
               <div className="flex gap-3">
-                <select
-                  className="px-4 py-2 bg-white/20 backdrop-blur-lg border border-white/30 rounded-lg shadow text-white font-semibold hover:bg-white/30 hover:scale-105 transition"
+                <select className="px-4 py-2 bg-white/20 rounded-lg text-white"
                   value={selectedYear}
                   onChange={(e) => {
                     setSelectedYear(Number(e.target.value));
@@ -210,7 +200,7 @@ export default function App() {
                 </select>
 
                 <select
-                  className="px-4 py-2 bg-white/20 backdrop-blur-lg border border-white/30 rounded-lg shadow text-white font-semibold hover:bg-white/30 hover:scale-105 transition"
+                  className="px-4 py-2 bg-white/20 rounded-lg text-white"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
                 >
@@ -221,9 +211,9 @@ export default function App() {
               </div>
             </div>
 
-            {/* ROTA TABLE */}
+            {/* Table */}
             {weeks.map((week, wIndex) => (
-              <div key={wIndex} className="mb-8 bg-white/10 p-4 rounded-xl backdrop-blur-xl shadow-lg">
+              <div key={wIndex} className="mb-8 bg-white/10 p-4 rounded-xl shadow-lg">
 
                 <h3 className="text-xl font-bold mb-3">Week {wIndex + 1}</h3>
 
@@ -232,7 +222,7 @@ export default function App() {
                     <tr className="bg-white/30 text-black font-bold">
                       <th className="p-2">Employee</th>
                       {week.map((d, idx) => (
-                        <th key={idx} className="p-2">{d}</th>
+                        <th key={idx} className="p-2">{d.label}|{d.day}</th>
                       ))}
                     </tr>
                   </thead>
@@ -279,39 +269,7 @@ export default function App() {
                 </table>
               </div>
             ))}
-
-            {/* SHIFT CODE TABLE */}
-            <div className="mt-12 bg-white text-black rounded-xl p-4 shadow-md">
-              <h3 className="text-lg font-bold mb-3">Definition of Shift Codes</h3>
-              <table className="w-full text-left text-sm rounded-lg overflow-hidden border">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="border px-2 py-1">Code</th>
-                    <th className="border px-2 py-1">Description</th>
-                    <th className="border px-2 py-1">Color</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr><td className="border px-2 py-1">A</td><td>Morning Shift</td><td className="bg-blue-300 border"></td></tr>
-                  <tr><td className="border px-2 py-1">B</td><td>Normal Shift</td><td className="bg-green-300 border"></td></tr>
-                  <tr><td className="border px-2 py-1">C</td><td>Night Shift</td><td className="bg-yellow-300 border"></td></tr>
-                  <tr><td className="border px-2 py-1">PL</td><td>Personal Leave</td><td className="bg-pink-300 border"></td></tr>
-                  <tr><td className="border px-2 py-1">RH</td><td>Restricted Holiday</td><td className="bg-violet-300 border"></td></tr>
-                  <tr><td className="border px-2 py-1">CH</td><td>Company Holiday</td><td className="bg-violet-500 text-white border"></td></tr>
-                  <tr><td className="border px-2 py-1">WS</td><td>Weekend Shift</td><td className="bg-red-500 text-white border"></td></tr>
-                  <tr><td className="border px-2 py-1">W</td><td>Weekend Off</td><td className="bg-green-800 text-white border"></td></tr>
-
-                </tbody>
-              </table>
-            </div>
           </div>
-        )}
-
-        {/* FOOTER (hidden on login page & landing) */}
-        {page !== "login" && page !== "landing" && (
-          <footer className="text-center py-4 opacity-80 bg-black/30 text-xs">
-            © HCL | 2025 All Rights Reserved
-          </footer>
         )}
       </div>
     </div>
