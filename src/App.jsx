@@ -73,6 +73,7 @@ function generateWeeks(selectedYear, selectedMonthName) {
   const monthIndex = MONTH_INDEX[selectedMonthName];
   const firstDate = new Date(selectedYear, monthIndex, 1);
   const toMonIndex = (d) => (d + 6) % 7;
+
   const weeks = [];
   let cursor = new Date(firstDate);
 
@@ -102,6 +103,7 @@ function generateWeeks(selectedYear, selectedMonthName) {
     while (week.length < 7) week.push({ isPadding: true });
     weeks.push(week);
   }
+
   return weeks;
 }
 
@@ -134,14 +136,20 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  /* ✅ Update Shift using stable Employee ID */
+  /* ✅ Update shift using employee ID (bug FIXED) */
   const updateShift = (empId, weekIndex, dayIndex, code) => {
     const updated = structuredClone(rota);
+
     updated[selectedYear] ??= {};
-    updated[selectedYear][selectedMonth] ??= {};
+    updated[selectedYear][selectedMonth] ??= [];
     updated[selectedYear][selectedMonth][weekIndex] ??= {};
-    updated[selectedYear][selectedMonth][weekIndex][empId] ??= {};
+
+    // ✅ ensure employee entry is an ARRAY
+    updated[selectedYear][selectedMonth][weekIndex][empId] ??= [];
+
+    // ✅ save shift without deleting previous ones
     updated[selectedYear][selectedMonth][weekIndex][empId][dayIndex] = code;
+
     setRota(updated);
   };
 
@@ -171,7 +179,11 @@ export default function App() {
             <h1 className="text-6xl font-extrabold tracking-wide drop-shadow-xl text-white">
               Welcome to <span className="text-yellow-400">{rotatingWords[currentWordIndex]}</span>
             </h1>
-            <p className="mt-4 text-lg opacity-90 font-light">Smart & intuitive workforce scheduling</p>
+
+            <p className="mt-4 text-lg opacity-90 font-light">
+              Smart & intuitive workforce scheduling
+            </p>
+
             <button
               onClick={() => setPage("login")}
               className="mt-8 px-10 py-3 bg-white text-purple-700 font-bold rounded-full hover:scale-110 transition-all duration-200 shadow-xl"
@@ -185,6 +197,7 @@ export default function App() {
         {page === "login" && (
           <div className="flex flex-col items-center justify-center py-32 gap-6 text-center">
             <h2 className="text-4xl font-extrabold">Choose Role</h2>
+
             <div className="flex gap-6">
               <button
                 className="px-8 py-3 bg-white text-purple-700 font-bold rounded-lg"
@@ -198,6 +211,7 @@ export default function App() {
               >
                 Admin
               </button>
+
               <button
                 className="px-8 py-3 bg-white/20 text-white font-bold rounded-lg"
                 onClick={() => {
@@ -246,7 +260,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* Weeks table */}
+            {/* Weeks Table */}
             {weeks.map((week, wIndex) => (
               <div
                 key={wIndex}
@@ -273,12 +287,12 @@ export default function App() {
 
                         {week.map((cell, dIndex) => {
                           const value =
-                            rota[selectedYear]?.[selectedMonth]?.[wIndex]?.[id]?.[dIndex] ?? "";
+                            (rota[selectedYear]?.[selectedMonth]?.[wIndex]?.[id] ?? [])[dIndex] ?? "";
 
                           return (
                             <td className="p-1" key={dIndex}>
                               {cell.isPadding ? (
-                                <span className={`inline-flex items-center justify-center rounded-md text-xs opacity-40 ${badgeColor()}`}>—</span>
+                                <span className={`inline-flex items-center justify-center rounded-md text-xs opacity-40 ${badgeColor()}`} />
                               ) : isAdmin ? (
                                 <select
                                   value={value}
@@ -310,6 +324,7 @@ export default function App() {
             {/* SHIFT LEGEND */}
             <div className="mt-10 p-6 rounded-xl shadow-xl bg-white/20 backdrop-blur-xl border border-white/30">
               <h3 className="text-xl font-extrabold mb-4">Shift Definitions</h3>
+
               <table className="w-full text-sm text-left">
                 <thead>
                   <tr className="font-bold text-black bg-white/40">
