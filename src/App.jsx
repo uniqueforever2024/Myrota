@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 
 /* ------------------ CONSTANTS ------------------ */
 
-// Available years
+// Years
 const YEARS = [2025, 2026];
 
-// Months based on year selection
+// Months
 const MONTHS_BY_YEAR = {
   2025: ["November", "December"],
   2026: [
@@ -14,13 +14,13 @@ const MONTHS_BY_YEAR = {
   ],
 };
 
-// Month → JS index (0-11)
+// Month mapping
 const MONTH_INDEX = {
   January: 0, February: 1, March: 2, April: 3, May: 4, June: 5,
   July: 6, August: 7, September: 8, October: 9, November: 10, December: 11,
 };
 
-// Shifts and color codes
+// Shift codes
 const SHIFTS = [
   { code: "A", label: "Morning Shift (5AM - 12PM)" },
   { code: "B", label: "Normal Shift (12PM - 9PM)" },
@@ -32,7 +32,7 @@ const SHIFTS = [
   { code: "W", label: "Weekend Off" },
 ];
 
-/* ✅ Employees list WITH STABLE IDs */
+/* ✅ EMPLOYEES WITH STABLE ID */
 const EMPLOYEES = [
   { id: "EMP001", name: "Tasavuur" },
   { id: "EMP002", name: "Astitva" },
@@ -50,7 +50,7 @@ const EMPLOYEES = [
   { id: "EMP014", name: "Siddharth" },
 ];
 
-// Fixed badge size
+/* Shift badge UI */
 const CELL_SIZE = "w-16 h-8";
 const badgeColor = (code) => {
   const map = {
@@ -68,17 +68,17 @@ const badgeColor = (code) => {
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-/* ✅ Helper — Generate padded weeks Monday → Sunday */
-function generateWeeks(selectedYear, selectedMonthName) {
-  const monthIndex = MONTH_INDEX[selectedMonthName];
-  const firstDate = new Date(selectedYear, monthIndex, 1);
+/* ✅ Generate padded calendar weeks */
+function generateWeeks(year, monthName) {
+  const monthIndex = MONTH_INDEX[monthName];
+  const firstDate = new Date(year, monthIndex, 1);
   const toMonIndex = (d) => (d + 6) % 7;
 
   const weeks = [];
   let cursor = new Date(firstDate);
 
-  const startPad = toMonIndex(firstDate.getDay());
   const firstWeek = [];
+  const startPad = toMonIndex(firstDate.getDay());
   for (let i = 0; i < startPad; i++) firstWeek.push({ isPadding: true });
 
   while (firstWeek.length < 7 && cursor.getMonth() === monthIndex) {
@@ -117,26 +117,25 @@ export default function App() {
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedMonth, setSelectedMonth] = useState("November");
 
-  /* ✅ Load rota using Employee ID keys */
-  const [rota, setRota] = useState(() => {
-    const saved = localStorage.getItem("rotaData");
-    return saved ? JSON.parse(saved) : {};
-  });
+  /* ✅ Load rota from localStorage */
+  const [rota, setRota] = useState(() =>
+    JSON.parse(localStorage.getItem("rotaData") || "{}")
+  );
 
   const weeks = generateWeeks(selectedYear, selectedMonth);
 
-  /* ✅ Rotating landing text */
   const rotatingWords = ["MyRota", "MyPlans", "MyTeam", "MyTime"];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
-    }, 900);
+    const interval = setInterval(
+      () => setCurrentWordIndex((i) => (i + 1) % rotatingWords.length),
+      900
+    );
     return () => clearInterval(interval);
   }, []);
 
-  /* ✅ Update shift using employee ID (bug FIXED) */
+  /* ✅ FIXED: Save shift values correctly without deleting previous */
   const updateShift = (empId, weekIndex, dayIndex, code) => {
     const updated = structuredClone(rota);
 
@@ -144,18 +143,18 @@ export default function App() {
     updated[selectedYear][selectedMonth] ??= [];
     updated[selectedYear][selectedMonth][weekIndex] ??= {};
 
-    // ✅ ensure employee entry is an ARRAY
+    // ✅ Ensure employee week entry is an ARRAY (important!)
     updated[selectedYear][selectedMonth][weekIndex][empId] ??= [];
 
-    // ✅ save shift without deleting previous ones
     updated[selectedYear][selectedMonth][weekIndex][empId][dayIndex] = code;
-
     setRota(updated);
   };
 
-  useEffect(() => {
+  /* ✅ SAVE BUTTON HANDLER */
+  const saveRota = () => {
     localStorage.setItem("rotaData", JSON.stringify(rota));
-  }, [rota]);
+    alert("✅ ROTA saved successfully!");
+  };
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -168,7 +167,7 @@ export default function App() {
           </h1>
 
           <div className="flex gap-2 items-center">
-            <button onClick={() => setPage("landing")} className="px-4 py-2 bg-white/20 rounded-lg font-bold hover:bg-white/30">🏠</button>
+            <button onClick={() => setPage("landing")} className="px-4 py-2 bg-white/20 rounded-lg font-bold">🏠</button>
             <button onClick={() => setDarkMode(!darkMode)} className="px-4 py-2 bg-white/20 rounded-lg font-bold">{darkMode ? "☀" : "🌙"}</button>
           </div>
         </header>
@@ -176,17 +175,12 @@ export default function App() {
         {/* LANDING PAGE */}
         {page === "landing" && (
           <div className="flex flex-col items-center justify-center py-32 text-center px-6">
-            <h1 className="text-6xl font-extrabold tracking-wide drop-shadow-xl text-white">
+            <h1 className="text-6xl font-extrabold tracking-wide">
               Welcome to <span className="text-yellow-400">{rotatingWords[currentWordIndex]}</span>
             </h1>
-
-            <p className="mt-4 text-lg opacity-90 font-light">
-              Smart & intuitive workforce scheduling
-            </p>
-
             <button
               onClick={() => setPage("login")}
-              className="mt-8 px-10 py-3 bg-white text-purple-700 font-bold rounded-full hover:scale-110 transition-all duration-200 shadow-xl"
+              className="mt-8 px-10 py-3 bg-white text-purple-700 font-bold rounded-full hover:scale-110 transition"
             >
               Get Started →
             </button>
@@ -216,6 +210,11 @@ export default function App() {
                 className="px-8 py-3 bg-white/20 text-white font-bold rounded-lg"
                 onClick={() => {
                   setIsAdmin(false);
+
+                  // ✅ Force reload latest saved rota
+                  const latest = JSON.parse(localStorage.getItem("rotaData"));
+                  if (latest) setRota(latest);
+
                   setPage("dashboard");
                 }}
               >
@@ -229,8 +228,8 @@ export default function App() {
         {page === "dashboard" && (
           <div className="p-6 pb-20">
 
-            {/* Controls */}
-            <div className="flex flex-col gap-2 md:flex-row md:justify-between md:items-center mb-6">
+            {/* Year/Month picker */}
+            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
               <h2 className="text-3xl font-extrabold">ROTA — {selectedMonth} {selectedYear}</h2>
 
               <div className="flex gap-3">
@@ -260,43 +259,50 @@ export default function App() {
               </div>
             </div>
 
+            {/* ✅ SAVE BUTTON FOR ADMIN */}
+            {isAdmin && (
+              <button
+                className="px-6 py-2 mb-4 bg-green-500 font-bold rounded-lg shadow-lg hover:bg-green-600"
+                onClick={saveRota}
+              >
+                💾 Save Changes
+              </button>
+            )}
+
             {/* Weeks Table */}
             {weeks.map((week, wIndex) => (
-              <div
-                key={wIndex}
-                className="mb-8 p-4 rounded-xl shadow-xl overflow-x-auto bg-white/20 backdrop-blur-xl border border-white/30"
-              >
+              <div key={wIndex} className="mb-8 p-4 rounded-xl bg-white/20 backdrop-blur-xl">
                 <h3 className="text-xl font-bold mb-3">Week {wIndex + 1}</h3>
 
                 <table className="min-w-full text-center border-collapse text-sm">
                   <thead>
-                    <tr className="bg-white/30 text-black font-bold">
-                      <th className="p-2 sticky left-0 bg-white/30 z-10 text-left">Employee</th>
+                    <tr className="bg-white/40 text-black font-bold">
+                      <th className="p-2 sticky left-0 bg-white/40 z-10 text-left">Employee</th>
                       {WEEKDAYS.map((wd, idx) => (
-                        <th key={idx} className="p-2">{wd} {week[idx]?.day ?? ""}</th>
+                        <th key={idx} className="p-2">
+                          {wd} {week[idx]?.day ?? ""}
+                        </th>
                       ))}
                     </tr>
                   </thead>
 
                   <tbody>
                     {EMPLOYEES.map(({ id, name }) => (
-                      <tr key={id} className="even:bg-white/5">
-                        <td className="font-semibold text-left p-2 sticky left-0 bg-inherit z-10">
-                          {name}
-                        </td>
+                      <tr key={id} className="even:bg-white/10">
+                        <td className="p-2 sticky left-0 bg-transparent font-semibold text-left">{name}</td>
 
                         {week.map((cell, dIndex) => {
                           const value =
                             (rota[selectedYear]?.[selectedMonth]?.[wIndex]?.[id] ?? [])[dIndex] ?? "";
 
                           return (
-                            <td className="p-1" key={dIndex}>
+                            <td key={dIndex} className="p-1">
                               {cell.isPadding ? (
-                                <span className={`inline-flex items-center justify-center rounded-md text-xs opacity-40 ${badgeColor()}`} />
+                                <span className={`inline-flex rounded-md opacity-40 ${badgeColor("")}`} />
                               ) : isAdmin ? (
                                 <select
                                   value={value}
-                                  className={`rounded-md text-xs p-1 text-black ${CELL_SIZE} inline-block`}
+                                  className={`rounded-md text-xs p-1 text-black ${CELL_SIZE}`}
                                   onChange={(e) => updateShift(id, wIndex, dIndex, e.target.value)}
                                 >
                                   <option value=""></option>
@@ -309,7 +315,7 @@ export default function App() {
                                   {value}
                                 </span>
                               ) : (
-                                <span className={`inline-flex items-center justify-center rounded-md text-xs opacity-40 ${badgeColor()}`} />
+                                <span className={`inline-flex rounded-md opacity-40 ${badgeColor("")}`} />
                               )}
                             </td>
                           );
@@ -322,21 +328,21 @@ export default function App() {
             ))}
 
             {/* SHIFT LEGEND */}
-            <div className="mt-10 p-6 rounded-xl shadow-xl bg-white/20 backdrop-blur-xl border border-white/30">
+            <div className="mt-10 p-6 rounded-xl bg-white/20 backdrop-blur-xl">
               <h3 className="text-xl font-extrabold mb-4">Shift Definitions</h3>
 
               <table className="w-full text-sm text-left">
                 <thead>
-                  <tr className="font-bold text-black bg-white/40">
+                  <tr className="font-bold bg-white/40 text-black">
                     <th className="p-2">Code</th>
                     <th className="p-2">Description</th>
                   </tr>
                 </thead>
                 <tbody>
                   {SHIFTS.map(({ code, label }) => (
-                    <tr key={code} className="border-b border-white/10">
+                    <tr key={code}>
                       <td className="p-2">
-                        <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(code)}`}>
+                        <span className={`inline-flex rounded-md text-xs font-bold ${badgeColor(code)}`}>
                           {code}
                         </span>
                       </td>
