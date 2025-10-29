@@ -206,7 +206,7 @@ export default function App() {
 
               <div className="flex gap-3">
                 <select
-                  className="px-4 py-2 bg-white/20 rounded-lg text-white"
+                  className="px-4 py-2 bg-white/20 rounded-lg text-black"
                   value={selectedYear}
                   onChange={(e) => {
                     const yr = Number(e.target.value);
@@ -220,7 +220,7 @@ export default function App() {
                 </select>
 
                 <select
-                  className="px-4 py-2 bg-white/20 rounded-lg text-white"
+                  className="px-4 py-2 bg-white/20 rounded-lg text-black"
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
                 >
