@@ -34,7 +34,7 @@ const SHIFTS = [
 
 // Employees list
 const EMPLOYEES = [
-  "Tasavuur","Piyush","Shikha","Akash",
+  "Tasavuur","Astitva","Piyush","Shikha","Akash",
   "Sourav","Ashraf","Deepthi","Naveen",
   "Arun","Prasanna","Raju","Vishnu","Siddharth"
 ];
