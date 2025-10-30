@@ -28,7 +28,6 @@ const SHIFTS = [
   { code: "W", label: "Weekend Off" },
 ];
 
-/* ✅ EMPLOYEES AS SIMPLE ARRAY (REVERTED BACK) */
 const EMPLOYEES = [
   "Tasavuur","Astitva","Piyush","Shikha","Akash",
   "Sourav","Ashraf","Deepthi","Naveen",
@@ -81,7 +80,6 @@ function generateWeeks(year, monthName) {
     while (week.length < 7) week.push({ isPadding: true });
     weeks.push(week);
   }
-
   return weeks;
 }
 
@@ -91,11 +89,9 @@ export default function App() {
   const [page, setPage] = useState("landing");
   const [isAdmin, setIsAdmin] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedMonth, setSelectedMonth] = useState("November");
 
-  /* ✅ Load from localStorage on first render */
   const [rota, setRota] = useState(() => {
     try { return JSON.parse(localStorage.getItem("rotaData") || "{}"); }
     catch { return {}; }
@@ -103,7 +99,6 @@ export default function App() {
 
   const weeks = generateWeeks(selectedYear, selectedMonth);
 
-  /* ✅ When switching to dashboard, reload latest rota */
   useEffect(() => {
     const saved = localStorage.getItem("rotaData");
     if (saved) setRota(JSON.parse(saved));
@@ -246,6 +241,7 @@ export default function App() {
                     </tr>
                   </thead>
 
+                  {/* ✅ UPDATED - DEFAULT SHIFT LOGIC */}
                   <tbody>
                     {EMPLOYEES.map((emp, eIndex) => (
                       <tr key={emp} className="even:bg-white/5">
@@ -254,30 +250,49 @@ export default function App() {
                         </td>
 
                         {week.map((cell, dIndex) => {
-                          const value =
-                            rota[selectedYear]?.[selectedMonth]?.[wIndex]?.[eIndex]?.[dIndex] ?? "";
+                          let defaultShift = "";
+
+                          if (!cell.isPadding) {
+                            const dayLabel = WEEKDAYS[dIndex];
+                            defaultShift = ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(dayLabel)
+                              ? "B"
+                              : "W";
+                          }
+
+                          const savedValue =
+                            rota[selectedYear]?.[selectedMonth]?.[wIndex]?.[eIndex]?.[dIndex];
+
+                          const value = savedValue ?? defaultShift;
 
                           return (
                             <td className="p-1" key={dIndex}>
                               {cell.isPadding ? (
-                                <span className={`inline-flex items-center justify-center rounded-md text-xs opacity-40 ${badgeColor("")}`} />
+                                <span
+                                  className={`inline-flex items-center justify-center rounded-md text-xs opacity-40 ${badgeColor("")}`}
+                                />
                               ) : isAdmin ? (
                                 <select
                                   value={value}
                                   className={`rounded-md text-xs p-1 text-black ${CELL_SIZE}`}
-                                  onChange={(e) => updateShift(eIndex, wIndex, dIndex, e.target.value)}
+                                  onChange={(e) =>
+                                    updateShift(eIndex, wIndex, dIndex, e.target.value)
+                                  }
                                 >
                                   <option value=""></option>
                                   {SHIFTS.map((shift) => (
-                                    <option key={shift.code} value={shift.code}>{shift.code}</option>
+                                    <option key={shift.code} value={shift.code}>
+                                      {shift.code}
+                                    </option>
                                   ))}
                                 </select>
-                              ) : value ? (
-                                <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(value)}`}>
+                              ) : (
+                                <span
+                                  className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(
+                                    value
+                                  )}`}
+                                >
                                   {value}
                                 </span>
-                              ) : (
-                                <span className={`inline-flex opacity-40 ${badgeColor("")}`} />
                               )}
                             </td>
                           );
@@ -289,7 +304,7 @@ export default function App() {
               </div>
             ))}
 
-            {/* ✅ SHIFT LEGEND / DEFINITION TABLE */}
+            {/* ✅ SHIFT LEGEND */}
             <div className="mt-10 p-6 rounded-xl shadow-xl bg-white/20 backdrop-blur-xl border border-white/30">
               <h3 className="text-xl font-extrabold mb-4">Shift Definitions</h3>
 
