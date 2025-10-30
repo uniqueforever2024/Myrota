@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { db } from "./firebase";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 /* ------------------ CONSTANTS ------------------ */
 
@@ -35,18 +37,19 @@ const EMPLOYEES = [
 ];
 
 const CELL_SIZE = "w-16 h-8";
+
 const badgeColor = (code) => {
-  const map = {
+  const colors = {
     A: `bg-blue-300 text-black ${CELL_SIZE}`,
     B: `bg-green-300 text-black ${CELL_SIZE}`,
     C: `bg-yellow-300 text-black ${CELL_SIZE}`,
     PL: `bg-pink-300 text-black ${CELL_SIZE}`,
-    RH: `bg-violet-300 text-black ${CELL_SIZE}`,
-    CH: `bg-violet-500 text-white ${CELL_SIZE}`,
-    WS: `bg-red-500 text-white ${CELL_SIZE}`,
+    RH: `bg-purple-300 text-black ${CELL_SIZE}`,
+    CH: `bg-red-500 text-white ${CELL_SIZE}`,
+    WS: `bg-red-300 text-white ${CELL_SIZE}`,
     W: `bg-green-800 text-white ${CELL_SIZE}`,
   };
-  return map[code] || `bg-gray-300 text-black ${CELL_SIZE}`;
+  return colors[code] || `bg-gray-300 text-black ${CELL_SIZE}`;
 };
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -102,22 +105,27 @@ export default function App() {
     );
   };
 
-  const [rota, setRota] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem("rotaData") || "{}");
-    } catch {
-      return {};
-    }
-  });
+  const [rota, setRota] = useState({});
 
   const weeks = generateWeeks(selectedYear, selectedMonth);
 
+  /* ✅ FETCH from Firebase */
   useEffect(() => {
-    const saved = localStorage.getItem("rotaData");
-    if (saved) setRota(JSON.parse(saved));
-  }, [page, isAdmin]);
+    async function fetchData() {
+      const ref = doc(db, "rota", "master");
+      const snapshot = await getDoc(ref);
+      if (snapshot.exists()) {
+        setRota(snapshot.data());
+      } else {
+        console.log("No data, creating empty rota...");
+        await setDoc(ref, {});
+      }
+    }
+    fetchData();
+  }, []);
 
-  const updateShift = (empIndex, weekIndex, dayIndex, code) => {
+  /* ✅ PUSH updates to Firebase */
+  const updateShift = async (empIndex, weekIndex, dayIndex, code) => {
     const updated = structuredClone(rota);
 
     if (!updated[selectedYear]) updated[selectedYear] = {};
@@ -129,7 +137,9 @@ export default function App() {
     updated[selectedYear][selectedMonth][weekIndex][empIndex][dayIndex] = code;
 
     setRota(updated);
-    localStorage.setItem("rotaData", JSON.stringify(updated));
+
+    const ref = doc(db, "rota", "master");
+    await setDoc(ref, updated, { merge: true });
   };
 
   const rotatingWords = ["MyRota", "MyPlans", "MyTeam", "MyTime"];
@@ -166,15 +176,6 @@ export default function App() {
               >
                 Get Started →
               </button>
-
-              {/* Team SVG (centered + animation) */}
-              <div className="mt-16 w-full flex justify-center animate-fadeInUp">
-                <img
-                  src="/team.svg"
-                  alt="Team Illustration"
-                  className="w-full max-w-4xl transition-transform duration-500 ease-in-out hover:scale-105"
-                />
-              </div>
             </div>
           )}
 
@@ -250,7 +251,7 @@ export default function App() {
                 </div>
               </div>
 
-              {/* ✅ WEEK TABLE + COLLAPSE BUTTON */}
+              {/* WEEK TABLE + COLLAPSE BUTTON */}
               {weeks.map((week, wIndex) => (
                 <div
                   key={wIndex}
@@ -269,12 +270,12 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* COLLAPSIBLE WEEK CONTENT */}
+                  {/* COLLAPSIBLE CONTENT */}
                   {!collapsedWeeks.includes(wIndex) && (
-                    <table className="min-w-full text-center border-collapse text-sm transition-all duration-300">
+                    <table className="min-w-full text-center border-collapse text-sm">
                       <thead>
                         <tr className="bg-white/30 text-black font-bold">
-                          <th className="p-2 sticky left-0 bg-white/30 z-10 text-left min-w-[120px] whitespace-nowrap">
+                          <th className="p-2 sticky left-0 bg-white/30 z-10 text-left min-w-[120px]">
                             Employee
                           </th>
                           {WEEKDAYS.map((wd, idx) => (
@@ -287,7 +288,7 @@ export default function App() {
                         {EMPLOYEES.map((emp, eIndex) => (
                           <tr key={emp} className="even:bg-white/5">
                             <td
-                              className="font-semibold text-left p-2 sticky left-0 bg-transparent z-10 min-w-[120px] whitespace-nowrap cursor-pointer hover:text-yellow-300"
+                              className="font-semibold text-left p-2 sticky left-0 bg-transparent z-10 min-w-[120px] cursor-pointer hover:text-yellow-300"
                               onClick={() => setSelectedEmployeeIndex(eIndex)}
                             >
                               {emp}
@@ -311,22 +312,24 @@ export default function App() {
                               return (
                                 <td key={dIndex} className="p-1">
 
-                                  {/* ✅ UPDATED: admin select now color coded */}
+                                  {/* ✅ Admin shift dropdown now color-coded */}
                                   {cell.isPadding ? (
                                     <span className={`inline-flex opacity-40 ${badgeColor("")}`} />
                                   ) : isAdmin ? (
-                                    <select
-                                      value={value}
-                                      className={`rounded-md text-xs p-1 font-bold cursor-pointer ${badgeColor(value)}`}
-                                      onChange={(e) => updateShift(eIndex, wIndex, dIndex, e.target.value)}
-                                    >
-                                      <option value=""></option>
-                                      {SHIFTS.map((shift) => (
-                                        <option key={shift.code} value={shift.code}>
-                                          {shift.code}
-                                        </option>
-                                      ))}
-                                    </select>
+                                    <div className={`${badgeColor(value)} rounded-md flex items-center justify-center`}>
+                                      <select
+                                        value={value}
+                                        className="w-full bg-transparent font-bold text-xs cursor-pointer p-1 outline-none"
+                                        onChange={(e) => updateShift(eIndex, wIndex, dIndex, e.target.value)}
+                                      >
+                                        <option value=""></option>
+                                        {SHIFTS.map((shift) => (
+                                          <option key={shift.code} value={shift.code}>
+                                            {shift.code}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </div>
                                   ) : (
                                     <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(value)}`}>
                                       {value}
