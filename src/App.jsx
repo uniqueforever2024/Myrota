@@ -40,7 +40,7 @@ const EMPLOYEES = [
 // ✅ Consistent cell size
 const CELL = "w-16 h-8 text-center";
 
-/* ✅ Color-coded shift rendering */
+/* ✅ Shift badge colors */
 const badgeColor = (code) => {
   const map = {
     A: `bg-blue-300 text-black ${CELL}`,
@@ -58,15 +58,13 @@ const badgeColor = (code) => {
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 /* ------------------ Helpers ------------------ */
+const getKey = (year, month, week, emp, day) =>
+  `${year}-${month}-${week}-${emp}-${day}`;
 
-function getKey(year, month, week, emp, day) {
-  return `${year}-${month}-${week}-${emp}-${day}`;
-}
+const getDefaultShift = (dayLabel) =>
+  ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(dayLabel) ? "B" : "W";
 
-function getDefaultShift(dayLabel) {
-  return ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(dayLabel) ? "B" : "W";
-}
-
+/* ✅ Calendar generator */
 function generateWeeks(year, month) {
   const monthIndex = MONTH_INDEX[month];
   const firstDate = new Date(year, monthIndex, 1);
@@ -117,18 +115,16 @@ export default function App() {
   const [collapsedWeeks, setCollapsedWeeks] = useState([]);
 
   const [rota, setRota] = useState({});
-
   const weeks = generateWeeks(selectedYear, selectedMonth);
 
-  /* ✅ Realtime Firebase Listener */
+  /* ✅ Firebase realtime listener */
   useEffect(() => {
-    const unsub = onSnapshot(doc(db, "rota", "master"), (snap) => {
+    return onSnapshot(doc(db, "rota", "master"), (snap) => {
       setRota(snap.data() || {});
     });
-    return unsub;
   }, []);
 
-  /* ✅ Save to Firebase */
+  /* ✅ Update Firebase */
   const updateShift = async (emp, week, day, code) => {
     const key = getKey(selectedYear, selectedMonth, week, emp, day);
 
@@ -137,14 +133,15 @@ export default function App() {
     await setDoc(doc(db, "rota", "master"), { [key]: code }, { merge: true });
   };
 
-  /* ✅ Landing page rotating animation */
+  /* ✅ Landing animation rotating words */
   const rotatingWords = ["MyRota", "MyPlans", "MyTeam", "MyTime"];
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
-    }, 1500);
+    const interval = setInterval(
+      () => setCurrentWordIndex((i) => (i + 1) % rotatingWords.length),
+      1500
+    );
     return () => clearInterval(interval);
   }, []);
 
@@ -174,9 +171,7 @@ export default function App() {
 
               <h1 className="text-6xl font-extrabold">
                 <span className="text-white">Welcome to </span>
-                <span className="text-yellow-400">
-                  {rotatingWords[currentWordIndex]}
-                </span>
+                <span className="text-yellow-400">{rotatingWords[currentWordIndex]}</span>
               </h1>
 
               <button
@@ -349,7 +344,7 @@ export default function App() {
                 </div>
               ))}
 
-              {/* Shift legend */}
+              {/* ✅ Shift legend */}
               <div className="mt-10 p-6 rounded-xl shadow-xl bg-white/20 backdrop-blur-xl border border-white/30">
                 <h3 className="text-xl font-extrabold mb-4">Shift Definitions</h3>
 
@@ -377,10 +372,10 @@ export default function App() {
             </div>
           )}
 
-          {/* EMPLOYEE MODAL */}
+          {/* ✅ EMPLOYEE MODAL (fixed scroll issue) */}
           {employeeView !== null && (
-            <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-xl shadow-xl text-black p-6 w-full max-w-lg max-height-[80vh] overflow-y-auto">
+            <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
+              <div className="bg-white rounded-xl shadow-xl text-black p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
 
                 <h2 className="text-2xl font-bold mb-4">
                   {EMPLOYEES[employeeView]}'s Plan — {selectedMonth} {selectedYear}
