@@ -40,20 +40,24 @@ const EMPLOYEES = [
 // ✅ Consistent cell size
 const CELL = "w-16 h-8 text-center";
 
-/* ✅ Shift badge colors */
+/* ✅ Updated Color-coded shift rendering */
 const badgeColor = (code) => {
   const map = {
-    A: `bg-blue-300 text-black ${CELL}`,
-    B: `bg-green-300 text-black ${CELL}`,
-    C: `bg-yellow-300 text-black ${CELL}`,
-    PL: `bg-pink-300 text-black ${CELL}`,
-    RH: `bg-purple-300 text-black ${CELL}`,
-    CH: `bg-red-500 text-white ${CELL}`,
-    WS: `bg-red-300 text-white ${CELL}`,
-    W: `bg-green-800 text-white ${CELL}`,
+    A: `bg-blue-300 text-black ${CELL}`,          // Morning Shift
+    B: `bg-green-300 text-black ${CELL}`,         // Normal Shift
+    C: `bg-yellow-300 text-black ${CELL}`,        // Night Shift
+
+    PL: `bg-red-700 text-white ${CELL}`,          // ✅ PL → DARK RED
+    WS: `bg-green-500 text-white ${CELL}`,        // ✅ WS → GREEN
+    W:  `bg-red-300 text-black ${CELL}`,          // ✅ W → LIGHT RED
+
+    RH: `bg-purple-300 text-black ${CELL}`,       // Restricted Holiday
+    CH: `bg-purple-600 text-white ${CELL}`,       // Company Holiday → PURPLE
   };
+
   return map[code] || `bg-gray-300 text-black ${CELL}`;
 };
+
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -318,6 +322,7 @@ export default function App() {
                                         <select
                                           value={value}
                                           className="w-full bg-transparent font-bold text-xs cursor-pointer p-1 outline-none"
+                                          style={{ color: "black" }} 
                                           onChange={(e) => updateShift(empIndex, weekIndex, dayIndex, e.target.value)}
                                         >
                                           {SHIFTS.map((s) => (
