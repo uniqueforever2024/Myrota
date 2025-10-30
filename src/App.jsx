@@ -8,7 +8,7 @@ const MONTHS_BY_YEAR = {
   2025: ["November", "December"],
   2026: [
     "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
+    "July", "August", "September", "October", "November", "December",
   ],
 };
 
@@ -29,9 +29,9 @@ const SHIFTS = [
 ];
 
 const EMPLOYEES = [
-  "Tasavuur","Astitva","Piyush","Shikha","Akash",
-  "Sourav","Ashraf","Deepthi","Naveen",
-  "Arun","Prasanna","Raju","Vishnu","Siddharth"
+  "Tasavuur", "Astitva", "Piyush", "Shikha", "Akash",
+  "Sourav", "Ashraf", "Deepthi", "Naveen",
+  "Arun", "Prasanna", "Raju", "Vishnu", "Siddharth"
 ];
 
 const CELL_SIZE = "w-16 h-8";
@@ -51,7 +51,7 @@ const badgeColor = (code) => {
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-/* ✅ Generate Monday → Sunday padded calendar */
+/* ✅ Generate calendar (Monday first) */
 function generateWeeks(year, monthName) {
   const monthIndex = MONTH_INDEX[monthName];
   const firstDate = new Date(year, monthIndex, 1);
@@ -80,6 +80,7 @@ function generateWeeks(year, monthName) {
     while (week.length < 7) week.push({ isPadding: true });
     weeks.push(week);
   }
+
   return weeks;
 }
 
@@ -91,6 +92,8 @@ export default function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [selectedYear, setSelectedYear] = useState(2025);
   const [selectedMonth, setSelectedMonth] = useState("November");
+
+  const [selectedEmployeeIndex, setSelectedEmployeeIndex] = useState(null); // ✅ for modal
 
   const [rota, setRota] = useState(() => {
     try { return JSON.parse(localStorage.getItem("rotaData") || "{}"); }
@@ -234,18 +237,22 @@ export default function App() {
                 <table className="min-w-full text-center border-collapse text-sm">
                   <thead>
                     <tr className="bg-white/30 text-black font-bold">
-                      <th className="p-2 sticky left-0 bg-white/30 z-10 text-left">Employee</th>
+                      <th className="p-2 sticky left-0 bg-white/30 z-10 text-left min-w-[120px] whitespace-nowrap">
+                        Employee
+                      </th>
                       {WEEKDAYS.map((wd, idx) => (
                         <th key={idx} className="p-2">{wd} {week[idx]?.day ?? ""}</th>
                       ))}
                     </tr>
                   </thead>
 
-                  {/* ✅ UPDATED - DEFAULT SHIFT LOGIC */}
                   <tbody>
                     {EMPLOYEES.map((emp, eIndex) => (
                       <tr key={emp} className="even:bg-white/5">
-                        <td className="font-semibold text-left p-2 sticky left-0 bg-transparent z-10">
+                        <td
+                          className="font-semibold text-left p-2 sticky left-0 bg-transparent z-10 min-w-[120px] whitespace-nowrap cursor-pointer hover:text-yellow-300"
+                          onClick={() => setSelectedEmployeeIndex(eIndex)}
+                        >
                           {emp}
                         </td>
 
@@ -259,24 +266,20 @@ export default function App() {
                               : "W";
                           }
 
-                          const savedValue =
+                          const saved =
                             rota[selectedYear]?.[selectedMonth]?.[wIndex]?.[eIndex]?.[dIndex];
 
-                          const value = savedValue ?? defaultShift;
+                          const value = saved ?? defaultShift;
 
                           return (
                             <td className="p-1" key={dIndex}>
                               {cell.isPadding ? (
-                                <span
-                                  className={`inline-flex items-center justify-center rounded-md text-xs opacity-40 ${badgeColor("")}`}
-                                />
+                                <span className={`inline-flex opacity-40 ${badgeColor("")}`} />
                               ) : isAdmin ? (
                                 <select
                                   value={value}
                                   className={`rounded-md text-xs p-1 text-black ${CELL_SIZE}`}
-                                  onChange={(e) =>
-                                    updateShift(eIndex, wIndex, dIndex, e.target.value)
-                                  }
+                                  onChange={(e) => updateShift(eIndex, wIndex, dIndex, e.target.value)}
                                 >
                                   <option value=""></option>
                                   {SHIFTS.map((shift) => (
@@ -286,11 +289,7 @@ export default function App() {
                                   ))}
                                 </select>
                               ) : (
-                                <span
-                                  className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(
-                                    value
-                                  )}`}
-                                >
+                                <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(value)}`}>
                                   {value}
                                 </span>
                               )}
@@ -304,7 +303,7 @@ export default function App() {
               </div>
             ))}
 
-            {/* ✅ SHIFT LEGEND */}
+            {/* SHIFT LEGEND */}
             <div className="mt-10 p-6 rounded-xl shadow-xl bg-white/20 backdrop-blur-xl border border-white/30">
               <h3 className="text-xl font-extrabold mb-4">Shift Definitions</h3>
 
@@ -329,7 +328,65 @@ export default function App() {
                 </tbody>
               </table>
             </div>
+          </div>
+        )}
 
+        {/* ✅ EMPLOYEE MONTHLY PLAN MODAL (COLOR-CODED) */}
+        {selectedEmployeeIndex !== null && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-xl text-black p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
+
+              <h2 className="text-2xl font-bold mb-4">
+                {EMPLOYEES[selectedEmployeeIndex]}'s Plan — {selectedMonth} {selectedYear}
+              </h2>
+
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="font-bold bg-gray-200">
+                    <th className="p-2 text-left">Date</th>
+                    <th className="p-2 text-left">Day</th>
+                    <th className="p-2 text-left">Shift</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {weeks.flat().map((cell, i) => {
+                    if (cell.isPadding) return null;
+
+                    const dayLabel = cell.label;
+                    const defaultShift = ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(dayLabel)
+                      ? "B"
+                      : "W";
+
+                    const saved =
+                      rota[selectedYear]?.[selectedMonth]?.[Math.floor(i / 7)]?.[selectedEmployeeIndex]?.[
+                        i % 7
+                      ];
+
+                    const value = saved ?? defaultShift;
+
+                    return (
+                      <tr key={i} className="border-b">
+                        <td className="p-2">{cell.day}</td>
+                        <td className="p-2">{cell.label}</td>
+                        <td className="p-2 font-bold">
+                          <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(value)}`}>
+                            {value}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              <button
+                className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg"
+                onClick={() => setSelectedEmployeeIndex(null)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         )}
 
