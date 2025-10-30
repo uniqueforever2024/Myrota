@@ -92,7 +92,7 @@ export default function App() {
   const [selectedMonth, setSelectedMonth] = useState("November");
 
   const [selectedEmployeeIndex, setSelectedEmployeeIndex] = useState(null);
-  const [collapsedWeeks, setCollapsedWeeks] = useState([]); // ✅ Collapse state
+  const [collapsedWeeks, setCollapsedWeeks] = useState([]);
 
   const toggleWeek = (weekIndex) => {
     setCollapsedWeeks((prev) =>
@@ -133,14 +133,7 @@ export default function App() {
   };
 
   const rotatingWords = ["MyRota", "MyPlans", "MyTeam", "MyTime"];
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
-  useEffect(() => {
-    const interval = setInterval(
-      () => setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length),
-      900
-    );
-    return () => clearInterval(interval);
-  }, []);
+  const [currentWordIndex] = useState(0);
 
   return (
     <div className={darkMode ? "dark" : ""}>
@@ -162,7 +155,7 @@ export default function App() {
 
           {/* LANDING PAGE */}
           {page === "landing" && (
-            <div className="flex flex-col items-center justify-center py-32 text-center px-6">
+            <div className="flex flex-col items-center justify-center py-32 text-center px-6 animate-fadeInUp">
               <h1 className="text-6xl font-extrabold">
                 Welcome to <span className="text-yellow-400">{rotatingWords[currentWordIndex]}</span>
               </h1>
@@ -173,6 +166,15 @@ export default function App() {
               >
                 Get Started →
               </button>
+
+              {/* Team SVG (centered + animation) */}
+              <div className="mt-16 w-full flex justify-center animate-fadeInUp">
+                <img
+                  src="/team.svg"
+                  alt="Team Illustration"
+                  className="w-full max-w-4xl transition-transform duration-500 ease-in-out hover:scale-105"
+                />
+              </div>
             </div>
           )}
 
@@ -308,12 +310,14 @@ export default function App() {
 
                               return (
                                 <td key={dIndex} className="p-1">
+
+                                  {/* ✅ UPDATED: admin select now color coded */}
                                   {cell.isPadding ? (
                                     <span className={`inline-flex opacity-40 ${badgeColor("")}`} />
                                   ) : isAdmin ? (
                                     <select
                                       value={value}
-                                      className={`rounded-md text-xs p-1 text-black ${CELL_SIZE}`}
+                                      className={`rounded-md text-xs p-1 font-bold cursor-pointer ${badgeColor(value)}`}
                                       onChange={(e) => updateShift(eIndex, wIndex, dIndex, e.target.value)}
                                     >
                                       <option value=""></option>
@@ -367,7 +371,7 @@ export default function App() {
             </div>
           )}
 
-          {/* EMPLOYEE PLAN MODAL (COLOR CODED) */}
+          {/* EMPLOYEE PLAN MODAL */}
           {selectedEmployeeIndex !== null && (
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
               <div className="bg-white rounded-xl shadow-xl text-black p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
@@ -432,6 +436,17 @@ export default function App() {
         <footer className="text-center py-3 bg-black/40 text-xs text-white">
           © 2025 HCL — All Rights Reserved
         </footer>
+
+        {/* ✅ Keyframes animation */}
+        <style>{`
+          @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          .animate-fadeInUp {
+            animation: fadeInUp 1.2s ease-out;
+          }
+        `}</style>
 
       </div>
     </div>
