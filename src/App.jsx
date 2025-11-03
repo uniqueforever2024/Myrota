@@ -456,7 +456,7 @@ export default function App() {
   const DashboardHeader = (
     <div className="flex flex-col gap-2 md:flex-row justify-between items-center mb-6">
       <h2 className="text-3xl font-extrabold">
-        ROTA — {selectedMonth} {selectedYear}
+        ROTA {selectedMonth} {selectedYear}
       </h2>
 
       <div className="flex gap-3 items-center">
