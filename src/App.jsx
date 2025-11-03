@@ -429,7 +429,7 @@ export default function App() {
       {/* MIDDLE — REPORT */}
       <button
         onClick={() => setPage("report")}
-        title="Date-wise C & WS report"
+        title="ON CALL ROTA"
         className="px-4 py-2 text-yellow-300 text-3xl hover:scale-110 transition"
       >
         📞
@@ -824,7 +824,7 @@ export default function App() {
   const ReportPage = (
     <div className="p-6 pb-20">
       <h2 className="text-4xl font-extrabold mb-6 flex items-center gap-3">
-        📞 Date-wise Report — C & WS
+        📞 ON CALL ROTA
       </h2>
 
       <div className="rounded-xl shadow-xl bg-white/20 backdrop-blur-xl border border-white/30 p-4 overflow-x-auto">
