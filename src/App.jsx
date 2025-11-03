@@ -924,7 +924,7 @@ export default function App() {
 
                 {/* ✅ Employee now goes straight to dashboard (no username yet) */}
                 <button
-                  className="px-8 py-3 bg-white/20 text-white font-bold rounded-lg"
+                  className="px-8 py-3 bg-yellow-400 text-black font-bold rounded-lg hover:scale-110 transition"
                   onClick={() => {
                     setIsAdmin(false);
                     setLoggedEmployee(null); // not picked yet
