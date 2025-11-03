@@ -1,11 +1,11 @@
-// ✅ App.jsx - Final with working Logs (Firestore) & clean nav
+// ✅ App.jsx - Final with working Logs (Firestore) & clean nav + REPORT EXPORT
 // - Employee self-edit stores {shift, leave} without overwriting real shift
 // - Block A/C/WS edits with centered modal + Close button
 // - Display only leave code (PL/RH/CH) if applied (NOT "B (PL Applied)")
 // - Dropdown allows PL, RH, CH, B (B removes leave and restores display to real shift)
 // - Auto-collapse past weeks (when today's date is after that week's last date)
 // - Admin: Logs page (separate tab). Logs are stored in Firestore collection "logs" (newest first).
-// - Clean header icons (🏠 Home→ALWAYS Landing, 🌙 Theme, 📄 Logs).
+// - Clean header icons (🏠 Home → ALWAYS Landing, 📞 Report, 🌙 Theme, 📄 Logs).
 //   Home ALWAYS navigates to Landing and closes any open modals/popups.
 
 import { useState, useEffect, useMemo } from "react";
@@ -20,6 +20,10 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
+
+// ✅ Excel export libs
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 /* ------------------ CONSTANTS ------------------ */
 
@@ -143,7 +147,7 @@ function generateWeeks(year, month) {
 /* ------------------ MAIN APP ------------------ */
 
 export default function App() {
-  const [page, setPage] = useState("landing"); // landing | login | dashboard | selfEdit | logs
+  const [page, setPage] = useState("landing"); // landing | login | dashboard | selfEdit | logs | report
   const [isAdmin, setIsAdmin] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
@@ -171,6 +175,9 @@ export default function App() {
 
   /* ✅ Logs state (Admin logs page) */
   const [logs, setLogs] = useState([]);
+
+  /* ✅ Report state (for C + WS shifts) */
+  const [finalReport, setFinalReport] = useState([]);
 
   /* ✅ Firebase realtime listener for rota */
   useEffect(() => {
@@ -294,14 +301,10 @@ export default function App() {
     return () => clearInterval(interval);
   }, []);
 
-  /* ✅ Auto-collapse weeks
-     - Uses IST midnight for "today"
-     - On mobile (<=768px), collapse all weeks except the current week (if month matches) */
+  /* ✅ Auto-collapse weeks */
   useEffect(() => {
     const today = todayIST();
     const monthIdx = MONTH_INDEX[selectedMonth];
-
-    // Find which week contains "today" (if this calendar month/year matches IST today)
     let currentWeekIndex = -1;
     const todayDate = new Date(today);
     const isSameMonthYear =
@@ -329,12 +332,10 @@ export default function App() {
     let indexes = [];
 
     if (isMobile && currentWeekIndex >= 0) {
-      // Mobile: collapse all except the current week
       indexes = weeks
         .map((_, i) => i)
         .filter((i) => i !== currentWeekIndex);
     } else {
-      // Default behavior: collapse weeks that ended before today
       const autoCollapsed = weeks.map((week) => {
         const last = [...week].reverse().find((c) => !c.isPadding);
         if (!last) return false;
@@ -357,10 +358,66 @@ export default function App() {
     setPage("landing");
   };
 
+  /* ------------------ REPORT (C + WS) ------------------ */
+  const rebuildReport = () => {
+    const report = [];
+    weeks.forEach((week, weekIndex) => {
+      week.forEach((cell, dayIndex) => {
+        if (cell.isPadding) return;
+
+        EMPLOYEES.forEach((emp, empIndex) => {
+          const key = getKey(selectedYear, selectedMonth, weekIndex, empIndex, dayIndex);
+          const stored = rota[key];
+
+          const defaultShift = getDefaultShift(WEEKDAYS[dayIndex]);
+          const realShift = typeof stored === "object"
+            ? (stored?.shift ?? defaultShift)
+            : (stored ?? defaultShift);
+
+          if (realShift === "C" || realShift === "WS") {
+            const dateStr = `${String(cell.day).padStart(2, "0")}-${selectedMonth}-${selectedYear}`;
+            report.push({
+              employee: emp,
+              shift: realShift,
+              date: dateStr,
+              day: WEEKDAYS[dayIndex],
+            });
+          }
+        });
+      });
+    });
+    setFinalReport(report);
+  };
+
+  useEffect(() => {
+    if (page === "report") rebuildReport();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, rota, selectedYear, selectedMonth]);
+
+  const exportReportAsExcel = () => {
+    const reportData = finalReport.map((r, index) => ({
+      "S.No": index + 1,
+      Date: r.date,
+      Day: r.day,
+      Employee: r.employee,
+      Shift: r.shift,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(reportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    saveAs(new Blob([excelBuffer]), `Shift_Report_${selectedMonth}_${selectedYear}.xlsx`);
+  };
+
   /* ------------------ RENDERERS ------------------ */
 
+  // ✅ NEW TopNav: 🏠  📞  🌙  (📄 only if admin)
   const TopNav = (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-8">
+
+      {/* LEFT — HOME */}
       <button
         onClick={goHome}
         title="Home (Landing)"
@@ -368,9 +425,22 @@ export default function App() {
       >
         🏠
       </button>
+
+      {/* MIDDLE — REPORT */}
+      <button
+        onClick={() => setPage("report")}
+        title="Date-wise C & WS report"
+        className="px-4 py-2 text-yellow-300 text-3xl hover:scale-110 transition"
+      >
+        📞
+      </button>
+
+      {/* RIGHT — THEME */}
       <button onClick={() => setDarkMode(!darkMode)} className="text-2xl hover:scale-110 transition">
         {darkMode ? "☀" : "🌙"}
       </button>
+
+      {/* ADMIN — LOGS */}
       {isAdmin && (
         <button
           onClick={() => setPage("logs")}
@@ -750,6 +820,57 @@ export default function App() {
     </div>
   );
 
+  /* ------------------ REPORT PAGE ------------------ */
+  const ReportPage = (
+    <div className="p-6 pb-20">
+      <h2 className="text-4xl font-extrabold mb-6 flex items-center gap-3">
+        📞 Date-wise Report — C & WS
+      </h2>
+
+      <div className="rounded-xl shadow-xl bg-white/20 backdrop-blur-xl border border-white/30 p-4 overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="bg-white/30 text-black font-bold">
+              <th className="p-2 text-left">S.No</th>
+              <th className="p-2 text-left">Date</th>
+              <th className="p-2 text-left">Day</th>
+              <th className="p-2 text-left">Employee</th>
+              <th className="p-2 text-left">Shift</th>
+            </tr>
+          </thead>
+          <tbody>
+            {finalReport.map((r, i) => (
+              <tr key={`${r.date}-${r.employee}-${i}`} className="border-b border-white/10 text-white">
+                <td className="p-2">{i + 1}</td>
+                <td className="p-2">{r.date}</td>
+                <td className="p-2">{r.day}</td>
+                <td className="p-2">{r.employee}</td>
+                <td className="p-2">{r.shift}</td>
+              </tr>
+            ))}
+            {finalReport.length === 0 && (
+              <tr>
+                <td className="p-4 text-center text-white/80" colSpan={5}>
+                  No C/WS shifts found for {selectedMonth} {selectedYear}.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={exportReportAsExcel}
+            className="px-6 py-3 bg-green-500 text-white rounded-lg font-bold"
+            title="Export as Excel"
+          >
+            ⬇ Export as Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-indigo-600 to-purple-700 dark:from-black dark:to-gray-900 text-white">
@@ -816,7 +937,7 @@ export default function App() {
             </div>
           )}
 
-          {/* DASHBOARD (Admin: full editable; Employee: read-only + Update Leave button) */}
+          {/* DASHBOARD */}
           {page === "dashboard" && (
             <div className="p-6 pb-20">
               {DashboardHeader}
@@ -824,7 +945,7 @@ export default function App() {
             </div>
           )}
 
-          {/* SELF EDIT PAGE — ONLY the loggedEmployee calendar */}
+          {/* SELF EDIT PAGE */}
           {page === "selfEdit" && loggedEmployee && (
             <div className="p-6 pb-20">
               {SingleUserEditHeader}
@@ -834,6 +955,9 @@ export default function App() {
 
           {/* LOGS PAGE (Admin) */}
           {page === "logs" && isAdmin && LogsPage}
+
+          {/* REPORT PAGE */}
+          {page === "report" && ReportPage}
 
           {/* ✅ EMPLOYEE LOGIN MODAL for Update Leave */}
           {showUpdateModal && !isAdmin && page === "dashboard" && (
@@ -895,7 +1019,7 @@ export default function App() {
             </div>
           )}
 
-          {/* ✅ EMPLOYEE VIEW MODAL (unchanged) */}
+          {/* ✅ EMPLOYEE VIEW MODAL */}
           {employeeView !== null && page !== "selfEdit" && (
             <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50 overflow-y-auto">
               <div className="bg-white rounded-xl shadow-xl text-black p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto">
