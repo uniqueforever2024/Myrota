@@ -66,7 +66,7 @@ const CELL = "w-16 h-8 text-center";
 const badgeColor = (code) => {
   const map = {
     A: `bg-blue-300 text-black ${CELL}`,          // Morning Shift
-    B: `bg-green-300 text-black ${CELL}`,         // Normal Shift
+    B: `bg-white text-black border border-gray-400 ${CELL}`,         // Normal Shift
     C: `bg-yellow-300 text-black ${CELL}`,        // Night Shift
     PL: `bg-red-700 text-white ${CELL}`,          // PL → DARK RED
     WS: `bg-green-500 text-white ${CELL}`,        // WS → GREEN
