@@ -151,8 +151,27 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
 
-  const [selectedYear, setSelectedYear] = useState(2025);
-  const [selectedMonth, setSelectedMonth] = useState("November");
+// 🕒 Auto-set dropdown defaults based on today's IST date
+const now = new Date();
+const istNow = new Date(
+  now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" })
+);
+const currentYear = istNow.getFullYear();
+const currentMonthName = Object.keys(MONTH_INDEX).find(
+  (m) => MONTH_INDEX[m] === istNow.getMonth()
+);
+
+// If the current year is not in YEARS, fallback to first available
+const defaultYear = YEARS.includes(currentYear) ? currentYear : YEARS[0];
+
+// If month not available in current year's list (like before adding next year months)
+const defaultMonth = MONTHS_BY_YEAR[defaultYear].includes(currentMonthName)
+  ? currentMonthName
+  : MONTHS_BY_YEAR[defaultYear][0];
+
+const [selectedYear, setSelectedYear] = useState(defaultYear);
+const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
+
 
   const [employeeView, setEmployeeView] = useState(null);
   const [collapsedWeeks, setCollapsedWeeks] = useState([]); // array of indexes
