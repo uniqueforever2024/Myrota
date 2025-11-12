@@ -17,7 +17,7 @@ import myrotaLogo from "./myrotalogo.svg";
 const BrandLogo = ({ className = "h-10 w-10" }) => (
   <img src={myrotaLogo} alt="MyRota logo" className={className} />
 );
-import { db, auth } from "./firebase";
+import { db } from "./firebase";
 import {
   addDoc,
   collection,
@@ -29,7 +29,6 @@ import {
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
-import { sendPasswordResetEmail, signInWithEmailAndPassword } from "firebase/auth";
 
 // Excel export
 import * as XLSX from "xlsx";
@@ -106,16 +105,6 @@ const getKey = (year, month, week, emp, day) =>
 const getDefaultShift = (dayLabel) =>
   ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(dayLabel) ? "B" : "W";
 
-const extractEmail = (data = {}) => {
-  if (!data || typeof data !== "object") return null;
-  if (data.email) return String(data.email).trim();
-  if (data.Email) return String(data.Email).trim();
-  if (data.emailId) return String(data.emailId).trim();
-  if (data.EmailId) return String(data.EmailId).trim();
-  if (data.mail) return String(data.mail).trim();
-  const fallback = Object.entries(data).find(([key]) => key.toLowerCase().includes("email"));
-  return fallback ? String(fallback[1]).trim() : null;
-};
 /* ✅ IST utilities */
 const IST = "Asia/Kolkata";
 const todayIST = () => {
@@ -345,6 +334,18 @@ export default function App() {
   useEffect(() => {
     if (!isPicking) setRota(lastRotaRef.current || {});
   }, [isPicking]);
+
+  // Lock body scroll on landing hero for immersive experience
+  useEffect(() => {
+    const body = document?.body;
+    if (!body) return;
+    if (page === "landing") {
+      body.classList.add("landing-no-scroll");
+    } else {
+      body.classList.remove("landing-no-scroll");
+    }
+    return () => body.classList.remove("landing-no-scroll");
+  }, [page]);
 
   /* ✅ Subscribe logs when admin is on logs */
   useEffect(() => {
@@ -596,24 +597,24 @@ export default function App() {
       if (!loginUser) { alert("Please select a user"); return; }
       if (!loginPass) { alert("Please enter password"); return; }
 
-      // Hardcoded fallback allowed for now (you asked to keep it simple first)
-      if (loginPass === "password") {
-        setLoggedEmployee(loginUser);
-        setLoginPass("");
-        setShowUpdateModal(false);
-        setIsAdmin(false);
-        setPage("selfEdit");
-        return;
-      }
-
-      // Real Firebase path (kept for production)
       const uref = doc(db, "users", loginUser);
       const usnap = await getDoc(uref);
       if (!usnap.exists()) { alert("❌ User not found in Firestore"); return; }
-      const email = extractEmail(usnap.data());
-      if (!email) { alert("❌ Email missing for this user"); return; }
+      const data = usnap.data();
+      const customPassword =
+        typeof data?.password === "string" && data.password.trim().length > 0
+          ? data.password.trim()
+          : null;
 
-      await signInWithEmailAndPassword(auth, email.toLowerCase(), loginPass);
+      if (!customPassword) {
+        alert("❌ This user does not have a configured password in Firestore.");
+        return;
+      }
+
+      if (loginPass !== customPassword) {
+        alert("❌ Incorrect password.");
+        return;
+      }
 
       setLoggedEmployee(loginUser);
       setLoginPass("");
@@ -624,22 +625,6 @@ export default function App() {
       alert("❌ Login failed: " + err.message);
     }
   };
-
-  const handleForgotPassword = async () => {
-    try {
-      if (!loginUser) { alert("Please select a user"); return; }
-      const ref = doc(db, "users", loginUser);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) { alert("User not found"); return; }
-      const email = extractEmail(snap.data());
-      if (!email) { alert("No email saved for this user"); return; }
-      await sendPasswordResetEmail(auth, email.toLowerCase());
-      alert(`✅ Password reset link sent to: ${email}`);
-    } catch (e) {
-      alert("❌ Failed to send reset link: " + e.message);
-    }
-  };
-
   const openAdminSelfEdit = () => {
     if (!EMPLOYEES.length) {
       alert("No employees available yet.");
@@ -1441,6 +1426,7 @@ export default function App() {
                   Login as Employee
                 </button>
               </div>
+
             </div>
             </div>
           )}
@@ -1541,10 +1527,6 @@ export default function App() {
                   onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleEmployeeLogin(); } }}
                 />
 
-                <button className="text-sky-400 underline text-sm mt-2" onClick={handleForgotPassword}>
-                  Send password reset link
-                </button>
-
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     className="px-4 py-2 rounded-lg glass-chip"
@@ -1644,6 +1626,7 @@ export default function App() {
             to { opacity: 1; transform: translateY(0); }
           }
           .animate-fadeInUp { animation: fadeInUp 1.2s ease-out; }
+          .landing-no-scroll { overflow: hidden; }
 
           .landing-shapes {
             position: absolute;
