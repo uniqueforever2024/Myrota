@@ -1382,7 +1382,18 @@ export default function App() {
           )}
           {/* LANDING */}
           {page === "landing" && (
-            <div className="flex flex-col items-center justify-center py-16 text-center animate-fadeInUp gap-6">
+            <div className="relative w-full">
+              <div className="landing-shapes pointer-events-none absolute inset-0 overflow-visible" aria-hidden="true">
+                <span className="shape-orb shape-orb--one" />
+                <span className="shape-orb shape-orb--two" />
+                <span className="shape-orb shape-orb--three" />
+                <span className="shape-orb shape-orb--four" />
+                <span className="shape-prism shape-prism--one" />
+                <span className="shape-prism shape-prism--two" />
+                <span className="shape-rod shape-rod--one" />
+                <span className="shape-ring" />
+              </div>
+            <div className="flex flex-col items-center justify-center py-16 text-center animate-fadeInUp gap-6 relative z-10">
               {/* Responsive title: mobile = 2 lines (static + typewriter), desktop = single line */}
               <div className="min-h-[130px] flex flex-col items-center justify-end">
                 {/* Mobile: fixed "Welcome" on first line, only second line changes */}
@@ -1430,6 +1441,7 @@ export default function App() {
                   Login as Employee
                 </button>
               </div>
+            </div>
             </div>
           )}
 
@@ -1632,6 +1644,159 @@ export default function App() {
             to { opacity: 1; transform: translateY(0); }
           }
           .animate-fadeInUp { animation: fadeInUp 1.2s ease-out; }
+
+          .landing-shapes {
+            position: absolute;
+            inset: 0;
+            overflow: visible;
+            filter: drop-shadow(0 20px 80px rgba(14, 165, 233, 0.45));
+          }
+          .landing-shapes span {
+            position: absolute;
+            display: block;
+            opacity: 0.75;
+            mix-blend-mode: screen;
+            filter: blur(8px);
+          }
+          .shape-orb {
+            border-radius: 50%;
+            transform-origin: center;
+            filter: blur(6px);
+          }
+          .shape-orb--one {
+            width: 240px; height: 240px; top: -20px; left: 8%;
+            background: radial-gradient(circle at 20% 20%, rgba(224, 242, 254, 0.95), rgba(14, 165, 233, 0.2));
+            animation: orbFloatOne 32s linear infinite;
+          }
+          .shape-orb--two {
+            width: 200px; height: 200px; top: 18%; right: 6%;
+            background: radial-gradient(circle at 70% 30%, rgba(253, 244, 215, 0.9), rgba(251, 191, 36, 0.35));
+            animation: orbFloatTwo 34s linear infinite;
+            animation-delay: -8s;
+          }
+          .shape-orb--three {
+            width: 160px; height: 160px; bottom: -10px; left: 18%;
+            background: radial-gradient(circle at 15% 70%, rgba(254, 226, 226, 0.95), rgba(239, 68, 68, 0.35));
+            animation: orbFloatThree 36s linear infinite;
+            animation-delay: -3s;
+          }
+          .shape-orb--four {
+            width: 130px; height: 130px; top: 40%; left: 55%;
+            background: radial-gradient(circle at 70% 20%, rgba(221, 214, 254, 0.9), rgba(129, 140, 248, 0.4));
+            animation: orbFloatFour 40s linear infinite;
+            animation-delay: -12s;
+          }
+
+          .shape-prism {
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            border-radius: 24%;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.45), rgba(236, 72, 153, 0.35));
+            mix-blend-mode: screen;
+            filter: blur(10px);
+            animation: prismSpin 48s linear infinite;
+          }
+          .shape-prism--one { top: -60px; right: 25%; animation-duration: 46s; }
+          .shape-prism--two {
+            bottom: -80px; left: -40px;
+            background: linear-gradient(135deg, rgba(250, 204, 21, 0.4), rgba(248, 113, 113, 0.35));
+            animation-duration: 52s;
+            animation-direction: reverse;
+          }
+
+          .shape-rod {
+            width: 120px;
+            height: 340px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(14, 165, 233, 0.25), rgba(79, 70, 229, 0.55));
+            transform-origin: center;
+          }
+          .shape-rod--one {
+            right: -50px; bottom: -80px;
+            animation: rodOrbit 40s ease-in-out infinite;
+          }
+
+          .shape-ring {
+            width: 280px;
+            height: 280px;
+            border-radius: 50%;
+            border: 24px solid rgba(59, 130, 246, 0.25);
+            border-left-color: rgba(224, 242, 254, 0.5);
+            border-right-color: rgba(99, 102, 241, 0.35);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            animation: ringPulse 18s ease-in-out infinite, ringSpin 60s linear infinite;
+          }
+
+          @keyframes orbFloatOne {
+            0% { transform: translate(-40px, -30px) rotate(0deg) scale(0.95); }
+            20% { transform: translate(80px, -60px) rotate(90deg) scale(1.05); }
+            45% { transform: translate(100px, 50px) rotate(180deg) scale(1); }
+            70% { transform: translate(-60px, 40px) rotate(270deg) scale(1.08); }
+            100% { transform: translate(-40px, -30px) rotate(360deg) scale(0.95); }
+          }
+          @keyframes orbFloatTwo {
+            0% { transform: translate(-20px, 20px) rotate(0deg) scale(1); }
+            25% { transform: translate(-120px, -10px) rotate(120deg) scale(1.08); }
+            55% { transform: translate(30px, -40px) rotate(210deg) scale(0.92); }
+            80% { transform: translate(70px, 30px) rotate(300deg) scale(1.05); }
+            100% { transform: translate(-20px, 20px) rotate(360deg) scale(1); }
+          }
+          @keyframes orbFloatThree {
+            0% { transform: translate(0, 0) rotate(0deg) scale(0.9); }
+            30% { transform: translate(60px, -30px) rotate(130deg) scale(1.05); }
+            60% { transform: translate(-50px, -60px) rotate(220deg) scale(1.1); }
+            85% { transform: translate(-80px, 40px) rotate(320deg) scale(0.95); }
+            100% { transform: translate(0, 0) rotate(360deg) scale(0.9); }
+          }
+          @keyframes orbFloatFour {
+            0% { transform: translate(0, -20px) rotate(0deg) scale(0.85); }
+            25% { transform: translate(-90px, -40px) rotate(130deg) scale(1.05); }
+            55% { transform: translate(-70px, 50px) rotate(230deg) scale(1.1); }
+            80% { transform: translate(40px, 70px) rotate(320deg) scale(0.9); }
+            100% { transform: translate(0, -20px) rotate(360deg) scale(0.85); }
+          }
+          @keyframes prismSpin {
+            0% { transform: rotate(0deg) scale(0.95); }
+            50% { transform: rotate(180deg) scale(1.05); }
+            100% { transform: rotate(360deg) scale(0.95); }
+          }
+          @keyframes rodOrbit {
+            0% { transform: rotate(10deg) translate(0, 0); }
+            25% { transform: rotate(90deg) translate(-30px, -20px) scale(1.05); }
+            50% { transform: rotate(190deg) translate(10px, -30px) scale(0.95); }
+            75% { transform: rotate(270deg) translate(30px, 20px) scale(1.08); }
+            100% { transform: rotate(370deg) translate(0, 0); }
+          }
+          @keyframes ringPulse {
+            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.05); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.5; }
+          }
+          @keyframes ringSpin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+          }
+
+          @media (max-width: 768px) {
+            .landing-shapes span { filter: blur(14px); opacity: 0.55; }
+            .shape-orb--one { width: 160px; height: 160px; left: -10%; top: -20px; }
+            .shape-orb--two { width: 150px; height: 150px; right: 0; top: 18%; }
+            .shape-orb--three { width: 120px; height: 120px; left: 8%; bottom: -10px; }
+            .shape-orb--four { width: 110px; height: 110px; left: 50%; top: 45%; }
+            .shape-ring { width: 200px; height: 200px; border-width: 18px; }
+            .shape-prism--one { width: 120px; height: 120px; top: -30px; right: 5%; }
+            .shape-prism--two { width: 120px; height: 120px; left: -30px; bottom: -40px; }
+            .shape-rod { width: 90px; height: 250px; }
+            .shape-rod--one { right: -30px; bottom: -40px; }
+          }
+
+          @media (prefers-reduced-motion: reduce) {
+            .landing-shapes span,
+            .shape-ring { animation: none !important; }
+          }
 
           /* Glass helpers */
           .glass { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
