@@ -822,8 +822,8 @@ export default function App() {
     <div className="mb-8 p-4 rounded-2xl bg-white/[0.04] border border-white/10 shadow-xl glass">
       <div
         ref={(el) => rememberScroll(weekIndex ?? -1, el)}
-        className="overflow-x-auto"
-        style={{ WebkitOverflowScrolling: 'touch', overflowY: 'visible' }}
+        className="overflow-x-auto overflow-y-visible relative"
+        style={{ WebkitOverflowScrolling: "touch" }}
       >
         {children}
       </div>
@@ -850,7 +850,7 @@ export default function App() {
           </div>
 
           {!collapsedWeeks.includes(weekIndex) && (
-            <table className="min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
+            <table className="week-table min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
               <thead className="sticky top-0 z-[110]">
                 <tr className="bg-gradient-to-r from-indigo-700/40 to-sky-700/40 text-sky-100 font-bold backdrop-blur">
                   <th className="sticky-name sticky left-0 p-2 top-0 bg-indigo-700/40 text-left min-w-[160px]">
@@ -1018,7 +1018,7 @@ export default function App() {
         <GlassCard key={weekIndex} weekIndex={weekIndex}>
           <h3 className="text-xl font-bold mb-3 text-sky-100">Week {weekIndex + 1}</h3>
 
-            <table className="min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
+            <table className="week-table min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
             <thead className="sticky top-0 z-[110]">
               <tr className="bg-gradient-to-r from-indigo-700/40 to-sky-700/40 text-sky-100 font-bold">
                 <th className="sticky-name sticky left-0 p-2 top-0 bg-indigo-700/40 text-left min-w-[160px]">
@@ -1700,15 +1700,29 @@ export default function App() {
             animation: blink 1s infinite;
           }
 
-          /* Mobile sticky employee column */
+          /* Mobile sticky employee column - match dashboard */
           @media (max-width: 768px) {
             .sticky-name {
               position: sticky;
               left: 0;
-              z-index: 10;
-              white-space: nowrap;
-              background: rgba(2,132,199,0.3);
-              backdrop-filter: blur(6px);
+              min-width: 140px;
+              z-index: 4000;
+              background: rgba(8, 23, 60, 0.98) !important;
+              color: #f8fbff !important;
+              border-right: 2px solid #3b82f6;
+              box-shadow: 10px 0 18px rgba(3, 7, 18, 0.65);
+              backdrop-filter: blur(14px);
+            }
+            td.sticky-name::after,
+            th.sticky-name::after {
+              content: "";
+              position: absolute;
+              top: 0;
+              right: -18px;
+              width: 18px;
+              height: 100%;
+              pointer-events: none;
+              background: linear-gradient(90deg, rgba(8, 23, 60, 0.98), rgba(8, 23, 60, 0));
             }
           }
         `}</style>

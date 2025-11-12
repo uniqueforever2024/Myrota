@@ -93,24 +93,30 @@ td.sticky-name,
 th.sticky-name {
   position: sticky;
   left: 0;
-  z-index: 999;
-  background: rgba(10, 10, 10, 0.95) !important; /* Dark solid for clarity */
-  backdrop-filter: blur(12px);
-  border-right: 2px solid var(--blue-main);
-  color: white !important;
+  z-index: 2000 !important;
+  background: rgba(8, 23, 60, 0.98) !important; /* Deep blue for clarity */
+  border-right: 2px solid #3b82f6;
+  color: #f8fbff !important;
   font-weight: 900;
   padding: 6px 10px;
-  box-shadow: 6px 0 10px rgba(0, 0, 0, 0.45);
+  box-shadow: 8px 0 16px rgba(2, 6, 23, 0.65);
   transform: translateZ(0);
+  backdrop-filter: blur(14px);
+}
+
+.week-table td:not(.sticky-name),
+.week-table th:not(.sticky-name) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Mobile Fix: wider sticky area */
 @media (max-width: 768px) {
   td.sticky-name,
   th.sticky-name {
-    min-width: 120px;
-    z-index: 9999 !important;
-    box-shadow: 6px 0 12px rgba(0, 0, 0, 0.35);
+    min-width: 140px;
+    z-index: 3000 !important;
+    box-shadow: 10px 0 18px rgba(3, 7, 18, 0.65);
   }
 
   td.sticky-name::after,
@@ -118,11 +124,11 @@ th.sticky-name {
     content: "";
     position: absolute;
     top: 0;
-    right: -12px;
-    width: 12px;
+    right: -18px;
+    width: 18px;
     height: 100%;
     pointer-events: none;
-    background: linear-gradient(90deg, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0));
+    background: linear-gradient(90deg, rgba(8, 23, 60, 0.98), rgba(8, 23, 60, 0));
   }
 }
 
