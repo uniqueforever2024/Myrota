@@ -1637,18 +1637,18 @@ export default function App() {
             backdrop-filter: blur(18px);
           }
           .simple-footer {
-            margin-top: 48px;
-            padding: 20px 0;
+            margin-top: 32px;
+            padding: 12px 0;
             text-align: center;
             color: #e0edff;
             font-weight: 600;
             letter-spacing: 0.05em;
           }
           .glass-footer {
-            background: rgba(8, 18, 46, 0.65);
-            border-top: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 -10px 25px rgba(2, 6, 23, 0.45);
-            backdrop-filter: blur(16px);
+            background: rgba(8, 18, 46, 0.55);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 -6px 18px rgba(2, 6, 23, 0.35);
+            backdrop-filter: blur(12px);
           }
 
           .landing-shapes {
