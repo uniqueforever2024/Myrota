@@ -106,6 +106,16 @@ const getKey = (year, month, week, emp, day) =>
 const getDefaultShift = (dayLabel) =>
   ["Mon", "Tue", "Wed", "Thu", "Fri"].includes(dayLabel) ? "B" : "W";
 
+const extractEmail = (data = {}) => {
+  if (!data || typeof data !== "object") return null;
+  if (data.email) return String(data.email).trim();
+  if (data.Email) return String(data.Email).trim();
+  if (data.emailId) return String(data.emailId).trim();
+  if (data.EmailId) return String(data.EmailId).trim();
+  if (data.mail) return String(data.mail).trim();
+  const fallback = Object.entries(data).find(([key]) => key.toLowerCase().includes("email"));
+  return fallback ? String(fallback[1]).trim() : null;
+};
 /* ✅ IST utilities */
 const IST = "Asia/Kolkata";
 const todayIST = () => {
@@ -600,10 +610,10 @@ export default function App() {
       const uref = doc(db, "users", loginUser);
       const usnap = await getDoc(uref);
       if (!usnap.exists()) { alert("❌ User not found in Firestore"); return; }
-      const { email } = usnap.data();
+      const email = extractEmail(usnap.data());
       if (!email) { alert("❌ Email missing for this user"); return; }
 
-      await signInWithEmailAndPassword(auth, email, loginPass);
+      await signInWithEmailAndPassword(auth, email.toLowerCase(), loginPass);
 
       setLoggedEmployee(loginUser);
       setLoginPass("");
@@ -621,14 +631,39 @@ export default function App() {
       const ref = doc(db, "users", loginUser);
       const snap = await getDoc(ref);
       if (!snap.exists()) { alert("User not found"); return; }
-      const { email } = snap.data();
+      const email = extractEmail(snap.data());
       if (!email) { alert("No email saved for this user"); return; }
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email.toLowerCase());
       alert(`✅ Password reset link sent to: ${email}`);
     } catch (e) {
       alert("❌ Failed to send reset link: " + e.message);
     }
   };
+
+  const openAdminSelfEdit = () => {
+    if (!EMPLOYEES.length) {
+      alert("No employees available yet.");
+      return;
+    }
+    const target =
+      loggedEmployee && EMPLOYEES.includes(loggedEmployee)
+        ? loggedEmployee
+        : EMPLOYEES[0];
+    setLoggedEmployee(target);
+    setShowUpdateModal(false);
+    setPage("selfEdit");
+  };
+
+  useEffect(() => {
+    if (
+      isAdmin &&
+      page === "selfEdit" &&
+      (!loggedEmployee || !EMPLOYEES.includes(loggedEmployee)) &&
+      EMPLOYEES.length
+    ) {
+      setLoggedEmployee(EMPLOYEES[0]);
+    }
+  }, [EMPLOYEES, isAdmin, loggedEmployee, page]);
 
   /* ------------------ RENDERERS ------------------ */
   const TopNav = (
@@ -713,10 +748,16 @@ export default function App() {
           ))}
         </select>
 
-        {/* Update Leave entry: requires password only here */}
-        {!isAdmin && page === "dashboard" && (
+        {/* Update Leave entry */}
+        {page === "dashboard" && (
           <button
-            onClick={() => setShowUpdateModal(true)}
+            onClick={() => {
+              if (isAdmin) {
+                openAdminSelfEdit();
+              } else {
+                setShowUpdateModal(true);
+              }
+            }}
             className="btn-glass"
           >
             Update Leave
@@ -812,7 +853,7 @@ export default function App() {
             <table className="min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
               <thead className="sticky top-0 z-[110]">
                 <tr className="bg-gradient-to-r from-indigo-700/40 to-sky-700/40 text-sky-100 font-bold backdrop-blur">
-                  <th className="p-2 sticky left-0 top-0 bg-indigo-700/40 z-[130] text-left min-w-[160px]">
+                  <th className="sticky-name sticky left-0 p-2 top-0 bg-indigo-700/40 text-left min-w-[160px]">
                     Employee
                   </th>
                   {WEEKDAYS.map((wd, idx) => (
@@ -825,7 +866,7 @@ export default function App() {
                 {EMPLOYEES.map((emp, empIndex) => (
                   <tr key={emp} className="even:bg-white/[0.02] odd:bg-white/[0.04]">
                     <td
-                      className="sticky-name z-[120] font-semibold text-left p-2 min-w-[160px] cursor-pointer text-white bg-sky-600/30 ring-1 ring-sky-400/30 rounded-md hover:bg-sky-500/30"
+                      className="sticky-name font-semibold text-left p-2 min-w-[160px] cursor-pointer text-white bg-sky-600/30 ring-1 ring-sky-400/30 rounded-md hover:bg-sky-500/30"
                       onClick={() => setEmployeeView(empIndex)}
                     >
                       {emp}
@@ -851,22 +892,25 @@ export default function App() {
 
                             return isAdmin ? (
                               <div
-                                className={`${badgeColor(displayCodeForColor)} rounded-md flex items-center justify-center relative z-20 px-1`}
-                                onClick={stopEvent}
+                                className={`${badgeColor(displayCodeForColor)} rounded-md relative z-20 overflow-hidden`}
                               >
-                                <span className="text-xs font-extrabold tracking-wide select-none">{realShift}</span>
-                                <span className="absolute right-1 bottom-1 text-[10px] opacity-80 pointer-events-none">▾</span>
                                 <select
                                   value={realShift}
-                                  className="absolute right-0 top-0 h-full w-8 opacity-0 cursor-pointer z-30"
+                                  className="appearance-none w-full h-full bg-transparent text-xs font-extrabold tracking-wide text-center cursor-pointer py-1 pr-5"
                                   onFocus={() => setIsPicking(true)}
                                   onBlur={() => setTimeout(() => setIsPicking(false), 200)}
                                   onChange={(e) => updateShift(empIndex, weekIndex, dayIndex, e.target.value)}
+                                  style={{ WebkitAppearance: "none" }}
                                 >
                                   {SHIFTS.map((s) => (
-                                    <option key={s.code} value={s.code}>{s.code}</option>
+                                    <option key={s.code} value={s.code} title={s.label}>
+                                      {s.code}
+                                    </option>
                                   ))}
                                 </select>
+                                <span className="pointer-events-none absolute right-1 top-1 text-[10px] opacity-80">
+                                  ▾
+                                </span>
                               </div>
                             ) : (
                               <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(displayCodeForColor)}`}>
@@ -977,7 +1021,7 @@ export default function App() {
             <table className="min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
             <thead className="sticky top-0 z-[110]">
               <tr className="bg-gradient-to-r from-indigo-700/40 to-sky-700/40 text-sky-100 font-bold">
-                <th className="p-2 sticky left-0 top-0 bg-indigo-700/40 z-[120] text-left min-w-[160px]">
+                <th className="sticky-name sticky left-0 p-2 top-0 bg-indigo-700/40 text-left min-w-[160px]">
                   Employee
                 </th>
                 {WEEKDAYS.map((wd, idx) => (
@@ -990,7 +1034,7 @@ export default function App() {
 
             <tbody>
               <tr className="even:bg-white/[0.02]">
-                <td className="font-semibold text-left p-2 sticky left-0 z-[120] min-w-[160px] text-white bg-sky-600/30 ring-1 ring-sky-400/30 rounded-md">
+                <td className="sticky-name font-semibold text-left p-2 sticky left-0 min-w-[160px] text-white bg-sky-600/30 ring-1 ring-sky-400/30 rounded-md">
                   {loggedEmployee}
                 </td>
 
@@ -1672,6 +1716,7 @@ export default function App() {
     </div>
   );
 }
+
 
 
 

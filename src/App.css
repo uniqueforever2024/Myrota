@@ -89,7 +89,8 @@ tbody tr:hover {
 }
 
 /* ✅ EMPLOYEE NAME COLUMN (sticky left, works on mobile too) */
-td.sticky-name {
+td.sticky-name,
+th.sticky-name {
   position: sticky;
   left: 0;
   z-index: 999;
@@ -99,14 +100,29 @@ td.sticky-name {
   color: white !important;
   font-weight: 900;
   padding: 6px 10px;
+  box-shadow: 6px 0 10px rgba(0, 0, 0, 0.45);
+  transform: translateZ(0);
 }
 
 /* Mobile Fix: wider sticky area */
 @media (max-width: 768px) {
-  td.sticky-name {
+  td.sticky-name,
+  th.sticky-name {
     min-width: 120px;
     z-index: 9999 !important;
     box-shadow: 6px 0 12px rgba(0, 0, 0, 0.35);
+  }
+
+  td.sticky-name::after,
+  th.sticky-name::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -12px;
+    width: 12px;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(90deg, rgba(10, 10, 10, 0.95), rgba(10, 10, 10, 0));
   }
 }
 
