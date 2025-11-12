@@ -1344,7 +1344,7 @@ export default function App() {
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
         {/* HEADER */}
-        <header className="sticky top-0 z-40 px-4 py-3 flex justify-between items-center bg-gradient-to-r from-indigo-800/80 to-sky-800/80 border-b border-white/10 backdrop-blur">
+        <header className="sticky top-0 z-40 px-4 py-3 flex justify-between items-center glass-nav">
           <div className="flex items-center gap-2 cursor-pointer" onClick={goHome}>
             <BrandLogo className="h-10 w-10 md:h-11 md:w-11 drop-shadow" />
             <h1 className="text-3xl font-black tracking-wide neon-text">MyRota+</h1>
@@ -1615,8 +1615,10 @@ export default function App() {
         </main>
 
         {/* FOOTER */}
-        <footer className="text-center py-3 bg-gradient-to-r from-indigo-900/80 to-sky-900/80 text-sm text-indigo-100 font-semibold tracking-wide border-t border-white/10 backdrop-blur">
-          © 2025 HCL | All Rights Reserved
+        <footer className="simple-footer glass-footer">
+          <p className="text-sm tracking-wide footer-copy">
+            &copy; 2025 HCL | All Rights Reserved
+          </p>
         </footer>
 
         {/* local styles (keyframes & utilities) */}
@@ -1627,6 +1629,27 @@ export default function App() {
           }
           .animate-fadeInUp { animation: fadeInUp 1.2s ease-out; }
           .landing-no-scroll { overflow: hidden; }
+
+          .glass-nav {
+            background: rgba(13, 17, 48, 0.65);
+            border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 10px 25px rgba(2, 6, 23, 0.55);
+            backdrop-filter: blur(18px);
+          }
+          .simple-footer {
+            margin-top: 48px;
+            padding: 20px 0;
+            text-align: center;
+            color: #e0edff;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+          }
+          .glass-footer {
+            background: rgba(8, 18, 46, 0.65);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 -10px 25px rgba(2, 6, 23, 0.45);
+            backdrop-filter: blur(16px);
+          }
 
           .landing-shapes {
             position: absolute;
