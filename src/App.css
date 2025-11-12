@@ -105,6 +105,8 @@ td.sticky-name {
 @media (max-width: 768px) {
   td.sticky-name {
     min-width: 120px;
+    z-index: 9999 !important;
+    box-shadow: 6px 0 12px rgba(0, 0, 0, 0.35);
   }
 }
 

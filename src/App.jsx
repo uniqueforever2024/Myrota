@@ -717,7 +717,7 @@ export default function App() {
         {!isAdmin && page === "dashboard" && (
           <button
             onClick={() => setShowUpdateModal(true)}
-            className="btn-primary"
+            className="btn-glass"
           >
             Update Leave
           </button>
