@@ -1,0 +1,562 @@
+extend type Mutation {
+  """
+  ✨ Insert a single `Holiday` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  holiday_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: Holiday_Data!
+  ): Holiday_KeyOutput! @fdc_generated(from: "Holiday", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `LeaveBalance` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  leaveBalance_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: LeaveBalance_Data!
+  ): LeaveBalance_KeyOutput! @fdc_generated(from: "LeaveBalance", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `LeaveRequest` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  leaveRequest_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: LeaveRequest_Data!
+  ): LeaveRequest_KeyOutput! @fdc_generated(from: "LeaveRequest", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `LeaveType` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  leaveType_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: LeaveType_Data!
+  ): LeaveType_KeyOutput! @fdc_generated(from: "LeaveType", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert a single `User` into the table and return its key. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insert(
+    """
+    Data object to insert into the table.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: INSERT_SINGLE)
+  """
+  ✨ Insert `Holiday` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  holiday_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [Holiday_Data!]!
+  ): [Holiday_KeyOutput!]! @fdc_generated(from: "Holiday", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `LeaveBalance` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  leaveBalance_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [LeaveBalance_Data!]!
+  ): [LeaveBalance_KeyOutput!]! @fdc_generated(from: "LeaveBalance", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `LeaveRequest` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  leaveRequest_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [LeaveRequest_Data!]!
+  ): [LeaveRequest_KeyOutput!]! @fdc_generated(from: "LeaveRequest", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `LeaveType` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  leaveType_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [LeaveType_Data!]!
+  ): [LeaveType_KeyOutput!]! @fdc_generated(from: "LeaveType", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert `User` objects into the table and return their keys. Columns not specified in `data` will receive defaults (e.g. `null`).
+  """
+  user_insertMany(
+    """
+    List of data objects to insert into the table.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: INSERT_MULTIPLE)
+  """
+  ✨ Insert or update a single `Holiday` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Holiday`.
+  """
+  holiday_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: Holiday_Data!
+  ): Holiday_KeyOutput! @fdc_generated(from: "Holiday", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `LeaveBalance` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LeaveBalance`.
+  """
+  leaveBalance_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: LeaveBalance_Data!
+  ): LeaveBalance_KeyOutput! @fdc_generated(from: "LeaveBalance", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `LeaveRequest` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LeaveRequest`.
+  """
+  leaveRequest_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: LeaveRequest_Data!
+  ): LeaveRequest_KeyOutput! @fdc_generated(from: "LeaveRequest", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `LeaveType` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LeaveType`.
+  """
+  leaveType_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: LeaveType_Data!
+  ): LeaveType_KeyOutput! @fdc_generated(from: "LeaveType", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update a single `User` into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsert(
+    """
+    Data object to insert or update if it already exists.
+    """
+    data: User_Data!
+  ): User_KeyOutput! @fdc_generated(from: "User", purpose: UPSERT_SINGLE)
+  """
+  ✨ Insert or update `Holiday` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `Holiday`.
+  """
+  holiday_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [Holiday_Data!]!
+  ): [Holiday_KeyOutput!]! @fdc_generated(from: "Holiday", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `LeaveBalance` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LeaveBalance`.
+  """
+  leaveBalance_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [LeaveBalance_Data!]!
+  ): [LeaveBalance_KeyOutput!]! @fdc_generated(from: "LeaveBalance", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `LeaveRequest` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LeaveRequest`.
+  """
+  leaveRequest_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [LeaveRequest_Data!]!
+  ): [LeaveRequest_KeyOutput!]! @fdc_generated(from: "LeaveRequest", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `LeaveType` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `LeaveType`.
+  """
+  leaveType_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [LeaveType_Data!]!
+  ): [LeaveType_KeyOutput!]! @fdc_generated(from: "LeaveType", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Insert or update `User` objects into the table, based on the primary key. Returns the key of the newly inserted or existing updated `User`.
+  """
+  user_upsertMany(
+    """
+    List of data objects to insert or update if it already exists.
+    """
+    data: [User_Data!]!
+  ): [User_KeyOutput!]! @fdc_generated(from: "User", purpose: UPSERT_MULTIPLE)
+  """
+  ✨ Update a single `Holiday` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `Holiday` or `null` if not found.
+  """
+  holiday_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Holiday_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Holiday_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: Holiday_Data!
+  ): Holiday_KeyOutput @fdc_generated(from: "Holiday", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `LeaveBalance` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `LeaveBalance` or `null` if not found.
+  """
+  leaveBalance_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveBalance_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveBalance_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: LeaveBalance_Data!
+  ): LeaveBalance_KeyOutput @fdc_generated(from: "LeaveBalance", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `LeaveRequest` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `LeaveRequest` or `null` if not found.
+  """
+  leaveRequest_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveRequest_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveRequest_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: LeaveRequest_Data!
+  ): LeaveRequest_KeyOutput @fdc_generated(from: "LeaveRequest", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `LeaveType` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `LeaveType` or `null` if not found.
+  """
+  leaveType_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveType_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveType_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: LeaveType_Data!
+  ): LeaveType_KeyOutput @fdc_generated(from: "LeaveType", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update a single `User` based on `id`, `key` or `first`, setting columns specified in `data`. Returns the key of the updated `User` or `null` if not found.
+  """
+  user_update(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+
+    """
+    Data object containing fields to be updated.
+    """
+    data: User_Data!
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: UPDATE_SINGLE)
+  """
+  ✨ Update `Holiday` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  holiday_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: Holiday_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: Holiday_Data!
+  ): Int! @fdc_generated(from: "Holiday", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `LeaveBalance` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  leaveBalance_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: LeaveBalance_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: LeaveBalance_Data!
+  ): Int! @fdc_generated(from: "LeaveBalance", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `LeaveRequest` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  leaveRequest_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: LeaveRequest_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: LeaveRequest_Data!
+  ): Int! @fdc_generated(from: "LeaveRequest", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `LeaveType` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  leaveType_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: LeaveType_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: LeaveType_Data!
+  ): Int! @fdc_generated(from: "LeaveType", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Update `User` objects matching `where` conditions (or `all`, if true) according to `data`. Returns the number of rows updated.
+  """
+  user_updateMany(
+    """
+    Filter condition to specify which rows to update.
+    """
+    where: User_Filter
+
+    """
+    Set to true to update all rows.
+    """
+    all: Boolean = false
+
+    """
+    Data object containing fields to update.
+    """
+    data: User_Data!
+  ): Int! @fdc_generated(from: "User", purpose: UPDATE_MULTIPLE)
+  """
+  ✨ Delete a single `Holiday` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  holiday_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Holiday_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Holiday_FirstRow
+  ): Holiday_KeyOutput @fdc_generated(from: "Holiday", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `LeaveBalance` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  leaveBalance_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveBalance_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveBalance_FirstRow
+  ): LeaveBalance_KeyOutput @fdc_generated(from: "LeaveBalance", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `LeaveRequest` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  leaveRequest_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveRequest_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveRequest_FirstRow
+  ): LeaveRequest_KeyOutput @fdc_generated(from: "LeaveRequest", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `LeaveType` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  leaveType_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveType_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveType_FirstRow
+  ): LeaveType_KeyOutput @fdc_generated(from: "LeaveType", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete a single `User` based on `id`, `key` or `first` and return its key (or `null` if not found).
+  """
+  user_delete(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User_KeyOutput @fdc_generated(from: "User", purpose: DELETE_SINGLE)
+  """
+  ✨ Delete `Holiday` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  holiday_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: Holiday_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "Holiday", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `LeaveBalance` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  leaveBalance_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: LeaveBalance_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "LeaveBalance", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `LeaveRequest` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  leaveRequest_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: LeaveRequest_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "LeaveRequest", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `LeaveType` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  leaveType_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: LeaveType_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "LeaveType", purpose: DELETE_MULTIPLE)
+  """
+  ✨ Delete `User` objects matching `where` conditions (or `all`, if true). Returns the number of rows deleted.
+  """
+  user_deleteMany(
+    """
+    Filter condition to specify which rows to delete.
+    """
+    where: User_Filter
+
+    """
+    Set to true to delete all rows.
+    """
+    all: Boolean = false
+  ): Int! @fdc_generated(from: "User", purpose: DELETE_MULTIPLE)
+}

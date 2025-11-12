@@ -1,0 +1,54 @@
+extend type Holiday {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "Holiday", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type LeaveBalance {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "LeaveBalance", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `LeaveBalance`.`leaveType`. It must match the value of `LeaveType`.`id`. See `@ref` for how to customize it.
+  """
+  leaveTypeId: UUID! @fdc_generated(from: "LeaveBalance.leaveType", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `LeaveBalance`.`user`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  userId: UUID! @fdc_generated(from: "LeaveBalance.user", purpose: IMPLICIT_REF_FIELD)
+}
+extend type LeaveRequest {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "LeaveRequest", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `LeaveRequest`.`approver`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  approverId: UUID @fdc_generated(from: "LeaveRequest.approver", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `LeaveRequest`.`leaveType`. It must match the value of `LeaveType`.`id`. See `@ref` for how to customize it.
+  """
+  leaveTypeId: UUID! @fdc_generated(from: "LeaveRequest.leaveType", purpose: IMPLICIT_REF_FIELD)
+  """
+  ✨ Implicit foreign key field based on `LeaveRequest`.`requester`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  requesterId: UUID! @fdc_generated(from: "LeaveRequest.requester", purpose: IMPLICIT_REF_FIELD)
+}
+extend type LeaveType {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "LeaveType", purpose: IMPLICIT_KEY_FIELD)
+}
+extend type User {
+  """
+  ✨ Implicit primary key field. It's a UUID column default to a generated new value. See `@table` for how to customize it.
+  """
+  id: UUID! @default(expr: "uuidV4()") @fdc_generated(from: "User", purpose: IMPLICIT_KEY_FIELD)
+  """
+  ✨ Implicit foreign key field based on `User`.`manager`. It must match the value of `User`.`id`. See `@ref` for how to customize it.
+  """
+  managerId: UUID @fdc_generated(from: "User.manager", purpose: IMPLICIT_REF_FIELD)
+}

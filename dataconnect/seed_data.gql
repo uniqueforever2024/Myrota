@@ -1,0 +1,52 @@
+mutation CreateSeedData @transaction @auth(level: PUBLIC, insecureReason: "This mutation is used to seed the database with initial data and is safe to expose.") {
+  user_insertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      displayName: "Demo User 1",
+      email: "demo1@example.com",
+      role: "member"
+    },
+    {
+      id: "550e8400-e29b-41d4-a716-446655440001",
+      displayName: "Demo User 2",
+      email: "demo2@example.com",
+      role: "member"
+    }
+  ])
+  leaveType_insertMany(data: [
+    {
+      id: "650e8400-e29b-41d4-a716-446655440000",
+      name: "Vacation",
+      accrualRate: 1.25,
+      description: "Time off for vacation",
+      maxDaysPerYear: 15
+    },
+    {
+      id: "650e8400-e29b-41d4-a716-446655440001",
+      name: "Sick Leave",
+      accrualRate: 0,
+      description: "Time off for illness",
+      maxDaysPerYear: 10
+    }
+  ])
+  leaveBalance_insertMany(data: [
+    {
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      leaveTypeId: "650e8400-e29b-41d4-a716-446655440000",
+      balance: 15.0
+    },
+    {
+      userId: "550e8400-e29b-41d4-a716-446655440001",
+      leaveTypeId: "650e8400-e29b-41d4-a716-446655440001",
+      balance: 10.0
+    }
+  ])
+  holiday_insertMany(data: [
+    {
+      id: "750e8400-e29b-41d4-a716-446655440000",
+      name: "New Year's Day",
+      date: "2024-01-01",
+      description: "First day of the year"
+    }
+  ])
+}

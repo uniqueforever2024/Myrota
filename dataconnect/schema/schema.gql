@@ -1,0 +1,40 @@
+type User @table {
+  email: String!
+  displayName: String!
+  role: String!
+  firstName: String
+  lastName: String
+  manager: User
+}
+
+type LeaveType @table {
+  name: String!
+  accrualRate: Float!
+  description: String
+  maxDaysPerYear: Int
+}
+
+type LeaveBalance @table {
+  user: User!
+  leaveType: LeaveType!
+  balance: Float!
+}
+
+type LeaveRequest @table {
+  requester: User!
+  leaveType: LeaveType!
+  startDate: Date!
+  endDate: Date!
+  status: String!
+  createdAt: Timestamp!
+  approver: User
+  comments: String
+  managerComments: String
+  reason: String
+}
+
+type Holiday @table {
+  date: Date!
+  name: String!
+  description: String
+}

@@ -1,0 +1,267 @@
+extend type Query {
+  """
+  ✨ Look up a single `Holiday` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  holiday(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: Holiday_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: Holiday_FirstRow
+  ): Holiday @fdc_generated(from: "Holiday", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `LeaveBalance` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  leaveBalance(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveBalance_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveBalance_FirstRow
+  ): LeaveBalance @fdc_generated(from: "LeaveBalance", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `LeaveRequest` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  leaveRequest(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveRequest_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveRequest_FirstRow
+  ): LeaveRequest @fdc_generated(from: "LeaveRequest", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `LeaveType` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  leaveType(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: LeaveType_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: LeaveType_FirstRow
+  ): LeaveType @fdc_generated(from: "LeaveType", purpose: QUERY_SINGLE)
+  """
+  ✨ Look up a single `User` based on `id`, `key` or `first` and return selected fields (or `null` if not found).
+  """
+  user(
+    """
+    The unique ID of the object.
+    """
+    id: UUID
+
+    """
+    The key used to identify the object.
+    """
+    key: User_Key
+
+    """
+    Fetch the first row based on the filters and ordering.
+    """
+    first: User_FirstRow
+  ): User @fdc_generated(from: "User", purpose: QUERY_SINGLE)
+  """
+  ✨ List `Holiday` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  holidays(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: Holiday_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [Holiday_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: Holiday_Having
+  ): [Holiday!]! @fdc_generated(from: "Holiday", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `LeaveBalance` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  leaveBalances(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: LeaveBalance_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [LeaveBalance_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: LeaveBalance_Having
+  ): [LeaveBalance!]! @fdc_generated(from: "LeaveBalance", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `LeaveRequest` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  leaveRequests(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: LeaveRequest_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [LeaveRequest_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: LeaveRequest_Having
+  ): [LeaveRequest!]! @fdc_generated(from: "LeaveRequest", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `LeaveType` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  leaveTypes(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: LeaveType_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [LeaveType_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: LeaveType_Having
+  ): [LeaveType!]! @fdc_generated(from: "LeaveType", purpose: QUERY_MULTIPLE)
+  """
+  ✨ List `User` objects in the table and return selected fields, optionally filtered by `where` conditions
+  """
+  users(
+    """
+    Filter condition to narrow down the query results.
+    """
+    where: User_Filter
+
+    """
+    Order the query results by specific fields.
+    """
+    orderBy: [User_Order!]
+
+    """
+    Number of rows to skip before starting to return the results.
+    """
+    offset: Int
+
+    """
+    Maximum number of rows to return (defaults to 100 rows).
+    """
+    limit: Int = 100
+
+    """
+    Set to true to return distinct results.
+    """
+    distinct: Boolean = false
+
+    """
+    Filter condition to apply to the groups of aggregate queries.
+    """
+    having: User_Having
+  ): [User!]! @fdc_generated(from: "User", purpose: QUERY_MULTIPLE)
+}

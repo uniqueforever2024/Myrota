@@ -1,42 +1,181 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* ------------------------------------------------
+ 🔵 PREMIUM SaaS THEME – NEON BLUE + GLASS
+--------------------------------------------------*/
+
+:root {
+  --blue-main: #3b82f6; /* Neon Blue */
+  --blue-hover: #60a5fa; /* Lighter Blue */
+  --yellow-main: #facc15; /* Soft Neon Yellow (for C shift) */
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.15);
+}
+
+body {
+  background: #0a0a0a;
+  font-family: "Inter", sans-serif;
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+
+/* Hide scrollbars on horizontal week scrollers, keep scrolling enabled */
+.overflow-x-auto {
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none;    /* Firefox */
+}
+.overflow-x-auto::-webkit-scrollbar { /* Chrome/Safari */
+  display: none;
+}
+
+/* Also hide vertical scrollbars on page containers while keeping scroll */
+body, main {
+  -ms-overflow-style: none; /* IE/Edge legacy */
+  scrollbar-width: none;    /* Firefox */
+}
+body::-webkit-scrollbar,
+main::-webkit-scrollbar {
+  display: none;            /* Chrome/Safari */
+}
+
+/* HEADER & FOOTER BAR */
+.header-bar,
+.footer-bar {
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 2px solid var(--blue-main);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 15px;
   text-align: center;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* TITLE */
+.header-title {
+  font-size: 36px;
+  color: var(--blue-main);
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  margin: 0;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+/* ------------------------------------------------
+  GLASS PANELS / CONTAINERS
+--------------------------------------------------*/
+.glass-container,
+.week-container {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  padding: 20px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+}
+
+.week-container {
+  margin-top: 20px;
+}
+
+/* TABLE HEADER */
+thead tr {
+  background: rgba(59, 130, 246, 0.3);
+  color: white;
+  font-weight: 800;
+}
+
+/* TABLE ROW HOVER */
+tbody tr:hover {
+  background: rgba(59, 130, 246, 0.12) !important;
+  transition: 0.25s ease-in-out;
+}
+
+/* ✅ EMPLOYEE NAME COLUMN (sticky left, works on mobile too) */
+td.sticky-name {
+  position: sticky;
+  left: 0;
+  z-index: 999;
+  background: rgba(10, 10, 10, 0.95) !important; /* Dark solid for clarity */
+  backdrop-filter: blur(12px);
+  border-right: 2px solid var(--blue-main);
+  color: white !important;
+  font-weight: 900;
+  padding: 6px 10px;
+}
+
+/* Mobile Fix: wider sticky area */
+@media (max-width: 768px) {
+  td.sticky-name {
+    min-width: 120px;
   }
-  to {
-    transform: rotate(360deg);
-  }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* ------------------------------------------------
+ ✅ SHIFT BADGE COLORS
+--------------------------------------------------*/
+
+/* A Shift = BLUE */
+.badge-A {
+  background: linear-gradient(135deg, var(--blue-main), var(--blue-hover));
+  color: white !important;
 }
 
-.card {
-  padding: 2em;
+/* C Shift = YELLOW */
+.badge-C {
+  background: linear-gradient(135deg, var(--yellow-main), #fff89b);
+  color: black !important;
 }
 
-.read-the-docs {
-  color: #888;
+/* Default badges (others get blue glass look) */
+.badge {
+  border-radius: 8px;
+  padding: 6px 9px;
+  font-size: 12px;
+  font-weight: 700;
 }
+
+/* ------------------------------------------------
+ BUTTON — PREMIUM GLASS BLUE (applied everywhere)
+--------------------------------------------------*/
+.btn-blue {
+  background: linear-gradient(135deg, var(--blue-main), var(--blue-hover));
+  color: white;
+  padding: 10px 20px;
+  border-radius: 14px;
+  font-weight: 900;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s ease-in-out;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.7);
+}
+
+.btn-blue:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 22px rgba(59, 130, 246, 1);
+}
+
+/* LOGIN POPUP BACKDROP */
+.modal-container {
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(18px);
+}
+
+/* INPUT FIELDS */
+input,
+select {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+}
+
+input:focus,
+select:focus {
+  border-color: var(--blue-main);
+  outline: none;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.8);
+}
+
+/* Mobile scrolling helpers */
+html, body, #root { height: 100%; }
+body { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+main { overflow-y: auto; -webkit-overflow-scrolling: touch; }

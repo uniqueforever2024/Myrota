@@ -1,0 +1,56 @@
+mutation CreateLeaveRequest(
+    $requesterId: UUID!,
+    $leaveTypeId: UUID!,
+    $startDate: Date!,
+    $endDate: Date!,
+    $reason: String!,
+    $comments: String,
+    $status: String!
+) @auth(level: USER) {
+    leaveRequest_insert(data: {
+        requesterId: $requesterId,
+        leaveTypeId: $leaveTypeId,
+        startDate: $startDate,
+        endDate: $endDate,
+        reason: $reason,
+        comments: $comments,
+        status: $status,
+        createdAt_expr: "request.time"
+    })
+}
+
+query GetLeaveRequestsForUser($userId: UUID!) @auth(level: USER) {
+    leaveRequests(where: {requesterId: {eq: $userId}}) {
+        id
+        startDate
+        endDate
+        reason
+        status
+        leaveType {
+            name
+        }
+    }
+}
+
+mutation UpdateLeaveRequestStatus(
+    $id: UUID!,
+    $status: String!,
+    $managerComments: String
+) @auth(level: USER) {
+    leaveRequest_update(
+        key: {id: $id},
+        data: {
+            status: $status,
+            managerComments: $managerComments
+        }
+    )
+}
+
+query ListUsers @auth(level: USER, insecureReason: "This operation is safe to expose to all logged in users.") {
+  users {
+    id
+    displayName
+    email
+    role
+  }
+}

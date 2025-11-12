@@ -2,7 +2,6 @@
   "name": "myrota-2026",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,7 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dataconnect/generated": "file:src/dataconnect-generated",
+    "@getbrevo/brevo": "^3.0.1",
     "@supabase/supabase-js": "^2.77.0",
+    "emailjs-com": "^3.2.0",
     "file-saver": "^2.0.5",
     "firebase": "^12.4.0",
     "react": "^19.1.1",

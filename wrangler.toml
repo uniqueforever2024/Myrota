@@ -1,0 +1,7 @@
+name = "myrota-mail-worker"
+main = "src/index.js"
+compatibility_date = "2025-11-11"
+compatibility_flags = ["nodejs_compat"]
+
+[triggers]
+crons = ["30 5 * * *"] # 11:00 AM IST
