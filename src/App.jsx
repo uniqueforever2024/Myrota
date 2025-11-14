@@ -13,6 +13,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import myrotaLogo from "./myrotalogo.svg";
+import "./App.css";
 
 const BrandLogo = ({ className = "h-10 w-10" }) => (
   <img src={myrotaLogo} alt="MyRota logo" className={className} />
@@ -57,6 +58,7 @@ const SHIFTS = [
   { code: "PL", label: "Personal Leave" },
   { code: "RH", label: "Restricted Holiday" },
   { code: "CH", label: "Company Holiday" },
+  { code: "HD", label: "Half Day Leave (taken by Employee)" },
   { code: "WS", label: "Weekend Shift" },
   { code: "W",  label: "Weekend Off" },
 ];
@@ -75,9 +77,17 @@ const badgeColor = (code) => {
     W:  `bg-sky-200 text-black ${CELL}`,
     RH: `bg-purple-300 text-black ${CELL}`,
     CH: `bg-purple-700 text-white ${CELL}`,
+    HD: `bg-orange-400 text-black ${CELL}`,
   };
   return map[code] || `bg-gray-300 text-black ${CELL}`;
 };
+
+const WEEK_COLOR_CLASSES = [
+  "week-pill-color-blue",
+  "week-pill-color-green",
+  "week-pill-color-yellow",
+  "week-pill-color-red",
+];
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
@@ -197,7 +207,7 @@ function useTypewriter(words, typeSpeed = 80, pause = 900, eraseSpeed = 35, acti
     }
   }, [text, phase, index, words, typeSpeed, pause, eraseSpeed, active]);
 
-  return text;
+  return [text, index];
 }
 
 /* ------------------ MAIN APP ------------------ */
@@ -251,36 +261,25 @@ export default function App() {
   // Firestore state
   const [EMPLOYEES, setEMPLOYEES] = useState([]);
   const [employeeView, setEmployeeView] = useState(null);
-  const [collapsedWeeks, setCollapsedWeeks] = useState([]);
   const [rota, setRota] = useState({});
   const weeks = useMemo(
     () => generateWeeks(selectedYear, selectedMonth),
     [selectedYear, selectedMonth]
   );
+  const [activeWeekIndex, setActiveWeekIndex] = useState(0);
+  const [isWholeMonthView, setIsWholeMonthView] = useState(false);
 
   // Scroll preservation for each week's overflow container
   const scrollRefs = useRef({});     // { [weekIndex]: HTMLElement }
-  const [scrollMap, setScrollMap] = useState({}); // { [weekIndex]: number }
+
+  // Prevent auto-collapsing while native select is open
+  const [isPicking, setIsPicking] = useState(false);
 
   const rememberScroll = (weekIndex, el) => {
     if (!el) return;
     scrollRefs.current[weekIndex] = el;
-    // Apply saved scrollLeft if present
-    if (scrollMap[weekIndex] != null) {
-      el.scrollLeft = scrollMap[weekIndex];
-    }
   };
 
-  // Disable state updates during scroll to keep UI responsive on mobile
-  const onWeekScroll = null;
-
-  // Note: rely on native horizontal scroll; custom drag removed for reliability
-
-  // Note: native horizontal scrolling is enabled on the week scroller
-  // via overflow-x-auto + touchAction: 'pan-x' and table width rules.
-
-  // Prevent auto-collapsing while native select is open
-  const [isPicking, setIsPicking] = useState(false);
   const isPickingRef = useRef(false);
   useEffect(() => { isPickingRef.current = isPicking; }, [isPicking]);
   const lastRotaRef = useRef({});
@@ -292,12 +291,31 @@ export default function App() {
     if (ne && typeof ne.stopImmediatePropagation === "function") ne.stopImmediatePropagation();
   };
 
+  useEffect(() => {
+    if (!weeks.length) return;
+    const today = todayIST();
+    if (
+      today.getFullYear() === selectedYear &&
+      today.getMonth() === MONTH_INDEX[selectedMonth]
+    ) {
+      const todayDate = today.getDate();
+      const foundIndex = weeks.findIndex((week) =>
+        week.some((cell) => cell && !cell.isPadding && cell.day === todayDate)
+      );
+      setActiveWeekIndex(foundIndex >= 0 ? foundIndex : 0);
+    } else {
+      setActiveWeekIndex(0);
+    }
+    setIsWholeMonthView(false);
+  }, [weeks, selectedYear, selectedMonth]);
+
+
   // Employee login modal fields (used for "Update Leave" only)
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [loginUser, setLoginUser] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [loggedEmployee, setLoggedEmployee] = useState(null);
-  const allowedLeaveCodes = ["B", "PL", "CH", "RH"]; // B = remove leave
+  const allowedLeaveCodes = ["B", "PL", "CH", "RH", "HD"]; // B = remove leave
 
   // Admin login modal fields
   const [showAdminModal, setShowAdminModal] = useState(false);
@@ -306,6 +324,7 @@ export default function App() {
   const [showShiftBlockModal, setShowShiftBlockModal] = useState(false);
   const [logs, setLogs] = useState([]);
   const [finalReport, setFinalReport] = useState([]);
+  const [adminSettings, setAdminSettings] = useState(null);
 
   /* ✅ LISTEN: employees + rota */
   useEffect(() => {
@@ -329,6 +348,14 @@ export default function App() {
       unsubRota && unsubRota();
     };
   }, []); // eslint-disable-line
+
+  useEffect(() => {
+    const adminRef = doc(db, "config", "admin");
+    const unsub = onSnapshot(adminRef, (snap) => {
+      setAdminSettings(snap.exists() ? snap.data() : null);
+    });
+    return () => unsub && unsub();
+  }, []);
 
   // When select closes, reconcile latest snapshot
   useEffect(() => {
@@ -453,7 +480,8 @@ export default function App() {
   /* Typewriter for landing */
   const teamFallback = TEAM_MEMBERS[0];
   const [hasTyped, setHasTyped] = useState(false);
-  const typewriterText = useTypewriter(
+  const logoColors = ["blue", "green", "yellow", "red"];
+  const [typewriterText, typeWordIndex] = useTypewriter(
     TEAM_MEMBERS,
     85,
     900,
@@ -466,50 +494,10 @@ export default function App() {
     }
   }, [hasTyped, typewriterText]);
   const displayTypewriterText = typewriterText || (!hasTyped ? teamFallback : "\u00A0");
+  const colorIndex = typeof typeWordIndex === "number" ? typeWordIndex % logoColors.length : 0;
+  const typeColorClass = `typewriter-${logoColors[colorIndex]}`;
 
   /* Auto-collapse weeks */
-  useEffect(() => {
-    const today = todayIST();
-    const monthIdx = MONTH_INDEX[selectedMonth];
-    let currentWeekIndex = -1;
-    const todayDate = new Date(today);
-    const isSameMonthYear =
-      todayDate.getFullYear() === selectedYear &&
-      todayDate.getMonth() === monthIdx;
-
-    if (isSameMonthYear) {
-      weeks.forEach((week, wIdx) => {
-        week.forEach((cell) => {
-          if (!cell.isPadding && cell.day) {
-            const cellDate = new Date(selectedYear, monthIdx, cell.day);
-            if (cellDate.getTime() === todayDate.getTime()) {
-              currentWeekIndex = wIdx;
-            }
-          }
-        });
-      });
-    }
-
-    const isMobile =
-      typeof window !== "undefined" &&
-      window.matchMedia &&
-      window.matchMedia("(max-width: 768px)").matches;
-
-    let indexes = [];
-    if (isMobile && currentWeekIndex >= 0) {
-      indexes = weeks.map((_, i) => i).filter((i) => i !== currentWeekIndex);
-    } else {
-      const autoCollapsed = weeks.map((week) => {
-        const last = [...week].reverse().find((c) => !c.isPadding);
-        if (!last) return false;
-        const lastDate = new Date(selectedYear, monthIdx, last.day);
-        return lastDate < today;
-      });
-      indexes = autoCollapsed.reduce((acc, v, i) => (v ? [...acc, i] : acc), []);
-    }
-    setCollapsedWeeks(indexes);
-  }, [weeks, selectedMonth, selectedYear]);
-
   /* NAV */
   const goHome = () => {
     setEmployeeView(null);
@@ -581,9 +569,34 @@ export default function App() {
   };
 
   /* AUTH */
-  const handleAdminLogin = () => {
-    if (!adminPass) { alert("Please enter password"); return; }
-    if (adminPass === "password") {
+  const handleAdminLogin = async () => {
+    const typed = adminPass.trim();
+    if (!typed) {
+      alert("Please enter password");
+      return;
+    }
+    let configured =
+      typeof adminSettings?.password === "string" && adminSettings.password.trim().length
+        ? adminSettings.password.trim()
+        : null;
+    if (!configured) {
+      try {
+        const adminUserSnap = await getDoc(doc(db, "users", "admin"));
+        if (adminUserSnap.exists()) {
+          const adminDocData = adminUserSnap.data();
+          if (typeof adminDocData?.password === "string" && adminDocData.password.trim().length) {
+            configured = adminDocData.password.trim();
+          }
+        }
+      } catch (err) {
+        console.error("Failed to read admin user password fallback:", err);
+      }
+    }
+    if (!configured) {
+      alert("Admin password is not configured. Add it under config/admin or users/admin.");
+      return;
+    }
+    if (typed === configured) {
       setIsAdmin(true);
       setPage("dashboard");
       setShowAdminModal(false);
@@ -625,20 +638,6 @@ export default function App() {
       alert("❌ Login failed: " + err.message);
     }
   };
-  const openAdminSelfEdit = () => {
-    if (!EMPLOYEES.length) {
-      alert("No employees available yet.");
-      return;
-    }
-    const target =
-      loggedEmployee && EMPLOYEES.includes(loggedEmployee)
-        ? loggedEmployee
-        : EMPLOYEES[0];
-    setLoggedEmployee(target);
-    setShowUpdateModal(false);
-    setPage("selfEdit");
-  };
-
   useEffect(() => {
     if (
       isAdmin &&
@@ -699,106 +698,91 @@ export default function App() {
   );
 
   const DashboardHeader = (
-    <div className="flex flex-col gap-3 md:flex-row justify-between items-center mb-6">
-      <h2 className="text-3xl font-black text-sky-200 neon-text">
+    <div className="flex flex-col gap-3 mb-6">
+      <h2 className="text-2xl font-normal text-white tracking-wide" style={{ fontFamily: "Arial, sans-serif" }}>
         ROTA {selectedMonth} {selectedYear}
       </h2>
 
-      <div className="flex gap-3 items-center">
-        <select
-          className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          value={selectedYear}
-          onChange={(e) => {
-            const yr = Number(e.target.value);
-            setSelectedYear(yr);
-            setSelectedMonth(MONTHS_BY_YEAR[yr][0]);
-          }}
-        >
-          {YEARS.map((yr) => (
-            <option key={yr} value={yr} className="text-black">
-              {yr}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-wrap items-center gap-3 justify-between">
+        <div className="flex-1 min-w-[260px]">
+          <div className="week-pill-row w-full">
+            <div className="week-pill-row-inner">
+              {weeks.map((_, idx) => {
+                const isActive = !isWholeMonthView && idx === activeWeekIndex;
+                const weekLabel = `Week ${idx + 1}`;
+                const shortLabel = `W${idx + 1}`;
+                return (
+                  <button
+                    type="button"
+                    key={`week-pill-${idx}`}
+                    aria-pressed={isActive}
+                    className={`week-pill ${
+                      isActive ? "week-pill--active week-pill--active-week" : "week-pill--inactive"
+                    } ${WEEK_COLOR_CLASSES[idx % WEEK_COLOR_CLASSES.length]}`}
+                    onClick={() => {
+                      setIsWholeMonthView(false);
+                      setActiveWeekIndex(idx);
+                    }}
+                  >
+                    <span className="hidden sm:inline">{weekLabel}</span>
+                    <span className="sm:hidden">{shortLabel}</span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                className={`week-pill week-pill--whole ${isWholeMonthView ? "week-pill--active" : "week-pill--inactive"}`}
+                onClick={() => setIsWholeMonthView(true)}
+              >
+                <span className="hidden sm:inline">Whole Month</span>
+                <span className="sm:hidden">WM</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
-        <select
-          className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400"
-          value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
-        >
-          {MONTHS_BY_YEAR[selectedYear].map((m) => (
-            <option key={m} value={m} className="text-black">
-              {m}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-wrap gap-3 items-center">
+          <select
+            className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            value={selectedYear}
+            onChange={(e) => {
+              const yr = Number(e.target.value);
+              setSelectedYear(yr);
+              setSelectedMonth(MONTHS_BY_YEAR[yr][0]);
+            }}
+          >
+            {YEARS.map((yr) => (
+              <option key={yr} value={yr} className="text-black">
+                {yr}
+              </option>
+            ))}
+          </select>
 
-        {/* Update Leave entry */}
-        {page === "dashboard" && (
-          <button
-            onClick={() => {
-              if (isAdmin) {
-                openAdminSelfEdit();
-              } else {
+          <select
+            className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            {MONTHS_BY_YEAR[selectedYear].map((m) => (
+              <option key={m} value={m} className="text-black">
+                {m}
+              </option>
+            ))}
+          </select>
+
+          {/* Update Leave entry (employees only) */}
+          {page === "dashboard" && !isAdmin && (
+            <button
+              onClick={() => {
                 setShowUpdateModal(true);
-              }
-            }}
-            className="btn-glass"
-          >
-            Update Leave
-          </button>
-        )}
+              }}
+              className="btn-glass"
+            >
+              Update Leave
+            </button>
+          )}
 
-        {/* Admin: persist all visible shifts into Firestore */}
-        {isAdmin && (
-          <button
-            onClick={async () => {
-              try {
-                let updates = {};
-                let count = 0;
-                weeks.forEach((week, wIdx) => {
-                  week.forEach((cell, dIdx) => {
-                    if (cell.isPadding) return;
-                    EMPLOYEES.forEach((_, eIdx) => {
-                      const key = getKey(selectedYear, selectedMonth, wIdx, eIdx, dIdx);
-                      const stored = rota[key];
-                      const defaultShift = getDefaultShift(WEEKDAYS[dIdx]);
-                      let shift, leave;
-                      if (typeof stored === 'object') {
-                        shift = stored.shift ?? defaultShift;
-                        leave = stored.leave ?? null;
-                      } else if (typeof stored === 'string') {
-                        shift = stored;
-                        leave = null;
-                      } else {
-                        shift = defaultShift;
-                        leave = null;
-                      }
-                      const normalized = { shift, leave };
-                      if (typeof stored !== 'object' || stored.shift !== shift || (stored.leave ?? null) !== leave) {
-                        updates[key] = normalized;
-                        count++;
-                      }
-                    });
-                  });
-                });
-                if (count > 0) {
-                  await setDoc(doc(db, 'rota', 'master'), updates, { merge: true });
-                  alert(`✅ Saved ${count} cells for ${selectedMonth} ${selectedYear}.`);
-                } else {
-                  alert('All cells already normalized.');
-                }
-              } catch (e) {
-                alert('Failed to persist shifts: ' + e.message);
-              }
-            }}
-            className="btn-primary"
-            title="Persist default shifts to Firestore"
-          >
-            Save Shifts
-          </button>
-        )}
-      
+        </div>
       </div>
     </div>
   );
@@ -815,113 +799,112 @@ export default function App() {
     </div>
   );
 
-  const WeeksTableAllEmployees = (
-    <>
-      {weeks.map((week, weekIndex) => (
-        <GlassCard key={weekIndex} weekIndex={weekIndex}>
-          <div className="mb-3 relative">
-            <h3 className="text-xl font-bold text-sky-200">Week {weekIndex + 1}</h3>
-            <button
-              className="px-3 py-1 text-sm rounded-md bg-sky-500/20 text-sky-100 font-semibold hover:bg-sky-500/30 ring-1 ring-sky-400/30 absolute right-0 top-0 z-50"
-              onClick={() =>
-                setCollapsedWeeks((prev) =>
-                  prev.includes(weekIndex) ? prev.filter((w) => w !== weekIndex) : [...prev, weekIndex]
-                )
-              }
-              title={collapsedWeeks.includes(weekIndex) ? "Expand" : "Collapse"}
-            >
-              {collapsedWeeks.includes(weekIndex) ? "+" : "−"}
-            </button>
-          </div>
+  const WeekCard = ({ week, weekIndex }) => {
+    if (!week) return null;
+    const firstActiveDay = week.find((cell) => !cell.isPadding)?.day ?? "-";
+    const lastActiveDay = [...week].reverse().find((cell) => !cell.isPadding)?.day ?? "-";
 
-          {!collapsedWeeks.includes(weekIndex) && (
-            <table className="week-table min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
-              <thead className="sticky top-0 z-[110]">
-                <tr className="bg-gradient-to-r from-indigo-700/40 to-sky-700/40 text-sky-100 font-bold backdrop-blur">
-                  <th className="sticky-name sticky left-0 p-2 top-0 bg-indigo-700/40 text-left min-w-[160px]">
+    return (
+      <GlassCard weekIndex={weekIndex}>
+        <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
+          <h3 className="text-2xl font-black text-sky-200 drop-shadow">Week {weekIndex + 1}</h3>
+          <span className="week-range-badge text-sm text-white/80">
+            {selectedMonth} {firstActiveDay} - {selectedMonth} {lastActiveDay}
+          </span>
+        </div>
+
+        <table className="week-table min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
+          <thead className="sticky top-0 z-[110]">
+                <tr className="week-head-row text-sky-100 font-bold">
+                  <th className="sticky-name sticky left-0 top-0 text-left min-w-[160px]">
                     Employee
                   </th>
                   {WEEKDAYS.map((wd, idx) => (
-                    <th key={idx} className="p-2 min-w-[64px] sticky top-0 z-[120] bg-indigo-700/40 backdrop-blur">{wd} {week[idx]?.day ?? ""}</th>
+                    <th key={idx} className="week-head-cell min-w-[64px] sticky top-0 z-[120]">
+                      {wd} {week[idx]?.day ?? ""}
+                    </th>
                   ))}
                 </tr>
-              </thead>
+          </thead>
 
-              <tbody>
-                {EMPLOYEES.map((emp, empIndex) => (
-                  <tr key={emp} className="even:bg-white/[0.02] odd:bg-white/[0.04]">
-                    <td
-                      className="sticky-name font-semibold text-left p-2 min-w-[160px] cursor-pointer text-white bg-sky-600/30 ring-1 ring-sky-400/30 rounded-md hover:bg-sky-500/30"
-                      onClick={() => setEmployeeView(empIndex)}
-                    >
-                      {emp}
+          <tbody>
+            {EMPLOYEES.map((emp, empIndex) => (
+              <tr key={emp} className="even:bg-white/[0.02] odd:bg-white/[0.04]">
+                <td
+                  className="sticky-name cursor-pointer"
+                  onClick={() => setEmployeeView(empIndex)}
+                >
+                  <span className="sticky-pill">{emp}</span>
+                </td>
+
+                {week.map((cell, dayIndex) =>
+                  cell.isPadding ? (
+                    <td key={dayIndex} className="p-1">
+                      <span className={`inline-flex opacity-30 ${badgeColor("")}`} />
                     </td>
+                  ) : (
+                    <td key={dayIndex} className="p-1 min-w-[64px]">
+                      {(() => {
+                        const defaultShift = getDefaultShift(WEEKDAYS[dayIndex]);
+                        const key = getKey(selectedYear, selectedMonth, weekIndex, empIndex, dayIndex);
+                        const stored = rota[key];
 
-                    {week.map((cell, dayIndex) =>
-                      cell.isPadding ? (
-                        <td key={dayIndex} className="p-1">
-                          <span className={`inline-flex opacity-30 ${badgeColor("")}`} />
-                        </td>
-                      ) : (
-                        <td key={dayIndex} className="p-1 min-w-[64px]">
-                          {(() => {
-                            const defaultShift = getDefaultShift(WEEKDAYS[dayIndex]);
-                            const key = getKey(selectedYear, selectedMonth, weekIndex, empIndex, dayIndex);
-                            const stored = rota[key];
+                        const realShift =
+                          typeof stored === "object" ? stored?.shift ?? defaultShift : stored ?? defaultShift;
+                        const leaveApplied = typeof stored === "object" ? stored?.leave : undefined;
+                        const displayCodeForColor = leaveApplied ?? realShift;
+                        const displayText = leaveApplied ? leaveApplied : realShift;
+                        const adminTextColor = displayCodeForColor === "B" ? "text-black" : "text-white";
 
-                            const realShift =
-                              typeof stored === "object" ? stored?.shift ?? defaultShift : stored ?? defaultShift;
-                            const leaveApplied = typeof stored === "object" ? stored?.leave : undefined;
-                            const displayCodeForColor = leaveApplied ?? realShift;
-                            const displayText = leaveApplied ? leaveApplied : realShift;
-
-                            return isAdmin ? (
-                              <div
-                                className={`${badgeColor(displayCodeForColor)} rounded-md relative z-20 overflow-hidden`}
-                              >
-                                <select
-                                  value={realShift}
-                                  className="appearance-none w-full h-full bg-transparent text-xs font-extrabold tracking-wide text-center cursor-pointer py-1 pr-5"
-                                  onFocus={() => setIsPicking(true)}
-                                  onBlur={() => setTimeout(() => setIsPicking(false), 200)}
-                                  onChange={(e) => updateShift(empIndex, weekIndex, dayIndex, e.target.value)}
-                                  style={{ WebkitAppearance: "none" }}
-                                >
-                                  {SHIFTS.map((s) => (
-                                    <option key={s.code} value={s.code} title={s.label}>
-                                      {s.code}
-                                    </option>
-                                  ))}
-                                </select>
-                                <span className="pointer-events-none absolute right-1 top-1 text-[10px] opacity-80">
-                                  ▾
-                                </span>
-                              </div>
-                            ) : (
-                              <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(displayCodeForColor)}`}>
-                                {displayText}
-                              </span>
-                            );
-                          })()}
-                        </td>
-                      )
-                    )}
-                  </tr>
-                ))}
-                {EMPLOYEES.length === 0 && (
-                  <tr>
-                    <td className="p-4 text-left text-white/70" colSpan={8}>
-                      No employees yet. Add docs under <b>users</b> collection.
+                        return isAdmin ? (
+                          <div className={`${badgeColor(displayCodeForColor)} rounded-md relative z-20 overflow-hidden`}>
+                            <select
+                              value={realShift}
+                              className={`appearance-none w-full h-full bg-transparent text-xs font-extrabold tracking-wide text-center cursor-pointer py-1 pr-5 focus:text-slate-900 focus:bg-white focus:rounded-md focus:outline-none ${adminTextColor}`}
+                              onFocus={() => setIsPicking(true)}
+                              onBlur={() => setTimeout(() => setIsPicking(false), 200)}
+                              onChange={(e) => updateShift(empIndex, weekIndex, dayIndex, e.target.value)}
+                              style={{ WebkitAppearance: "none" }}
+                            >
+                              {SHIFTS.map((s) => (
+                                <option key={s.code} value={s.code} title={s.label}>
+                                  {s.code}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="pointer-events-none absolute right-1 top-1 text-[10px] opacity-80">
+                              v
+                            </span>
+                          </div>
+                        ) : (
+                          <span className={`inline-flex items-center justify-center rounded-md text-xs font-bold ${badgeColor(displayCodeForColor)}`}>
+                            {displayText}
+                          </span>
+                        );
+                      })()}
                     </td>
-                  </tr>
+                  )
                 )}
-              </tbody>
-            </table>
-          )}
-        </GlassCard>
-      ))}
+              </tr>
+            ))}
+            {EMPLOYEES.length === 0 && (
+              <tr>
+                <td className="p-4 text-left text-white/70" colSpan={8}>
+                  No employees yet. Add docs under <b>users</b> collection.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </GlassCard>
+    );
+  };
 
-      {/* Legend */}
+  const WeeksTableAllEmployees = (() => {
+    if (!weeks.length) return null;
+    const safeActiveWeek = Math.min(activeWeekIndex, weeks.length - 1);
+    const activeWeek = weeks[safeActiveWeek];
+    const legend = (
       <GlassCard weekIndex={-1}>
         <h3 className="text-xl font-extrabold mb-4 text-sky-200">Shift Definitions</h3>
         <table className="w-full text-sm text-left">
@@ -945,8 +928,17 @@ export default function App() {
           </tbody>
         </table>
       </GlassCard>
-    </>
-  );
+    );
+
+    return (
+      <>
+        {isWholeMonthView
+          ? weeks.map((week, idx) => <WeekCard key={`week-card-${idx}`} week={week} weekIndex={idx} />)
+          : <WeekCard week={activeWeek} weekIndex={safeActiveWeek} key={`week-card-${safeActiveWeek}`} />}
+        {legend}
+      </>
+    );
+  })();
 
   const SingleUserEditHeader = (
     <div className="flex flex-col gap-2 md:flex-row justify-between items-center mb-6">
@@ -1005,12 +997,12 @@ export default function App() {
 
             <table className="week-table min-w-full w-max text-center border-collapse text-sm whitespace-nowrap">
             <thead className="sticky top-0 z-[110]">
-              <tr className="bg-gradient-to-r from-indigo-700/40 to-sky-700/40 text-sky-100 font-bold">
-                <th className="sticky-name sticky left-0 p-2 top-0 bg-indigo-700/40 text-left min-w-[160px]">
+              <tr className="week-head-row text-sky-100 font-bold">
+                <th className="sticky-name sticky left-0 top-0 text-left min-w-[160px]">
                   Employee
                 </th>
                 {WEEKDAYS.map((wd, idx) => (
-                  <th key={idx} className="p-2 min-w-[64px] sticky top-0 z-[110] bg-indigo-700/40">
+                  <th key={idx} className="week-head-cell min-w-[64px] sticky top-0 z-[110]">
                     {wd} {week[idx]?.day ?? ""}
                   </th>
                 ))}
@@ -1019,8 +1011,8 @@ export default function App() {
 
             <tbody>
               <tr className="even:bg-white/[0.02]">
-                <td className="sticky-name font-semibold text-left p-2 sticky left-0 min-w-[160px] text-white bg-sky-600/30 ring-1 ring-sky-400/30 rounded-md">
-                  {loggedEmployee}
+                <td className="sticky-name">
+                  <span className="sticky-pill">{loggedEmployee}</span>
                 </td>
 
                 {week.map((cell, dayIndex) =>
@@ -1043,7 +1035,7 @@ export default function App() {
 
                         // Bind value: on weekends, bind to realShift when no leave so W is selected
                         const selectValue = leaveApplied ?? (isWeekend ? realShift : "B");
-                        const leaveOptions = isWeekend ? ["W", "WS", "PL", "CH", "RH"] : allowedLeaveCodes;
+                        const leaveOptions = isWeekend ? ["W", "WS", "PL", "CH", "RH", "HD"] : allowedLeaveCodes;
 
                         return (
                           <div
@@ -1203,14 +1195,14 @@ export default function App() {
     const isWeekend = dayLabel === 'Sat' || dayLabel === 'Sun';
     const defaultShift = getDefaultShift(dayLabel);
 
-    const leaveCodes = ["PL", "CH", "RH"];
+    const leaveCodes = ["PL", "CH", "RH", "HD"];
     const onLeave = [];
     const wsAvailable = [];
     const shiftA = [];
     const shiftC = [];
 
     const toUpper = (v) => (typeof v === 'string' ? v.trim().toUpperCase() : undefined);
-    const isLeaveCode = (v) => ['PL','CH','RH'].includes(toUpper(v));
+    const isLeaveCode = (v) => ['PL','CH','RH','HD'].includes(toUpper(v));
     const isShiftCode = (v) => ['A','B','C','WS','W'].includes(toUpper(v));
 
     (EMPLOYEES || []).forEach((emp, empIndex) => {
@@ -1316,7 +1308,7 @@ export default function App() {
                 const stored = rota[key];
                 const realShift = typeof stored === 'object' ? (stored?.shift ?? defaultShift) : (stored ?? defaultShift);
                 const leaveApplied = typeof stored === 'object' ? stored?.leave : undefined;
-                if (["PL","CH","RH"].includes(leaveApplied)) return null;
+                if (["PL","CH","RH","HD"].includes(leaveApplied)) return null;
                 // Only show A and C shift lines; also show WS availability on weekends
                 if (!(realShift === 'A' || realShift === 'C' || (isWeekend && realShift === 'WS'))) return null;
                 if (isWeekend && realShift === 'WS') {
@@ -1347,7 +1339,12 @@ export default function App() {
         <header className="sticky top-0 z-40 px-4 py-3 flex justify-between items-center glass-nav">
           <div className="flex items-center gap-2 cursor-pointer" onClick={goHome}>
             <BrandLogo className="h-10 w-10 md:h-11 md:w-11 drop-shadow" />
-            <h1 className="text-3xl font-black tracking-wide neon-text">MyRota+</h1>
+            <h1 className="text-3xl font-black tracking-wide logo-title">
+              My<span className="logo-blue">R</span>
+              <span className="logo-green">o</span>
+              <span className="logo-yellow">t</span>
+              <span className="logo-red">a</span>+
+            </h1>
           </div>
           {page !== "landing" && TopNav}
         </header>
@@ -1383,17 +1380,17 @@ export default function App() {
               <div className="min-h-[130px] flex flex-col items-center justify-end">
                 {/* Mobile: fixed "Welcome" on first line, only second line changes */}
                 <h1 className="md:hidden text-4xl font-extrabold text-center leading-tight">
-                  <span className="block text-sky-300">Welcome</span>
+                  <span className="block text-sky-300 font-black">Welcome</span>
                   <span className="block neon-text">
-                    <span className="inline-block">{displayTypewriterText}</span>
+                    <span className={`inline-block typewriter-text ${typeColorClass}`}>{displayTypewriterText}</span>
                     <span className="caret ml-1 align-middle inline-block" />
                   </span>
                 </h1>
 
                 {/* Desktop and larger: single line */}
                 <h1 className="hidden md:block text-5xl md:text-6xl font-extrabold text-center">
-                  <span className="text-sky-300">Welcome </span>
-                  <span className="neon-text">{displayTypewriterText}</span>
+                  <span className="text-sky-300 font-black">Welcome </span>
+                  <span className={`neon-text typewriter-text ${typeColorClass}`}>{displayTypewriterText}</span>
                   <span className="caret ml-1" />
                 </h1>
               </div>
@@ -1404,11 +1401,6 @@ export default function App() {
                   className="btn-glass"
                   onClick={() => {
                     setShowAdminModal(true);
-                    return;
-                    if (pass === "password") {
-                      setIsAdmin(true);
-                      setPage("dashboard");
-                    } else alert("❌ Incorrect password");
                   }}
                 >
                   Login as Admin
@@ -1553,7 +1545,7 @@ export default function App() {
                   {EMPLOYEES[employeeView]}'s Plan — {selectedMonth} {selectedYear}
                 </h2>
 
-                <table className="w-full text-sm">
+                <table className="plan-table w-full text-sm">
                   <thead>
                     <tr className="font-bold bg-gray-200">
                       <th className="p-2 text-left">Date</th>
@@ -1671,24 +1663,24 @@ export default function App() {
           }
           .shape-orb--one {
             width: 240px; height: 240px; top: -20px; left: 8%;
-            background: radial-gradient(circle at 20% 20%, rgba(224, 242, 254, 0.95), rgba(14, 165, 233, 0.2));
+            background: radial-gradient(circle at 20% 20%, rgba(96, 165, 250, 0.9), rgba(30, 64, 175, 0.2));
             animation: orbFloatOne 32s linear infinite;
           }
           .shape-orb--two {
             width: 200px; height: 200px; top: 18%; right: 6%;
-            background: radial-gradient(circle at 70% 30%, rgba(253, 244, 215, 0.9), rgba(251, 191, 36, 0.35));
+            background: radial-gradient(circle at 70% 30%, rgba(74, 222, 128, 0.9), rgba(15, 118, 110, 0.25));
             animation: orbFloatTwo 34s linear infinite;
             animation-delay: -8s;
           }
           .shape-orb--three {
             width: 160px; height: 160px; bottom: -10px; left: 18%;
-            background: radial-gradient(circle at 15% 70%, rgba(254, 226, 226, 0.95), rgba(239, 68, 68, 0.35));
+            background: radial-gradient(circle at 15% 70%, rgba(250, 204, 21, 0.9), rgba(251, 191, 36, 0.35));
             animation: orbFloatThree 36s linear infinite;
             animation-delay: -3s;
           }
           .shape-orb--four {
             width: 130px; height: 130px; top: 40%; left: 55%;
-            background: radial-gradient(circle at 70% 20%, rgba(221, 214, 254, 0.9), rgba(129, 140, 248, 0.4));
+            background: radial-gradient(circle at 70% 20%, rgba(248, 113, 113, 0.9), rgba(220, 38, 38, 0.3));
             animation: orbFloatFour 40s linear infinite;
             animation-delay: -12s;
           }
@@ -1860,6 +1852,15 @@ export default function App() {
             color: #c7dfff;
             text-shadow: 0 0 8px rgba(99, 179, 237, 0.6), 0 0 20px rgba(99, 102, 241, 0.35);
           }
+          .logo-title {
+            font-weight: 1000;
+            font-variation-settings: "wght" 980;
+            letter-spacing: 0.08em;
+          }
+          .logo-blue { color: #60a5fa; }
+          .logo-green { color: #34d399; }
+          .logo-yellow { color: #facc15; }
+          .logo-red { color: #f87171; }
 
           /* Typewriter caret (thin) */
           @keyframes blink {

@@ -18,6 +18,143 @@ body {
   padding: 0;
 }
 
+.typewriter-text {
+  font-weight: 900;
+  font-variation-settings: "wght" 1000;
+  letter-spacing: 0.05em;
+  transition: color 0.4s ease, text-shadow 0.4s ease;
+}
+.typewriter-blue {
+  color: #60a5fa;
+  text-shadow: 0 0 12px rgba(96, 165, 250, 0.55), 0 0 22px rgba(96, 165, 250, 0.35);
+}
+.typewriter-green {
+  color: #34d399;
+  text-shadow: 0 0 12px rgba(52, 211, 153, 0.55), 0 0 22px rgba(52, 211, 153, 0.35);
+}
+.typewriter-yellow {
+  color: #facc15;
+  text-shadow: 0 0 12px rgba(250, 204, 21, 0.55), 0 0 22px rgba(250, 204, 21, 0.35);
+}
+.typewriter-red {
+  color: #f87171;
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.55), 0 0 22px rgba(248, 113, 113, 0.35);
+}
+
+/* Week pill navigation */
+.week-pill-row {
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  padding: 0.4rem 0 0.6rem;
+}
+.week-pill-row::-webkit-scrollbar { display: none; }
+
+.week-pill-row-inner {
+  display: flex;
+  gap: 0.8rem;
+  min-width: max-content;
+  flex-wrap: wrap;
+}
+
+.week-pill {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 110px;
+  padding: 0.6rem 1.3rem;
+  border-radius: 10px;
+  letter-spacing: 0.04em;
+  font-weight: 800;
+  color: #f8fbff;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(15, 23, 42, 0.35);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
+  background-clip: padding-box;
+  -webkit-background-clip: padding-box;
+  outline: none;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.week-pill--inactive {
+  opacity: 0.96;
+}
+.week-pill--inactive:hover,
+.week-pill--inactive:focus-visible {
+  opacity: 1;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.week-pill--active {
+  color: #e6f0ff;
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.18);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.25),
+    0 8px 20px rgba(15, 23, 42, 0.45),
+    0 0 18px rgba(56, 189, 248, 0.35);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-clip: padding-box;
+  -webkit-background-clip: padding-box;
+  transform: translateY(-4px);
+}
+
+.week-pill--whole {
+  min-width: 140px;
+  padding-inline: 1.8rem;
+  background: linear-gradient(135deg, #facc15, #fbe88b);
+  color: #1f1a02;
+  border: 1px solid rgba(250, 204, 21, 0.4);
+}
+
+.week-pill-color-blue {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+}
+
+.week-pill-color-green {
+  background: linear-gradient(135deg, #0f9d58, #32d27c);
+}
+
+.week-pill-color-yellow {
+  background: linear-gradient(135deg, #facc15, #ffe36e);
+  color: #2d2303;
+}
+
+.week-pill-color-red {
+  background: linear-gradient(135deg, #dc2626, #ff5f5f);
+}
+
+.week-pill--active-week {
+  background: #000000;
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.45);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 10px 22px rgba(0, 0, 0, 0.6);
+}
+
+
+.plan-table thead tr {
+  background: linear-gradient(120deg, #0f172a, #1f3a5f);
+  color: #e2e8ff;
+}
+
+.plan-table th {
+  padding: 0.6rem 0.8rem;
+  font-weight: 700;
+}
+
+.week-pill:focus-visible {
+  outline: 2px solid rgba(14, 165, 233, 0.9);
+  outline-offset: 3px;
+}
+
 /* Hide scrollbars on horizontal week scrollers, keep scrolling enabled */
 .overflow-x-auto {
   -ms-overflow-style: none; /* IE 10+ */
@@ -35,6 +172,29 @@ body, main {
 body::-webkit-scrollbar,
 main::-webkit-scrollbar {
   display: none;            /* Chrome/Safari */
+}
+
+.week-card-animate {
+  animation: weekSwap 0.35s ease;
+}
+
+@keyframes weekSwap {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.week-range-badge {
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(15, 23, 42, 0.55);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
 /* HEADER & FOOTER BAR */
@@ -84,52 +244,62 @@ thead tr {
 
 /* TABLE ROW HOVER */
 tbody tr:hover {
-  background: rgba(59, 130, 246, 0.12) !important;
-  transition: 0.25s ease-in-out;
+  background: transparent !important;
 }
 
-/* ✅ EMPLOYEE NAME COLUMN (sticky left, works on mobile too) */
+/* ✅ EMPLOYEE NAME COLUMN (glass pill style) */
+.week-table {
+  user-select: none;
+}
+
 td.sticky-name,
 th.sticky-name {
   position: sticky;
   left: 0;
   z-index: 2000 !important;
-  background: rgba(8, 23, 60, 0.98) !important; /* Deep blue for clarity */
-  border-right: 2px solid #3b82f6;
-  color: #f8fbff !important;
-  font-weight: 900;
-  padding: 6px 10px;
-  box-shadow: 8px 0 16px rgba(2, 6, 23, 0.65);
-  transform: translateZ(0);
-  backdrop-filter: blur(14px);
+  background: transparent !important;
+  border-right: 0;
+  padding: 0;
 }
 
-.week-table td:not(.sticky-name),
-.week-table th:not(.sticky-name) {
-  position: relative;
-  z-index: 1;
+td.sticky-name {
+  padding: 0 !important;
 }
 
-/* Mobile Fix: wider sticky area */
-@media (max-width: 768px) {
-  td.sticky-name,
-  th.sticky-name {
-    min-width: 140px;
-    z-index: 3000 !important;
-    box-shadow: 10px 0 18px rgba(3, 7, 18, 0.65);
-  }
+th.sticky-name {
+  padding: 0.65rem 1rem;
+  font-weight: 800;
+  color: #f4f5ff;
+  background: linear-gradient(120deg, #1e1a4a, #3b2f89) !important;
+  border-top-left-radius: 12px;
+}
 
-  td.sticky-name::after,
-  th.sticky-name::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: -18px;
-    width: 18px;
-    height: 100%;
-    pointer-events: none;
-    background: linear-gradient(90deg, rgba(8, 23, 60, 0.98), rgba(8, 23, 60, 0));
-  }
+.week-head-row {
+  background: linear-gradient(120deg, #1e1a4a, #314bd8);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.week-head-cell {
+  padding: 0.65rem 1rem;
+  text-align: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.sticky-pill {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(6, 17, 35, 0.95);
+  color: #e8f2ff;
+  font-weight: 700;
+  text-align: left;
+  box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.sticky-name:hover .sticky-pill {
+  border-color: rgba(59, 130, 246, 0.6);
 }
 
 /* ------------------------------------------------
