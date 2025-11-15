@@ -1266,7 +1266,7 @@ export default function App() {
               🔔
             </button>
           </div>
-          <div className="space-y-3 text-white">
+          <div className="space-y-2 sm:space-y-3 text-white">
             {/* Leave summary */}
             {(onLeave.length > 0 || !isWeekend) && (
               <div className="glass-chip px-4 py-3 rounded-xl">

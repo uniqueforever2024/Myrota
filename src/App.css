@@ -265,6 +265,12 @@ tbody tr:hover {
 /* ✅ EMPLOYEE NAME COLUMN (glass pill style) */
 .week-table {
   user-select: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.week-table tr + tr .sticky-pill {
+  margin-top: -1px;
 }
 
 td.sticky-name,
