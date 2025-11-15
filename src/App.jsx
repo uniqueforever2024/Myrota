@@ -651,7 +651,7 @@ export default function App() {
 
   /* ------------------ RENDERERS ------------------ */
   const TopNav = (
-    <div className="flex items-center gap-3 md:gap-6">
+    <div className="flex items-center gap-3 md:gap-6 top-nav-actions">
       {/* REPORT */}
       <button
         onClick={() => setPage("report")}
@@ -741,9 +741,9 @@ export default function App() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex items-center gap-3 flex-nowrap overflow-x-auto pb-1">
           <select
-            className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400 shrink-0"
             value={selectedYear}
             onChange={(e) => {
               const yr = Number(e.target.value);
@@ -759,7 +759,7 @@ export default function App() {
           </select>
 
           <select
-            className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400"
+            className="px-4 py-2 rounded-lg text-white bg-slate-900/60 ring-1 ring-white/10 focus:outline-none focus:ring-2 focus:ring-sky-400 shrink-0"
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(e.target.value)}
           >
@@ -776,7 +776,7 @@ export default function App() {
               onClick={() => {
                 setShowUpdateModal(true);
               }}
-              className="btn-glass"
+              className="btn-glass shrink-0"
             >
               Update Leave
             </button>
@@ -806,7 +806,7 @@ export default function App() {
 
     return (
       <GlassCard weekIndex={weekIndex}>
-        <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
+        <div className="week-card-header mb-4 flex items-center justify-between gap-3 flex-wrap">
           <h3 className="text-2xl font-black text-sky-200 drop-shadow">Week {weekIndex + 1}</h3>
           <span className="week-range-badge text-sm text-white/80">
             {selectedMonth} {firstActiveDay} - {selectedMonth} {lastActiveDay}
@@ -1191,8 +1191,11 @@ export default function App() {
         if (cell && !cell.isPadding && cell.day === dayNum) { weekIndex = w; dayIndex = d; break outer; }
       }
     }
-    const dayLabel = WEEKDAYS[dayIndex];
-    const isWeekend = dayLabel === 'Sat' || dayLabel === 'Sun';
+    const todayLabel = today
+      .toLocaleDateString("en-US", { weekday: "short", timeZone: IST })
+      .slice(0, 3);
+    const dayLabel = WEEKDAYS.includes(todayLabel) ? todayLabel : WEEKDAYS[dayIndex];
+    const isWeekend = dayLabel === "Sat" || dayLabel === "Sun";
     const defaultShift = getDefaultShift(dayLabel);
 
     const leaveCodes = ["PL", "CH", "RH", "HD"];
@@ -1265,13 +1268,17 @@ export default function App() {
           </div>
           <div className="space-y-3 text-white">
             {/* Leave summary */}
-            <div className="glass-chip px-4 py-3 rounded-xl">
-              {onLeave.length > 0 ? (
-                <span className="font-semibold">{onLeave.join(', ')} {onLeave.length > 1 ? 'are' : 'is'} on leave today</span>
-              ) : (
-                <span className="font-semibold">Your whole team is working today no one is on leave</span>
-              )}
-            </div>
+            {(onLeave.length > 0 || !isWeekend) && (
+              <div className="glass-chip px-4 py-3 rounded-xl">
+                {onLeave.length > 0 ? (
+                  <span className="font-semibold">
+                    {onLeave.join(', ')} {onLeave.length > 1 ? 'are' : 'is'} on leave today
+                  </span>
+                ) : (
+                  <span className="font-semibold">Your whole team is working today no one is on leave</span>
+                )}
+              </div>
+            )}
 
             {/* A shift (separate box) */}
             {shiftA.length > 0 && (
@@ -1627,6 +1634,11 @@ export default function App() {
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 10px 25px rgba(2, 6, 23, 0.55);
             backdrop-filter: blur(18px);
+          }
+          @media (max-width: 640px) {
+            .top-nav-actions {
+              gap: 0.35rem !important;
+            }
           }
           .simple-footer {
             margin-top: 32px;
