@@ -1,7 +1,7 @@
 // src/firebase.js
 
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 // ✅ Your Firebase configuration
@@ -19,5 +19,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // ✅ Export initialized services
-export const db = getFirestore(app);
+export const db = initializeFirestore(app, {
+  // Netlify/browser networks were timing out on Firestore's default transport.
+  // This keeps reads like the ROTA user list working more reliably in production.
+  experimentalAutoDetectLongPolling: true,
+  useFetchStreams: false,
+});
 export const auth = getAuth(app);
