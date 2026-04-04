@@ -1,4 +1,4 @@
-const { normalizeIssue, searchJira } = require("./client");
+const { getJiraConfig, normalizeIssue, searchJira } = require("./client");
 
 const DETAIL_FIELDS = [
   "summary",
@@ -59,6 +59,7 @@ const DASHBOARD_VIEWS = {
 const getViewDefinition = (viewId) => DASHBOARD_VIEWS[viewId] || null;
 
 const buildSummaryPayload = async () => {
+  const jiraConfig = await getJiraConfig();
   const [
     mappingInProgress,
     mappingOpenEpic,
@@ -125,13 +126,14 @@ const buildSummaryPayload = async () => {
       totalCount: changesThisWeek?.total || 0,
       viewId: DASHBOARD_VIEWS.changesThisWeek.id,
       issues: Array.isArray(changesThisWeek?.issues)
-        ? changesThisWeek.issues.map(normalizeIssue)
+        ? changesThisWeek.issues.map((issue) => normalizeIssue(issue, jiraConfig.baseUrl))
         : [],
     },
   };
 };
 
 const buildDetailPayload = async (viewId) => {
+  const jiraConfig = await getJiraConfig();
   const view = getViewDefinition(viewId);
   if (!view) {
     const error = new Error("Unknown Jira dashboard view.");
@@ -146,7 +148,7 @@ const buildDetailPayload = async (viewId) => {
   });
 
   const issues = Array.isArray(results?.issues)
-    ? results.issues.map(normalizeIssue)
+    ? results.issues.map((issue) => normalizeIssue(issue, jiraConfig.baseUrl))
     : [];
 
   return {

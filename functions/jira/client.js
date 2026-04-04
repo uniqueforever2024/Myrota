@@ -1,21 +1,58 @@
-const REQUIRED_ENV_KEYS = ["JIRA_BASE_URL", "JIRA_USERNAME", "JIRA_PASSWORD"];
+const admin = require("firebase-admin");
 
-const getMissingConfigKeys = () =>
-  REQUIRED_ENV_KEYS.filter((key) => !String(process.env[key] || "").trim());
+const REQUIRED_CONFIG_KEYS = ["JIRA_BASE_URL", "JIRA_USERNAME", "JIRA_PASSWORD"];
 
-const getJiraConfig = () => {
-  const missingKeys = getMissingConfigKeys();
-  if (missingKeys.length > 0) {
-    const error = new Error(`Missing Jira configuration: ${missingKeys.join(", ")}`);
-    error.code = "jira/config-missing";
-    throw error;
+let cachedJiraConfig = null;
+
+const normalizeBaseUrl = (value) => {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const withProtocol = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+  return withProtocol.replace(/\/+$/, "");
+};
+
+const buildConfigFromSource = (source = {}) => ({
+  baseUrl: normalizeBaseUrl(source.JIRA_BASE_URL),
+  username: String(source.JIRA_USERNAME || "").trim(),
+  password: String(source.JIRA_PASSWORD || "").trim(),
+});
+
+const getMissingConfigKeys = (config) => {
+  const missing = [];
+  if (!config?.baseUrl) missing.push("JIRA_BASE_URL");
+  if (!config?.username) missing.push("JIRA_USERNAME");
+  if (!config?.password) missing.push("JIRA_PASSWORD");
+  return missing;
+};
+
+const readFirestoreConfig = async () => {
+  const snapshot = await admin.firestore().doc("jira/jira").get();
+  if (!snapshot.exists) return null;
+
+  return buildConfigFromSource(snapshot.data() || {});
+};
+
+const getJiraConfig = async () => {
+  if (cachedJiraConfig) return cachedJiraConfig;
+
+  const envConfig = buildConfigFromSource(process.env);
+  const missingEnvKeys = getMissingConfigKeys(envConfig);
+  if (missingEnvKeys.length === 0) {
+    cachedJiraConfig = envConfig;
+    return cachedJiraConfig;
   }
 
-  return {
-    baseUrl: String(process.env.JIRA_BASE_URL).replace(/\/+$/, ""),
-    username: String(process.env.JIRA_USERNAME),
-    password: String(process.env.JIRA_PASSWORD),
-  };
+  const firestoreConfig = await readFirestoreConfig();
+  const missingFirestoreKeys = getMissingConfigKeys(firestoreConfig);
+  if (firestoreConfig && missingFirestoreKeys.length === 0) {
+    cachedJiraConfig = firestoreConfig;
+    return cachedJiraConfig;
+  }
+
+  const missingKeys = firestoreConfig ? missingFirestoreKeys : REQUIRED_CONFIG_KEYS;
+  const error = new Error(`Missing Jira configuration: ${missingKeys.join(", ")}`);
+  error.code = "jira/config-missing";
+  throw error;
 };
 
 const buildAuthHeader = ({ username, password }) =>
@@ -38,7 +75,7 @@ const parseErrorBody = async (response) => {
 };
 
 const searchJira = async ({ jql, maxResults = 0, fields = [] }) => {
-  const config = getJiraConfig();
+  const config = await getJiraConfig();
   const searchUrl = new URL(`${config.baseUrl}/rest/api/2/search`);
   searchUrl.searchParams.set("jql", jql);
   searchUrl.searchParams.set("startAt", "0");
@@ -66,8 +103,7 @@ const searchJira = async ({ jql, maxResults = 0, fields = [] }) => {
   return response.json();
 };
 
-const normalizeIssue = (issue) => {
-  const config = getJiraConfig();
+const normalizeIssue = (issue, baseUrl) => {
   const fields = issue?.fields || {};
 
   return {
@@ -83,12 +119,13 @@ const normalizeIssue = (issue) => {
     updated: fields.updated || null,
     scheduledStart: fields.customfield_17170 || null,
     scheduledEnd: fields.customfield_17172 || null,
-    url: `${config.baseUrl}/browse/${issue?.key || ""}`,
+    url: `${baseUrl}/browse/${issue?.key || ""}`,
   };
 };
 
 module.exports = {
   getMissingConfigKeys,
+  getJiraConfig,
   normalizeIssue,
   searchJira,
 };

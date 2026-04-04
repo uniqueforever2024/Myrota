@@ -2,7 +2,7 @@ const { onRequest } = require("firebase-functions/v2/https");
 const logger = require("firebase-functions/logger");
 const admin = require("firebase-admin");
 
-const { getMissingConfigKeys } = require("./jira/client");
+const { getJiraConfig } = require("./jira/client");
 const { buildDetailPayload, buildSummaryPayload } = require("./jira/views");
 
 if (!admin.apps.length) {
@@ -32,6 +32,7 @@ exports.jiraDashboard = onRequest(
 
     try {
       res.set("Cache-Control", "private, max-age=60, s-maxage=60");
+      await getJiraConfig();
 
       if (mode === "summary") {
         const payload = await buildSummaryPayload();
