@@ -58,7 +58,7 @@ export function JiraDashboardSection({ onOpenView }) {
     <section className="space-y-6 rounded-[34px] border border-amber-200/20 bg-gradient-to-br from-amber-300/[0.10] via-yellow-200/[0.08] to-orange-300/[0.06] p-6 shadow-[0_30px_90px_rgba(245,158,11,0.16)] backdrop-blur-2xl md:p-7">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <h2 className="text-3xl font-extrabold text-sky-100">Jira Dashboard (Testing Phase)</h2>
+          <h2 className="text-3xl font-extrabold text-sky-100">Jira Dashboard</h2>
           <p className="mt-2 max-w-3xl text-sm text-slate-300/85">
             {summary?.source === "mock"
               ? "Preview issue counts for EDI support, EDI mapping, and the tracked HCLCR change request queue."
