@@ -107,6 +107,11 @@ const EMPLOYEE_NAME_REPLACEMENTS = {
   Asutosh: "Komal",
 };
 
+const HIDDEN_EMPLOYEE_IDS = new Set(["admin"]);
+
+const isVisibleEmployeeName = (name) =>
+  !HIDDEN_EMPLOYEE_IDS.has(String(name ?? "").trim().toLowerCase());
+
 const getEmployeeDisplayName = (name) =>
   EMPLOYEE_NAME_REPLACEMENTS[name] ?? name;
 
@@ -121,9 +126,12 @@ const getPositionSortValue = (value) => {
 
 const buildEmployeeList = (names) => {
   const orderedNames = [];
-  names.map(getEmployeeDisplayName).forEach((name) => {
+  names
+    .filter(isVisibleEmployeeName)
+    .map(getEmployeeDisplayName)
+    .forEach((name) => {
     if (!orderedNames.includes(name)) orderedNames.push(name);
-  });
+    });
 
   return orderedNames;
 };
@@ -582,6 +590,7 @@ export default function App() {
             ? getEmployeeDisplayName(empPart)
             : (EMPLOYEES[Number(empPart)] || String(empPart));
 
+          if (!isVisibleEmployeeName(empName)) return;
           if (!leaveEntries.includes(empName)) leaveEntries.push(empName);
         });
       } catch {}
@@ -1054,6 +1063,7 @@ export default function App() {
             const empName = isNaN(Number(empPart))
               ? getEmployeeDisplayName(empPart)
               : (EMPLOYEES[Number(empPart)] || String(empPart));
+            if (!isVisibleEmployeeName(empName)) return;
             if (!onLeave.includes(empName)) onLeave.push(empName);
           }
         });
