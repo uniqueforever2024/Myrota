@@ -1,0 +1,24 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[dev]
+  command = "npm run dev"
+  targetPort = 5173
+  port = 8888
+  publish = "dist"
+  autoLaunch = false
+
+[context.production.environment]
+  JIRA_DASHBOARD_USE_MOCK = "false"
+
+[context.deploy-preview.environment]
+  JIRA_DASHBOARD_USE_MOCK = "true"
+
+[context.branch-deploy.environment]
+  JIRA_DASHBOARD_USE_MOCK = "true"

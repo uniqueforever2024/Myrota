@@ -1237,10 +1237,14 @@ export default function App() {
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
         {/* HEADER */}
-        <header className="sticky top-0 z-40 px-4 py-3 flex justify-between items-center glass-nav">
-          <div className="flex items-center gap-2 cursor-pointer" onClick={handleLogoClick} title={isAdmin ? "Back to home" : "Open admin mode"}>
-            <BrandLogo className="h-10 w-10 md:h-11 md:w-11 drop-shadow" />
-            <h1 className="text-3xl font-black tracking-wide logo-title">
+        <header className="sticky top-0 z-40 flex items-center justify-between gap-3 px-3 py-3 sm:px-4 glass-nav">
+          <div
+            className="flex min-w-0 items-center gap-1.5 sm:gap-2 cursor-pointer"
+            onClick={handleLogoClick}
+            title={isAdmin ? "Back to home" : "Open admin mode"}
+          >
+            <BrandLogo className="h-8 w-8 shrink-0 sm:h-10 sm:w-10 md:h-11 md:w-11 drop-shadow" />
+            <h1 className="text-3xl font-black leading-none logo-title">
               My<span className="logo-blue">R</span>
               <span className="logo-green">o</span>
               <span className="logo-yellow">t</span>
@@ -1470,6 +1474,10 @@ export default function App() {
             }
           }
           @media (max-width: 640px) {
+            .logo-title {
+              font-size: 1.7rem;
+              letter-spacing: 0.04em;
+            }
             .top-nav-actions {
               gap: 0.35rem !important;
             }

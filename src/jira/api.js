@@ -1,19 +1,23 @@
-const FIREBASE_PROJECT_ID = "myrota-13aa3";
-const FUNCTIONS_REGION = "us-central1";
-const CLOUD_FUNCTION_URL = `https://${FUNCTIONS_REGION}-${FIREBASE_PROJECT_ID}.cloudfunctions.net/jiraDashboard`;
-const EMULATOR_FUNCTION_URL = `http://127.0.0.1:5001/${FIREBASE_PROJECT_ID}/${FUNCTIONS_REGION}/jiraDashboard`;
+const NETLIFY_FUNCTION_PATH = "/.netlify/functions/jiraDashboard";
+const NETLIFY_DEV_URL = `http://127.0.0.1:8888${NETLIFY_FUNCTION_PATH}`;
 
 const unique = (values) => Array.from(new Set(values.filter(Boolean)));
 
 const getApiBaseCandidates = () => {
   const explicitBaseUrl = import.meta.env.VITE_JIRA_DASHBOARD_API_URL?.trim();
   const host = typeof window !== "undefined" ? window.location.hostname : "";
+  const port = typeof window !== "undefined" ? window.location.port : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
   const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(host);
+  const sameOriginFunctionUrl = origin
+    ? new URL(NETLIFY_FUNCTION_PATH, origin).toString()
+    : NETLIFY_FUNCTION_PATH;
+  const localNetlifyDevUrl = isLocalHost && port !== "8888" ? NETLIFY_DEV_URL : null;
 
   return unique([
     explicitBaseUrl,
-    isLocalHost ? EMULATOR_FUNCTION_URL : null,
-    CLOUD_FUNCTION_URL,
+    localNetlifyDevUrl,
+    sameOriginFunctionUrl,
   ]);
 };
 
@@ -36,12 +40,24 @@ const readResponseBody = async (response) => {
 };
 
 const describeCandidateFailure = (baseUrl, error) => {
-  if (baseUrl === EMULATOR_FUNCTION_URL) {
-    return "Local Jira backend is not running on the Firebase Functions emulator.";
+  if (error?.responseStatus) {
+    if (error.responseStatus === 404 && baseUrl === NETLIFY_DEV_URL) {
+      return "Local Netlify Jira backend is not running. Start it with `npx netlify dev`.";
+    }
+
+    if (error.responseStatus === 404 && String(baseUrl || "").includes(NETLIFY_FUNCTION_PATH)) {
+      return "Netlify Jira backend is not reachable right now.";
+    }
+
+    return error.message || "Jira backend request failed.";
   }
 
-  if (baseUrl === CLOUD_FUNCTION_URL) {
-    return "Deployed Jira backend is not reachable. The jiraDashboard function may not be deployed yet.";
+  if (baseUrl === NETLIFY_DEV_URL) {
+    return "Local Netlify Jira backend is not running. Start it with `npx netlify dev`.";
+  }
+
+  if (String(baseUrl || "").includes(NETLIFY_FUNCTION_PATH)) {
+    return "Netlify Jira backend is not reachable right now.";
   }
 
   return error?.message || "Jira backend request failed.";
@@ -61,9 +77,11 @@ const requestJiraDashboard = async (params) => {
 
       const body = await readResponseBody(response);
       if (!response.ok) {
-        throw new Error(
+        const error = new Error(
           typeof body === "string" ? body : body?.error || `Request failed (${response.status})`
         );
+        error.responseStatus = response.status;
+        throw error;
       }
 
       return body;

@@ -30,6 +30,7 @@ export function JiraDashboardSection({ onOpenView }) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const sourceLabel = summary?.source === "mock" ? "Preview" : "Live";
 
   const countOrUnavailable = (value) => (value ?? (error ? "--" : 0));
 
@@ -59,7 +60,9 @@ export function JiraDashboardSection({ onOpenView }) {
         <div>
           <h2 className="text-3xl font-extrabold text-sky-100">Jira Dashboard (Testing Phase)</h2>
           <p className="mt-2 max-w-3xl text-sm text-slate-300/85">
-            Live issue counts for EDI support, EDI mapping, and the tracked HCLCR change request queue.
+            {summary?.source === "mock"
+              ? "Preview issue counts for EDI support, EDI mapping, and the tracked HCLCR change request queue."
+              : "Live issue counts for EDI support, EDI mapping, and the tracked HCLCR change request queue."}
           </p>
         </div>
         <button
@@ -90,7 +93,7 @@ export function JiraDashboardSection({ onOpenView }) {
               <p className="mt-2 text-sm text-cyan-100/75">Project EDI | In Progress stories and open epics</p>
             </div>
             <span className="rounded-full border border-cyan-200/15 bg-cyan-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">
-              Live
+              {sourceLabel}
             </span>
           </div>
 
@@ -131,7 +134,7 @@ export function JiraDashboardSection({ onOpenView }) {
               <p className="mt-2 text-sm text-violet-100/75">HCLSM | Team HCL-EDI</p>
             </div>
             <span className="rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-violet-100">
-              Live
+              {sourceLabel}
             </span>
           </div>
 
