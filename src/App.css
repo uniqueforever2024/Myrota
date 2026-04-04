@@ -18,29 +18,6 @@ body {
   padding: 0;
 }
 
-.typewriter-text {
-  font-weight: 900;
-  font-variation-settings: "wght" 1000;
-  letter-spacing: 0.05em;
-  transition: color 0.4s ease, text-shadow 0.4s ease;
-}
-.typewriter-blue {
-  color: #60a5fa;
-  text-shadow: 0 0 12px rgba(96, 165, 250, 0.55), 0 0 22px rgba(96, 165, 250, 0.35);
-}
-.typewriter-green {
-  color: #34d399;
-  text-shadow: 0 0 12px rgba(52, 211, 153, 0.55), 0 0 22px rgba(52, 211, 153, 0.35);
-}
-.typewriter-yellow {
-  color: #facc15;
-  text-shadow: 0 0 12px rgba(250, 204, 21, 0.55), 0 0 22px rgba(250, 204, 21, 0.35);
-}
-.typewriter-red {
-  color: #f87171;
-  text-shadow: 0 0 12px rgba(248, 113, 113, 0.55), 0 0 22px rgba(248, 113, 113, 0.35);
-}
-
 /* Week pill navigation */
 .week-pill-row {
   overflow-x: auto;
