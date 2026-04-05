@@ -27,27 +27,198 @@
             Logout
           </a>
         </div>
+
         <p class="eyebrow">Admin Workspace</p>
-        <h1>SFTP</h1>
+        <h1>SFTP Partner Directory</h1>
         <p class="lead">
-          Separate project space for SFTP endpoints, account tracking, transfer rules, and operational access notes.
+          Track partner connection details, usernames, passwords, connection types, and support contacts in one place.
+        </p>
+
+        <div class="hero-actions">
+          <button id="open-form-button" class="primary-button" type="button">
+            Add SFTP Details
+          </button>
+          <button id="download-template-button" class="secondary-button" type="button">
+            Download Excel Template
+          </button>
+          <label class="secondary-button import-button">
+            Import Excel
+            <input
+              id="import-file-input"
+              type="file"
+              accept=".xlsx,.xls,.csv"
+            />
+          </label>
+        </div>
+      </section>
+
+      <section class="workspace-card controls-card">
+        <div class="controls-grid">
+          <label class="search-field">
+            <span>Search Partner Details</span>
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Search by partner, type, host, username, or contact"
+              aria-label="Search SFTP partner details"
+            />
+          </label>
+
+          <div class="count-panel">
+            <span class="count-label">Visible Records</span>
+            <strong id="record-count">0</strong>
+          </div>
+        </div>
+
+        <p id="workspace-status" class="status-message" aria-live="polite">
+          Records are stored in this browser until a database is connected.
         </p>
       </section>
 
-      <section class="card-grid">
-        <article class="workspace-card">
-          <h2>Purpose</h2>
-          <p>Keep SFTP partner management independent from the production links workspace.</p>
-        </article>
-        <article class="workspace-card">
-          <h2>Suggested Content</h2>
-          <p>Server endpoints, inbound or outbound flows, credentials process, and monitoring notes.</p>
-        </article>
-        <article class="workspace-card">
-          <h2>Status</h2>
-          <p>Starter folder created and linked from the APF admin header.</p>
-        </article>
+      <section id="editor-panel" class="workspace-card editor-panel hidden">
+        <div class="panel-header">
+          <div>
+            <p class="panel-eyebrow">Create Or Edit</p>
+            <h2 id="editor-title">Add partner connection details</h2>
+          </div>
+          <button id="close-form-button" class="mini-button" type="button" aria-label="Close form">
+            x
+          </button>
+        </div>
+
+        <form id="sftp-form" class="sftp-form">
+          <input id="record-id" name="recordId" type="hidden" />
+
+          <div class="form-grid">
+            <label>
+              <span>Partner Name</span>
+              <input
+                id="partner-name"
+                name="partnerName"
+                type="text"
+                placeholder="Example: Partner Alpha"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Connection Type</span>
+              <input
+                id="connection-type"
+                name="connectionType"
+                type="text"
+                value="SFTP"
+                placeholder="SFTP, FTP, FTPS..."
+                required
+              />
+            </label>
+
+            <label>
+              <span>Host / Endpoint</span>
+              <input
+                id="host"
+                name="host"
+                type="text"
+                placeholder="sftp.partner.com"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Port</span>
+              <input
+                id="port"
+                name="port"
+                type="number"
+                min="1"
+                max="65535"
+                value="22"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Username</span>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                placeholder="partner_user"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Password</span>
+              <input
+                id="password"
+                name="password"
+                type="text"
+                placeholder="Store the current password"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Contact Person</span>
+              <input
+                id="contact-person"
+                name="contactPerson"
+                type="text"
+                placeholder="EDI Support"
+                required
+              />
+            </label>
+
+            <label class="notes-field">
+              <span>Connection Notes</span>
+              <textarea
+                id="notes"
+                name="notes"
+                rows="4"
+                placeholder="Remote path, schedule, firewall notes, or password rotation details"
+              ></textarea>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button class="primary-button" type="submit">Save Details</button>
+            <button id="reset-form-button" class="secondary-button" type="button">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="workspace-card records-card">
+        <div class="records-header">
+          <div>
+            <p class="panel-eyebrow">Partner Connections</p>
+            <h2>SFTP Details List</h2>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Partner</th>
+                <th>Type</th>
+                <th>Host</th>
+                <th>Port</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>Contact</th>
+                <th>Notes</th>
+                <th>Updated</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="records-body"></tbody>
+          </table>
+        </div>
       </section>
     </main>
+
+    <script src="./vendor/xlsx.full.min.js"></script>
+    <script src="./app.js"></script>
   </body>
 </html>

@@ -6,14 +6,10 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(scriptDir, "..");
 const distRoot = join(repoRoot, "dist");
 
-const microsites = [
+const directoryCopies = [
   {
     source: join(repoRoot, "APF", "APF_NEW", "build"),
     target: join(distRoot, "APF", "APF_NEW", "build"),
-  },
-  {
-    source: join(repoRoot, "APF", "SFTP_NEW"),
-    target: join(distRoot, "APF", "SFTP_NEW"),
   },
   {
     source: join(repoRoot, "APF", "DOCUMENTATION_NEW"),
@@ -25,7 +21,7 @@ const microsites = [
   },
 ];
 
-for (const { source, target } of microsites) {
+for (const { source, target } of directoryCopies) {
   if (!existsSync(source)) {
     throw new Error(`Microsite source folder is missing: ${source}`);
   }
@@ -35,4 +31,27 @@ for (const { source, target } of microsites) {
   cpSync(source, target, { recursive: true });
 }
 
-console.log(`Copied ${microsites.length} microsites into ${distRoot}`);
+const sftpTarget = join(distRoot, "APF", "SFTP_NEW");
+rmSync(sftpTarget, { recursive: true, force: true });
+mkdirSync(join(sftpTarget, "vendor"), { recursive: true });
+
+const sftpFiles = [
+  "index.html",
+  "styles.css",
+  "app.js",
+  join("vendor", "xlsx.full.min.js"),
+];
+
+for (const relativePath of sftpFiles) {
+  const source = join(repoRoot, "APF", "SFTP_NEW", relativePath);
+  const target = join(sftpTarget, relativePath);
+
+  if (!existsSync(source)) {
+    throw new Error(`SFTP publish file is missing: ${source}`);
+  }
+
+  mkdirSync(dirname(target), { recursive: true });
+  cpSync(source, target, { recursive: true });
+}
+
+console.log(`Copied ${directoryCopies.length + 1} microsites into ${distRoot}`);
