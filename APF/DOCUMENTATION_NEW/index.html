@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Documentation Workspace</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="workspace-shell">
+      <section class="hero-card">
+        <div class="hero-toolbar">
+          <a
+            id="home-button"
+            class="icon-button"
+            href="http://localhost:5173/"
+            title="Return to MyRota dashboard"
+            aria-label="Home"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M4.5 10.5L12 4l7.5 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-4v5H5.5a1 1 0 0 1-1-1z"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+
+          <button
+            id="open-editor-button"
+            class="icon-button"
+            type="button"
+            title="Add note"
+            aria-label="Add note"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 5v14M5 12h14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+          </button>
+
+          <a
+            class="icon-button"
+            href="http://localhost:5173/?logout=1"
+            title="Logout"
+            aria-label="Logout"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M10 5.5H7.5A1.5 1.5 0 0 0 6 7v10a1.5 1.5 0 0 0 1.5 1.5H10"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M14 8.5l4 3.5-4 3.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M9 12h8.5"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <p class="eyebrow">Admin Workspace</p>
+        <h1>Documentation</h1>
+        <p class="lead">
+          Create searchable working notes, upload diagrams, edit pages later, and export any page as a PDF.
+        </p>
+      </section>
+
+      <section class="workspace-card controls-card">
+        <div class="controls-grid">
+          <label class="search-field">
+            <span>Search Notes</span>
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Search by title, content, tag, or file name"
+              aria-label="Search notes"
+            />
+          </label>
+
+          <div class="count-panel">
+            <span class="count-label">Visible Notes</span>
+            <strong id="note-count">0</strong>
+          </div>
+        </div>
+      </section>
+
+      <section id="editor-panel" class="workspace-card editor-panel hidden">
+        <div class="panel-header">
+          <div>
+            <p class="panel-eyebrow">Add Or Edit</p>
+            <h2 id="editor-title">Create a documentation page</h2>
+          </div>
+          <button
+            id="close-editor-button"
+            class="mini-button"
+            type="button"
+            aria-label="Close editor"
+          >
+            x
+          </button>
+        </div>
+
+        <form id="note-form" class="note-form">
+          <input id="note-id" name="noteId" type="hidden" />
+
+          <div class="form-row">
+            <label>
+              <span>Title</span>
+              <input
+                id="note-title"
+                name="title"
+                type="text"
+                placeholder="Example: EDI onboarding checklist"
+                required
+              />
+            </label>
+
+            <label>
+              <span>Tag / Team</span>
+              <input
+                id="note-tag"
+                name="tag"
+                type="text"
+                placeholder="Operations, Security, Support..."
+                required
+              />
+            </label>
+          </div>
+
+          <label>
+            <span>Note Content</span>
+            <textarea
+              id="note-body"
+              name="body"
+              rows="10"
+              placeholder="Write the documentation note here..."
+              required
+            ></textarea>
+          </label>
+
+          <label>
+            <span>Upload Diagram / Media</span>
+            <div class="upload-shell">
+              <input
+                id="note-media"
+                name="media"
+                type="file"
+                accept="image/*,.svg,.pdf"
+              />
+              <span id="media-name">No media uploaded yet</span>
+            </div>
+          </label>
+
+          <div id="media-preview" class="media-preview hidden">
+            <img id="media-preview-image" alt="Uploaded note preview" />
+            <div id="media-preview-file" class="file-chip hidden"></div>
+          </div>
+
+          <div class="form-actions">
+            <button class="primary-button" type="submit">Save Page</button>
+            <button id="reset-form-button" class="secondary-button" type="button">Clear</button>
+          </div>
+        </form>
+
+        <p id="form-status" class="form-status" aria-live="polite"></p>
+      </section>
+
+      <section class="notes-grid" id="notes-grid" aria-live="polite"></section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

@@ -6,10 +6,10 @@ import {
 } from "./api";
 
 const countButtonBaseClass =
-  "group rounded-2xl border px-4 py-4 text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.28)]";
+  "group flex h-full flex-col justify-between rounded-2xl border px-4 py-4 text-left transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(15,23,42,0.28)]";
 
 const panelShellClass =
-  "rounded-[28px] border p-6 shadow-[0_28px_90px_rgba(15,23,42,0.34)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1";
+  "flex h-full flex-col rounded-[28px] border p-6 shadow-[0_28px_90px_rgba(15,23,42,0.34)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1";
 
 const SkeletonBlock = ({ className }) => (
   <div className={`animate-pulse rounded-2xl bg-white/10 ${className}`} />
@@ -80,7 +80,7 @@ export function JiraDashboardSection({ onOpenView }) {
         </div>
       )}
 
-      <div className="grid gap-6 xl:grid-cols-2">
+      <div className="grid gap-6 xl:auto-rows-fr xl:grid-cols-2 xl:items-stretch">
         <article
           className={`${panelShellClass} border-cyan-200/15 bg-gradient-to-br from-cyan-950/65 via-sky-950/45 to-white/[0.04]`}
         >
@@ -97,7 +97,7 @@ export function JiraDashboardSection({ onOpenView }) {
             </span>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="mt-6 grid flex-1 gap-4 sm:grid-cols-2 sm:items-stretch">
             {loading && !summary ? (
               <>
                 <SkeletonBlock className="h-36 w-full" />
@@ -138,7 +138,7 @@ export function JiraDashboardSection({ onOpenView }) {
             </span>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+          <div className="mt-6 grid flex-1 gap-4 sm:grid-cols-2 sm:items-stretch">
             {loading && !summary ? (
               <>
                 <SkeletonBlock className="h-36 w-full" />
@@ -195,13 +195,13 @@ export function JiraDashboardSection({ onOpenView }) {
               <SkeletonBlock className="h-24 w-full" />
             </div>
           ) : summary?.changes?.issues?.length ? (
-            <div className="grid gap-3 lg:grid-cols-2">
+            <div className="grid gap-3 lg:auto-rows-fr lg:grid-cols-2 lg:items-stretch">
               {summary.changes.issues.map((issue) => (
                 <button
                   key={issue.key}
                   type="button"
                   onClick={() => onOpenView(summary?.changes?.viewId)}
-                  className="rounded-2xl border border-amber-100/15 bg-white/[0.07] px-4 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-amber-300/30 hover:bg-white/[0.1]"
+                  className="flex h-full flex-col rounded-2xl border border-amber-100/15 bg-white/[0.07] px-4 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-amber-300/30 hover:bg-white/[0.1]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span className="text-sm font-black tracking-[0.18em] text-amber-100">{issue.key}</span>
@@ -209,7 +209,7 @@ export function JiraDashboardSection({ onOpenView }) {
                       {issue.status}
                     </span>
                   </div>
-                  <div className="mt-3 line-clamp-2 text-base font-bold text-white">{issue.summary}</div>
+                  <div className="mt-3 flex-1 line-clamp-2 text-base font-bold text-white">{issue.summary}</div>
                   <div className="mt-4 text-sm font-semibold text-amber-50/85">
                     {formatJiraScheduleWindow(issue)}
                   </div>

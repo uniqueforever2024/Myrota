@@ -36,6 +36,299 @@ import {
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
+const PORTAL_LOGIN_STORAGE_KEY = "myrota.portal.login.v1";
+const PORTAL_SHARED_LOGIN_STORAGE_KEY = "myrota.portal.login.shared.v1";
+const PORTAL_LOGOUT_QUERY_KEY = "logout";
+const PORTAL_DEFAULT_USERNAME = "admin";
+const PORTAL_ALLOWED_PASSWORDS = new Set(["VeryGood2022", "VeryGood2019"]);
+const CERTIFICATE_STORAGE_KEY = "certificate_new_records_v1";
+
+const clearPortalLoginSession = () => {
+  if (typeof window === "undefined") return;
+
+  try {
+    window.sessionStorage.removeItem(PORTAL_LOGIN_STORAGE_KEY);
+  } catch {}
+
+  try {
+    window.localStorage.removeItem(PORTAL_SHARED_LOGIN_STORAGE_KEY);
+  } catch {}
+};
+
+const persistPortalLoginSession = (session) => {
+  if (typeof window === "undefined") return;
+
+  const serializedSession = JSON.stringify(session);
+
+  try {
+    window.sessionStorage.setItem(PORTAL_LOGIN_STORAGE_KEY, serializedSession);
+  } catch {}
+
+  try {
+    window.localStorage.setItem(PORTAL_SHARED_LOGIN_STORAGE_KEY, serializedSession);
+  } catch {}
+};
+
+const startOfLocalDay = (dateInput) => {
+  const date = new Date(dateInput);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
+const getDaysUntilTargetDate = (dateInput) => {
+  if (!dateInput) return Number.POSITIVE_INFINITY;
+  const today = startOfLocalDay(new Date());
+  const targetDate = startOfLocalDay(dateInput);
+  return Math.ceil((targetDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
+};
+
+const readCertificateExpiryAlerts = () => {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const rawValue = window.localStorage.getItem(CERTIFICATE_STORAGE_KEY);
+    if (!rawValue) {
+      return [];
+    }
+
+    const parsedRecords = JSON.parse(rawValue);
+    if (!Array.isArray(parsedRecords)) {
+      return [];
+    }
+
+    return parsedRecords
+      .map((record, index) => {
+        const partnerName = String(record?.partnerName || "").trim();
+        const certificateType = String(record?.certificateType || "").trim();
+        const expiryDate = String(record?.expiryDate || "").trim();
+        const daysUntilExpiry = getDaysUntilTargetDate(expiryDate);
+
+        return {
+          id: String(record?.id || `certificate-${index}`),
+          partnerName,
+          certificateType,
+          expiryDate,
+          daysUntilExpiry,
+        };
+      })
+      .filter(
+        (record) =>
+          record.partnerName &&
+          record.expiryDate &&
+          Number.isFinite(record.daysUntilExpiry) &&
+          record.daysUntilExpiry >= 0 &&
+          record.daysUntilExpiry <= 15
+      )
+      .sort((left, right) => {
+        if (left.daysUntilExpiry !== right.daysUntilExpiry) {
+          return left.daysUntilExpiry - right.daysUntilExpiry;
+        }
+
+        return new Date(left.expiryDate).getTime() - new Date(right.expiryDate).getTime();
+      });
+  } catch {
+    return [];
+  }
+};
+
+const readPortalLoginSession = () => {
+  if (typeof window === "undefined") {
+    return { isAuthenticated: false, isAdmin: false };
+  }
+
+  try {
+    const currentUrl = new URL(window.location.href);
+    if (currentUrl.searchParams.get(PORTAL_LOGOUT_QUERY_KEY) === "1") {
+      clearPortalLoginSession();
+      currentUrl.searchParams.delete(PORTAL_LOGOUT_QUERY_KEY);
+      const cleanedUrl = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}` || "/";
+      window.history.replaceState({}, "", cleanedUrl);
+      return { isAuthenticated: false, isAdmin: false };
+    }
+
+    const rawSession =
+      window.sessionStorage.getItem(PORTAL_LOGIN_STORAGE_KEY) ||
+      window.localStorage.getItem(PORTAL_SHARED_LOGIN_STORAGE_KEY);
+
+    if (!rawSession) {
+      return { isAuthenticated: false, isAdmin: false };
+    }
+
+    try {
+      window.sessionStorage.setItem(PORTAL_LOGIN_STORAGE_KEY, rawSession);
+    } catch {}
+
+    const parsedSession = JSON.parse(rawSession);
+    const isAuthenticatedSession =
+      parsedSession?.username === PORTAL_DEFAULT_USERNAME &&
+      (parsedSession?.isAuthenticated === true || parsedSession?.isAdmin === true);
+    const isAdminSession = isAuthenticatedSession && parsedSession?.isAdmin === true;
+
+    return {
+      isAuthenticated: isAuthenticatedSession,
+      isAdmin: isAdminSession,
+    };
+  } catch {
+    return { isAuthenticated: false, isAdmin: false };
+  }
+};
+
+const AppGridIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className="h-7 w-7"
+  >
+    <rect x="4" y="4" width="6" height="6" rx="1.5" />
+    <rect x="14" y="4" width="6" height="6" rx="1.5" />
+    <rect x="4" y="14" width="6" height="6" rx="1.5" />
+    <rect x="14" y="14" width="6" height="6" rx="1.5" />
+  </svg>
+);
+
+const TransferIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className="h-7 w-7"
+  >
+    <path d="M3 7h12l2 2h4" />
+    <path d="M7 17h14" />
+    <path d="m12 11 3-3 3 3" />
+    <path d="m18 13-3 3-3-3" />
+  </svg>
+);
+
+const CertificateIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className="h-7 w-7"
+  >
+    <path d="M12 3 6.5 5v5.5c0 4 2.3 7.7 5.5 9.5 3.2-1.8 5.5-5.5 5.5-9.5V5L12 3Z" />
+    <path d="m9.5 11.8 1.7 1.7 3.3-3.6" />
+  </svg>
+);
+
+const DocumentationIcon = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className="h-7 w-7"
+  >
+    <path d="M8 3.5h6l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 7 19V5A1.5 1.5 0 0 1 8.5 3.5Z" />
+    <path d="M14 3.5V8h4" />
+    <path d="M9.5 11.5h5" />
+    <path d="M9.5 15h5" />
+  </svg>
+);
+
+const LogoutIcon = ({ className = "h-5 w-5" }) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    className={className}
+  >
+    <path d="M10 5.5H7.5A1.5 1.5 0 0 0 6 7v10a1.5 1.5 0 0 0 1.5 1.5H10" />
+    <path d="M14 8.5 18 12l-4 3.5" />
+    <path d="M9 12h8.5" />
+  </svg>
+);
+
+const QUICK_ACCESS_ITEMS = [
+  {
+    id: "apf",
+    label: "APF",
+    href: "/APF/APF_NEW/build/index.html",
+    Icon: AppGridIcon,
+  },
+  {
+    id: "sftp",
+    label: "SFTP",
+    href: "/APF/SFTP_NEW/index.html",
+    Icon: TransferIcon,
+  },
+  {
+    id: "certificate",
+    label: "CERTIFICATE",
+    href: "/APF/CERTIFICATE_NEW/public/index.html",
+    Icon: CertificateIcon,
+  },
+  {
+    id: "documentation",
+    label: "DOCUMENTATION",
+    href: "/APF/DOCUMENTATION_NEW/index.html",
+    Icon: DocumentationIcon,
+  },
+];
+
+const QuickAccessRibbon = () => (
+  <section className="quick-ribbon-wrap px-4 pb-2 pt-4 sm:px-6 lg:px-10" aria-label="Microsites">
+    <div className="quick-ribbon relative overflow-hidden rounded-[28px] border border-white/12 px-4 py-5 sm:px-6 sm:py-6">
+      <div className="quick-ribbon-glow quick-ribbon-glow-blue" />
+      <div className="quick-ribbon-glow quick-ribbon-glow-green" />
+      <div className="quick-ribbon-glow quick-ribbon-glow-yellow" />
+      <div className="quick-ribbon-glow quick-ribbon-glow-red" />
+
+      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="max-w-xl">
+          <h2 className="text-2xl font-black tracking-[0.12em] text-white sm:text-3xl">
+            LC EDI MICROSITES
+          </h2>
+          <p className="mt-2 text-sm font-semibold tracking-[0.08em] text-sky-100/78 sm:text-base">
+            (Under Testing Phase :) )
+          </p>
+        </div>
+
+        <div className="grid w-full max-w-4xl grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {QUICK_ACCESS_ITEMS.map(({ id, label, href, Icon }) => (
+            <a
+              key={id}
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              className={`quick-link-card quick-link-card--${id}`}
+              aria-label={label}
+            >
+              <span className={`quick-link-icon quick-link-icon--${id}`}>
+                <Icon />
+              </span>
+              <span className="quick-link-label">{label}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 /* ------------------ CONSTANTS ------------------ */
 const BASE_YEAR = 2025;
 const FULL_YEAR_MONTHS = [
@@ -206,10 +499,22 @@ function generateWeeks(year, month) {
 
 /* ------------------ MAIN APP ------------------ */
 export default function App() {
+  const initialPortalSession = readPortalLoginSession();
   const prefersDark = true; // default dark
-  const [page, setPage] = useState("home"); // home | dashboard | logs | report | notifications | jira-details
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [page, setPage] = useState(
+    initialPortalSession.isAuthenticated ? "dashboard" : "home"
+  ); // home | dashboard | logs | report | notifications | jira-details
+  const [isAuthenticated, setIsAuthenticated] = useState(initialPortalSession.isAuthenticated);
+  const [isAdmin, setIsAdmin] = useState(initialPortalSession.isAdmin);
   const [darkMode] = useState(prefersDark);
+  const [loginForm, setLoginForm] = useState({
+    username: PORTAL_DEFAULT_USERNAME,
+    password: "",
+  });
+  const [loginError, setLoginError] = useState("");
+  const [certificateExpiryAlerts, setCertificateExpiryAlerts] = useState(() =>
+    readCertificateExpiryAlerts()
+  );
 
   // Simple nav history stack to support Back
   const navStackRef = useRef(["home"]);
@@ -220,6 +525,29 @@ export default function App() {
       if (stack.length > 100) stack.shift();
     }
   }, [page]);
+
+  useEffect(() => {
+    const refreshCertificateAlerts = () => {
+      setCertificateExpiryAlerts(readCertificateExpiryAlerts());
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        refreshCertificateAlerts();
+      }
+    };
+
+    refreshCertificateAlerts();
+    window.addEventListener("storage", refreshCertificateAlerts);
+    window.addEventListener("focus", refreshCertificateAlerts);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener("storage", refreshCertificateAlerts);
+      window.removeEventListener("focus", refreshCertificateAlerts);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
 
   // Auto-set dropdown defaults (IST)
   const now = new Date();
@@ -599,6 +927,74 @@ export default function App() {
     return leaveEntries;
   };
 
+  const handlePortalLogin = (event) => {
+    event.preventDefault();
+
+    const normalizedUsername = loginForm.username.trim().toLowerCase();
+    const typedPassword = loginForm.password.trim();
+
+    if (normalizedUsername !== PORTAL_DEFAULT_USERNAME || !PORTAL_ALLOWED_PASSWORDS.has(typedPassword)) {
+      setLoginError("Invalid user ID or password.");
+      return;
+    }
+
+    persistPortalLoginSession({
+      username: PORTAL_DEFAULT_USERNAME,
+      isAuthenticated: true,
+      isAdmin: false,
+      loggedInAt: Date.now(),
+    });
+
+    navStackRef.current = ["home"];
+    setPage("dashboard");
+    setShowAdminModal(false);
+    setAdminPass("");
+    setIsAuthenticated(true);
+    setIsAdmin(false);
+    setLoginError("");
+    setLoginForm({
+      username: PORTAL_DEFAULT_USERNAME,
+      password: "",
+    });
+  };
+
+  const handlePortalLogout = () => {
+    clearPortalLoginSession();
+
+    try {
+      const currentUrl = new URL(window.location.href);
+      if (currentUrl.searchParams.has(PORTAL_LOGOUT_QUERY_KEY)) {
+        currentUrl.searchParams.delete(PORTAL_LOGOUT_QUERY_KEY);
+        const cleanedUrl = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}` || "/";
+        window.history.replaceState({}, "", cleanedUrl);
+      }
+    } catch {}
+
+    navStackRef.current = ["home"];
+    setEmployeeView(null);
+    setJiraDetailView(null);
+    setShowAdminModal(false);
+    setAdminPass("");
+    setLoginError("");
+    setLoginForm({
+      username: PORTAL_DEFAULT_USERNAME,
+      password: "",
+    });
+    setPage("home");
+    setIsAdmin(false);
+    setIsAuthenticated(false);
+  };
+
+  const handleAdminLogout = () => {
+    navStackRef.current = ["home"];
+    setEmployeeView(null);
+    setJiraDetailView(null);
+    setShowAdminModal(false);
+    setAdminPass("");
+    setPage("home");
+    setIsAdmin(false);
+  };
+
   /* AUTH */
   const handleAdminLogin = async () => {
     const typed = adminPass.trim();
@@ -685,6 +1081,28 @@ export default function App() {
         className="text-2xl hover:scale-110 transition text-white"
       >
         🏠
+      </button>
+
+      {isAdmin && (
+        <button
+          type="button"
+          onClick={handleAdminLogout}
+          title="Logout from admin mode"
+          aria-label="Logout from admin mode"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-amber-300/20 bg-amber-400/10 text-amber-100 transition hover:scale-105 hover:border-amber-300/35 hover:bg-amber-400/16 hover:text-white"
+        >
+          <LogoutIcon />
+        </button>
+      )}
+
+      <button
+        type="button"
+        onClick={handlePortalLogout}
+        title="Logout"
+        aria-label="Logout"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-rose-300/20 bg-rose-400/10 text-rose-100 transition hover:scale-105 hover:border-rose-300/35 hover:bg-rose-400/16 hover:text-white"
+      >
+        <LogoutIcon />
       </button>
     </div>
   );
@@ -1093,14 +1511,14 @@ export default function App() {
     const statusItemClass = "rounded-xl border border-emerald-100/15 bg-white/[0.06] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl";
 
     return (
-      <div className="rounded-2xl border border-emerald-200/15 bg-gradient-to-br from-emerald-950/50 via-green-950/30 to-white/[0.03] shadow-[0_22px_60px_rgba(6,78,59,0.32)] p-6 glass transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(6,95,70,0.38)]">
+      <div className="flex h-full w-full flex-col rounded-2xl border border-emerald-200/15 bg-gradient-to-br from-emerald-950/50 via-green-950/30 to-white/[0.03] p-6 shadow-[0_22px_60px_rgba(6,78,59,0.32)] glass transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_28px_70px_rgba(6,95,70,0.38)]">
         <div className="flex items-center justify-between mb-3">
           <div className="text-emerald-200/80 text-sm">{dateText} (IST)</div>
           <span className="rounded-full border border-emerald-200/20 bg-emerald-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-emerald-100 backdrop-blur-md">
             Live Team Status
           </span>
         </div>
-        <div className="space-y-2 sm:space-y-3 text-emerald-50">
+        <div className="flex-1 space-y-2 text-emerald-50 sm:space-y-3">
           {(onLeave.length > 0 || !isWeekend) && (
             <div className={statusItemClass}>
               {onLeave.length > 0 ? (
@@ -1175,14 +1593,14 @@ export default function App() {
     });
 
     return (
-      <div className="rounded-2xl border border-rose-200/15 bg-gradient-to-br from-rose-950/55 via-red-950/35 to-white/[0.03] shadow-[0_22px_60px_rgba(127,29,29,0.35)] p-6 glass transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_28px_72px_rgba(127,29,29,0.42)]">
+      <div className="flex h-full w-full flex-col rounded-2xl border border-rose-200/15 bg-gradient-to-br from-rose-950/55 via-red-950/35 to-white/[0.03] p-6 shadow-[0_22px_60px_rgba(127,29,29,0.35)] glass transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_28px_72px_rgba(127,29,29,0.42)]">
         <div className="mb-3 flex items-center justify-between gap-3">
           <h3 className="text-2xl font-extrabold text-rose-100">Leave Plan</h3>
           <span className="rounded-full border border-rose-200/20 bg-rose-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-rose-100 backdrop-blur-md">
             Next 3 Days
           </span>
         </div>
-        <div className="space-y-2 text-rose-50">
+        <div className="flex-1 space-y-2 text-rose-50">
           {leavePlanItems.length > 0 ? (
             leavePlanItems.map(({ key, message }) => (
               <div
@@ -1195,6 +1613,54 @@ export default function App() {
           ) : (
             <div className="rounded-xl border border-rose-100/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
               No leave planned for the next 3 days.
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  })();
+
+  const CertificateExpiryPanel = (() => {
+    const formatExpiryDate = (expiryDate) =>
+      new Date(`${expiryDate}T00:00:00`).toLocaleDateString(undefined, {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+
+    return (
+      <div className="flex h-full w-full flex-col rounded-2xl border border-amber-200/15 bg-gradient-to-br from-amber-950/55 via-orange-950/35 to-white/[0.03] p-6 shadow-[0_22px_60px_rgba(146,64,14,0.35)] glass transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_28px_72px_rgba(180,83,9,0.42)]">
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h3 className="text-2xl font-extrabold text-amber-100">Certificate Alert</h3>
+          <span className="rounded-full border border-amber-200/20 bg-amber-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-amber-100 backdrop-blur-md">
+            Next 15 Days
+          </span>
+        </div>
+        <div className="flex-1 space-y-2 text-amber-50">
+          {certificateExpiryAlerts.length > 0 ? (
+            certificateExpiryAlerts.map((record) => {
+              const dayMessage =
+                record.daysUntilExpiry === 0
+                  ? "expires today"
+                  : record.daysUntilExpiry === 1
+                    ? "expires in 1 day"
+                    : `expires in ${record.daysUntilExpiry} days`;
+
+              return (
+                <div
+                  key={record.id}
+                  className="rounded-xl border border-amber-100/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl"
+                >
+                  <div>{record.partnerName} {dayMessage} ({formatExpiryDate(record.expiryDate)})</div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-amber-100/70">
+                    {record.certificateType || "Certificate"}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="rounded-xl border border-amber-100/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
+              No certificates are expiring in the next 15 days.
             </div>
           )}
         </div>
@@ -1217,12 +1683,15 @@ export default function App() {
             <h2 className="text-3xl font-extrabold text-sky-200">What about Today?</h2>
           </div>
         </div>
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] xl:items-start">
-          <div className="min-w-0">
+        <div className="grid gap-6 xl:auto-rows-fr xl:grid-cols-3 xl:items-stretch">
+          <div className="flex h-full min-w-0">
             {NotificationsPanel}
           </div>
-          <div className="min-w-0">
+          <div className="flex h-full min-w-0">
             {LeavePlanPanel}
+          </div>
+          <div className="flex h-full min-w-0">
+            {CertificateExpiryPanel}
           </div>
         </div>
       </section>
@@ -1233,9 +1702,120 @@ export default function App() {
     </div>
   );
 
+  const PortalLoginPage = (
+    <>
+      <main className="login-shell relative flex flex-1 items-center justify-center overflow-hidden px-4 py-10 sm:px-6 lg:px-10">
+        <div className="login-orb login-orb-blue" />
+        <div className="login-orb login-orb-green" />
+        <div className="login-orb login-orb-yellow" />
+        <div className="login-orb login-orb-red" />
+
+        <div className="relative grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-center">
+          <section className="login-hero rounded-[30px] border border-white/10 p-7 sm:p-10">
+            <div className="login-hero-content">
+              <div className="login-ribbon">
+                <p className="text-xs font-black uppercase tracking-[0.36em] text-sky-200/80">
+                  Secure Access
+                </p>
+              </div>
+
+              <div className="login-brand-lockup">
+                <div className="login-brand-mark">
+                  <BrandLogo className="login-brand-logo" />
+                  <h1 className="login-brand-title">
+                    My<span className="logo-blue">R</span>
+                    <span className="logo-green">o</span>
+                    <span className="logo-yellow">t</span>
+                    <span className="logo-red">a</span>+
+                  </h1>
+                </div>
+              </div>
+
+              <div className="login-powered-note">
+                <span className="login-powered-label">Powered and maintained by</span>
+                <span className="login-powered-logo" aria-label="HCLTech">
+                  <span className="login-powered-logo-h">HCL</span>
+                  <span className="login-powered-logo-tech">Tech</span>
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <section className="login-card rounded-[30px] border border-white/12 p-6 sm:p-8">
+            <div className="mb-6">
+              <p className="text-xs font-black uppercase tracking-[0.34em] text-sky-200/80">
+                Portal Login
+              </p>
+              <h3 className="mt-3 text-3xl font-black text-white">Sign in</h3>
+              <p className="mt-2 text-sm font-medium text-slate-300/85">
+                Enter the default admin credentials to continue to the MyRota home page.
+              </p>
+            </div>
+
+            <form className="space-y-5" onSubmit={handlePortalLogin}>
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-slate-200/80">
+                  User ID
+                </span>
+                <input
+                  type="text"
+                  value={loginForm.username}
+                  readOnly
+                  className="login-input"
+                />
+              </label>
+
+              <label className="block">
+                <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-slate-200/80">
+                  Password
+                </span>
+                <input
+                  type="password"
+                  value={loginForm.password}
+                  autoComplete="current-password"
+                  placeholder="Enter password"
+                  className="login-input"
+                  onChange={(event) =>
+                    setLoginForm((previous) => ({
+                      ...previous,
+                      password: event.target.value,
+                    }))
+                  }
+                />
+                <span className="mt-2 block text-xs font-semibold tracking-[0.16em] text-sky-100/70">
+                  LC B2Bi password
+                </span>
+              </label>
+
+              {loginError ? (
+                <div className="rounded-2xl border border-rose-300/20 bg-rose-500/10 px-4 py-3 text-sm font-semibold text-rose-100">
+                  {loginError}
+                </div>
+              ) : null}
+
+              <button type="submit" className="btn-primary w-full py-3 text-sm uppercase tracking-[0.26em]">
+                Login
+              </button>
+            </form>
+          </section>
+        </div>
+      </main>
+
+      <footer className="simple-footer glass-footer">
+        <p className="text-sm tracking-wide footer-copy">
+          &copy; 2025 HCL | All Rights Reserved
+        </p>
+      </footer>
+    </>
+  );
+
   return (
     <div className={darkMode ? "dark" : ""}>
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+        {!isAuthenticated ? (
+          PortalLoginPage
+        ) : (
+          <>
         {/* HEADER */}
         <header className="sticky top-0 z-40 flex items-center justify-between gap-3 px-3 py-3 sm:px-4 glass-nav">
           <div
@@ -1253,6 +1833,8 @@ export default function App() {
           </div>
           {TopNav}
         </header>
+
+        <QuickAccessRibbon />
 
         <main className="flex-grow px-4 md:px-6 lg:px-10 py-8">
           {/* Back button below navbar (not on dashboard) */}
@@ -1392,6 +1974,8 @@ export default function App() {
             &copy; 2025 HCL | All Rights Reserved
           </p>
         </footer>
+          </>
+        )}
 
         {/* local styles (keyframes & utilities) */}
         <style>{`
@@ -1407,6 +1991,352 @@ export default function App() {
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 10px 25px rgba(2, 6, 23, 0.55);
             backdrop-filter: blur(18px);
+          }
+          .login-shell {
+            isolation: isolate;
+          }
+          .login-orb {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(60px);
+            opacity: 0.34;
+            pointer-events: none;
+          }
+          .login-orb-blue {
+            top: 5%;
+            left: -4%;
+            height: 240px;
+            width: 240px;
+            background: rgba(96, 165, 250, 0.34);
+          }
+          .login-orb-green {
+            bottom: 10%;
+            left: 20%;
+            height: 220px;
+            width: 220px;
+            background: rgba(52, 211, 153, 0.22);
+          }
+          .login-orb-yellow {
+            top: 16%;
+            right: 12%;
+            height: 220px;
+            width: 220px;
+            background: rgba(250, 204, 21, 0.18);
+          }
+          .login-orb-red {
+            right: -3%;
+            bottom: -2%;
+            height: 240px;
+            width: 240px;
+            background: rgba(248, 113, 113, 0.18);
+          }
+          .login-hero,
+          .login-card {
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.12),
+              0 24px 60px rgba(2, 6, 23, 0.34);
+          }
+          .login-hero {
+            background:
+              radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 34%),
+              radial-gradient(circle at bottom right, rgba(52, 211, 153, 0.12), transparent 38%),
+              rgba(255,255,255,0.05);
+          }
+          .login-card {
+            background:
+              radial-gradient(circle at top right, rgba(250, 204, 21, 0.12), transparent 32%),
+              radial-gradient(circle at bottom left, rgba(248, 113, 113, 0.12), transparent 36%),
+              rgba(7, 15, 36, 0.72);
+          }
+          .login-hero-content {
+            display: flex;
+            min-height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+            text-align: center;
+            width: 100%;
+          }
+          .login-ribbon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            border: 1px solid rgba(125, 211, 252, 0.22);
+            background: rgba(56, 189, 248, 0.08);
+            padding: 0.75rem 1.2rem;
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.12),
+              0 16px 34px rgba(2, 6, 23, 0.2);
+          }
+          .login-brand-lockup {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            min-height: 260px;
+            width: 100%;
+          }
+          .login-brand-mark {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            max-width: 420px;
+            width: 100%;
+          }
+          .login-brand-logo {
+            width: min(100%, 190px);
+            height: auto;
+            filter: drop-shadow(0 0 28px rgba(96,165,250,0.2));
+          }
+          .login-brand-title {
+            margin: 0;
+            font-size: clamp(2.15rem, 5.4vw, 3.8rem);
+            font-weight: 1000;
+            letter-spacing: 0.06em;
+            line-height: 0.98;
+            text-transform: none;
+            color: #f8fbff;
+            text-align: center;
+            text-shadow: 0 16px 40px rgba(2, 6, 23, 0.34);
+          }
+          .login-powered-note {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.9rem;
+            width: 100%;
+            max-width: 360px;
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            padding: 1.1rem 1.25rem;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+          }
+          .login-powered-label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            color: rgba(186, 230, 253, 0.78);
+          }
+          .login-powered-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.08em;
+            font-size: clamp(1.7rem, 4vw, 2.2rem);
+            font-weight: 900;
+            letter-spacing: -0.04em;
+            line-height: 1;
+          }
+          .login-powered-logo-h {
+            background: linear-gradient(90deg, #2563eb, #10b981, #ef4444);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+          }
+          .login-powered-logo-tech {
+            color: #f8fbff;
+          }
+          .login-input {
+            width: 100%;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.07);
+            padding: 0.95rem 1rem;
+            color: #f8fbff;
+            font-size: 0.98rem;
+            font-weight: 600;
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.08),
+              0 10px 24px rgba(2, 6, 23, 0.18);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+          }
+          .login-input:focus {
+            border-color: rgba(96, 165, 250, 0.6);
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.12),
+              0 0 0 1px rgba(96,165,250,0.2),
+              0 14px 28px rgba(14, 116, 144, 0.22);
+            outline: none;
+            transform: translateY(-1px);
+          }
+          .login-input[readonly] {
+            color: rgba(226, 232, 240, 0.88);
+            cursor: default;
+          }
+          .quick-ribbon-wrap {
+            position: relative;
+            z-index: 1;
+          }
+          .quick-ribbon {
+            background:
+              linear-gradient(135deg, rgba(8, 15, 40, 0.9), rgba(10, 25, 62, 0.76)),
+              linear-gradient(90deg, rgba(96, 165, 250, 0.12), rgba(52, 211, 153, 0.12), rgba(250, 204, 21, 0.1), rgba(248, 113, 113, 0.12));
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.12),
+              0 20px 48px rgba(2, 6, 23, 0.34);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            isolation: isolate;
+          }
+          .quick-ribbon::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(90deg, rgba(96,165,250,0.6), rgba(52,211,153,0.55), rgba(250,204,21,0.55), rgba(248,113,113,0.6));
+            -webkit-mask:
+              linear-gradient(#fff 0 0) content-box,
+              linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.65;
+            pointer-events: none;
+          }
+          .quick-ribbon-glow {
+            position: absolute;
+            border-radius: 999px;
+            filter: blur(42px);
+            opacity: 0.34;
+            pointer-events: none;
+          }
+          .quick-ribbon-glow-blue {
+            top: -28px;
+            left: 4%;
+            height: 130px;
+            width: 130px;
+            background: rgba(96, 165, 250, 0.65);
+          }
+          .quick-ribbon-glow-green {
+            top: 18%;
+            left: 29%;
+            height: 120px;
+            width: 120px;
+            background: rgba(52, 211, 153, 0.48);
+          }
+          .quick-ribbon-glow-yellow {
+            right: 20%;
+            top: -8px;
+            height: 120px;
+            width: 120px;
+            background: rgba(250, 204, 21, 0.42);
+          }
+          .quick-ribbon-glow-red {
+            right: -12px;
+            bottom: -20px;
+            height: 150px;
+            width: 150px;
+            background: rgba(248, 113, 113, 0.34);
+          }
+          .quick-link-card {
+            position: relative;
+            display: flex;
+            min-height: 148px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.95rem;
+            overflow: hidden;
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+            color: #f8fbff;
+            text-decoration: none;
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.16),
+              0 14px 34px rgba(15, 23, 42, 0.28);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            transition:
+              transform 0.28s ease,
+              box-shadow 0.28s ease,
+              border-color 0.28s ease,
+              background 0.28s ease;
+          }
+          .quick-link-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent 38%);
+            opacity: 0.9;
+            pointer-events: none;
+          }
+          .quick-link-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255,255,255,0.24);
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.22),
+              0 18px 38px rgba(15, 23, 42, 0.34);
+          }
+          .quick-link-icon {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            height: 64px;
+            width: 64px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.24);
+            color: #f8fbff;
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.22),
+              0 12px 28px rgba(15, 23, 42, 0.26);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+          }
+          .quick-link-icon--apf {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.44), rgba(37, 99, 235, 0.24));
+          }
+          .quick-link-icon--sftp {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.42), rgba(13, 148, 136, 0.22));
+          }
+          .quick-link-icon--certificate {
+            background: linear-gradient(135deg, rgba(250, 204, 21, 0.42), rgba(245, 158, 11, 0.2));
+            color: #fff8db;
+          }
+          .quick-link-icon--documentation {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.42), rgba(244, 63, 94, 0.22));
+          }
+          .quick-link-label {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            font-size: 0.77rem;
+            font-weight: 900;
+            letter-spacing: 0.22em;
+            color: #f8fbff;
+          }
+          .quick-link-card--apf:hover {
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.22),
+              0 20px 42px rgba(59, 130, 246, 0.2);
+          }
+          .quick-link-card--sftp:hover {
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.22),
+              0 20px 42px rgba(16, 185, 129, 0.2);
+          }
+          .quick-link-card--certificate:hover {
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.22),
+              0 20px 42px rgba(245, 158, 11, 0.2);
+          }
+          .quick-link-card--documentation:hover {
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.22),
+              0 20px 42px rgba(244, 63, 94, 0.2);
           }
           .nav-featured-item {
             position: relative;
@@ -1478,6 +2408,41 @@ export default function App() {
               font-size: 1.7rem;
               letter-spacing: 0.04em;
             }
+            .login-shell {
+              padding-top: 2rem;
+              padding-bottom: 2rem;
+            }
+            .login-hero,
+            .login-card {
+              border-radius: 24px;
+            }
+            .login-hero-content {
+              gap: 1.5rem;
+            }
+            .login-ribbon {
+              padding: 0.7rem 1rem;
+            }
+            .login-brand-lockup {
+              min-height: 200px;
+            }
+            .login-brand-mark {
+              gap: 0.8rem;
+            }
+            .login-brand-logo {
+              width: min(100%, 150px);
+            }
+            .login-brand-title {
+              font-size: clamp(1.9rem, 9vw, 2.7rem);
+              letter-spacing: 0.05em;
+            }
+            .login-powered-note {
+              border-radius: 18px;
+              padding: 1rem 1.05rem;
+            }
+            .login-input {
+              border-radius: 16px;
+              padding: 0.9rem 0.95rem;
+            }
             .top-nav-actions {
               gap: 0.35rem !important;
             }
@@ -1486,6 +2451,28 @@ export default function App() {
             }
             .nav-rota-button {
               min-width: 78px;
+            }
+            .quick-ribbon-wrap {
+              padding-top: 0.85rem;
+            }
+            .quick-ribbon {
+              border-radius: 24px;
+              padding-inline: 1rem;
+              padding-block: 1.05rem;
+            }
+            .quick-link-card {
+              min-height: 128px;
+              border-radius: 18px;
+              gap: 0.8rem;
+            }
+            .quick-link-icon {
+              height: 58px;
+              width: 58px;
+              border-radius: 18px;
+            }
+            .quick-link-label {
+              font-size: 0.66rem;
+              letter-spacing: 0.18em;
             }
           }
           .simple-footer {

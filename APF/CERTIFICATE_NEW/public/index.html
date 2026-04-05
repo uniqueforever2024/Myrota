@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>EDI LC CERTIFICATE PORTAL</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="portal-shell">
+      <header class="portal-header">
+        <div class="portal-header-top">
+          <div class="portal-copy">
+            <h1>EDI LC CERTIFICATE PORTAL</h1>
+          </div>
+
+          <div class="header-actions">
+            <a
+              id="home-button"
+              class="icon-button"
+              href="http://localhost:5173/"
+              title="Return to MyRota dashboard"
+              aria-label="Home"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M4.5 10.5L12 4l7.5 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-4v5H5.5a1 1 0 0 1-1-1z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </a>
+
+            <button
+              id="logout-button"
+              class="icon-button"
+              type="button"
+              title="Logout"
+              aria-label="Logout"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path
+                  d="M10 5.5H7.5A1.5 1.5 0 0 0 6 7v10a1.5 1.5 0 0 0 1.5 1.5H10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M14 8.5l4 3.5-4 3.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M9 12h8.5"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <section class="portal-actions" aria-label="Certificate actions">
+        <button id="manage-button" class="manage-button" type="button">Manage Certificate</button>
+        <button id="toggle-form-button" class="add-button" type="button">Add Certificate</button>
+      </section>
+
+      <section class="form-panel hidden" id="form-panel">
+        <div class="form-panel-header">
+          <div>
+            <p class="form-eyebrow">Add Certificate</p>
+            <h2>Add a new certificate for tracking</h2>
+          </div>
+          <button id="close-form-button" class="close-form-button" type="button" aria-label="Close add certificate form">
+            x
+          </button>
+        </div>
+
+        <form id="certificate-form" class="certificate-form">
+          <label>
+            <span>Partner Name</span>
+            <input id="partner-name" name="partnerName" type="text" placeholder="Enter partner name" required />
+          </label>
+
+          <label>
+            <span>Certificate Type</span>
+            <input id="certificate-type" name="certificateType" type="text" placeholder="SSL, AS2, OFTP, VPN..." required />
+          </label>
+
+          <label>
+            <span>Contact Person / Team</span>
+            <input
+              id="contact-team"
+              name="contactTeam"
+              type="text"
+              placeholder="Enter contact person or team"
+              required
+            />
+          </label>
+
+          <div class="form-row">
+            <label>
+              <span>Certificate Generate Date</span>
+              <input id="issued-date" name="issuedDate" type="date" required />
+            </label>
+
+            <label>
+              <span>Expired Day</span>
+              <input id="expiry-date" name="expiryDate" type="date" required />
+            </label>
+          </div>
+
+          <label>
+            <span>Upload Certificate</span>
+            <div class="upload-shell">
+              <input id="certificate-upload" name="certificateUpload" type="file" />
+              <span id="upload-name">No file selected yet</span>
+            </div>
+          </label>
+
+          <label>
+            <span>Notes</span>
+            <textarea id="certificate-notes" name="notes" rows="4" placeholder="Owner, environment, or renewal notes"></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button class="save-button" type="submit">Save Certificate</button>
+            <button id="reset-form-button" class="reset-button" type="button">Clear</button>
+          </div>
+        </form>
+
+        <div class="form-status" id="form-status" aria-live="polite"></div>
+      </section>
+
+      <section class="window-grid" aria-label="Certificate expiry windows">
+        <button class="window-card dark" type="button" data-filter="expired">
+          <p>Already Expired</p>
+          <strong id="count-expired">0</strong>
+          <span id="label-expired">Click to view certificates</span>
+        </button>
+
+        <button class="window-card urgent" type="button" data-filter="expiring7">
+          <p>Certificate Expiring In Less Than 7 Days</p>
+          <strong id="count-7">0</strong>
+          <span id="label-7">Click to view certificates</span>
+        </button>
+
+        <button class="window-card success" type="button" data-filter="expiring15">
+          <p>Certificate Expiring In 15 Days</p>
+          <strong id="count-15">0</strong>
+          <span id="label-15">Click to view certificates</span>
+        </button>
+
+        <button class="window-card soft-success" type="button" data-filter="expiring30">
+          <p>Certificate Expiring In 30 Days</p>
+          <strong id="count-30">0</strong>
+          <span id="label-30">Click to view certificates</span>
+        </button>
+      </section>
+
+    </main>
+
+    <div class="details-shell hidden" id="details-shell" aria-hidden="true">
+      <section class="details-panel details-slide" id="details-panel">
+        <div class="details-header">
+          <div>
+            <p class="nav-eyebrow">Certificate Details</p>
+            <h2 id="details-title">All tracked certificates</h2>
+            <p id="details-copy">
+              Select one expiry window above to filter the complete certificate detail list.
+            </p>
+          </div>
+
+          <div class="details-tools">
+            <button
+              id="close-details-button"
+              class="close-details-button"
+              type="button"
+              aria-label="Close certificate list"
+            >
+              x
+            </button>
+
+            <input
+              id="search-input"
+              class="search-input"
+              type="search"
+              placeholder="Search by partner name"
+              aria-label="Search by partner name"
+            />
+
+            <div class="details-meta">
+              <span class="detail-chip" id="details-count">0 items</span>
+              <span class="detail-date" id="today-date">-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Partner Name</th>
+                <th>Certificate Type</th>
+                <th>Contact Person / Team</th>
+                <th>Generated Date</th>
+                <th>Expiry Date</th>
+                <th>Upload</th>
+                <th>Status</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="certificate-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <div class="logout-note hidden" id="logout-overlay" aria-live="polite">
+      <div class="logout-note-card">
+        <p class="nav-eyebrow">Workspace Access</p>
+        <h3>Certificate portal session closed</h3>
+        <p>This portal stays open-access, so logout only closes the current local view.</p>
+        <button class="reopen-button" id="reopen-button" type="button">Re-open portal</button>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

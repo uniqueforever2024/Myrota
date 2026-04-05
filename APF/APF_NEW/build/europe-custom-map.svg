@@ -1,0 +1,66 @@
+<svg width="450" height="446" viewBox="0 0 450 446" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>Custom Europe map</title>
+  <defs>
+    <linearGradient id="landGradient" x1="75" y1="68" x2="363" y2="389" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8F2FC"/>
+      <stop offset="1" stop-color="#BDD3EA"/>
+    </linearGradient>
+    <linearGradient id="routeGradient" x1="68" y1="351" x2="381" y2="238" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#86BDF2"/>
+      <stop offset="1" stop-color="#2E6FAE"/>
+    </linearGradient>
+    <radialGradient id="pinGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(225 223) rotate(90) scale(196 198)">
+      <stop stop-color="#8CC6FF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#8CC6FF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="0" y="0" width="450" height="446" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="14" stdDeviation="14" flood-color="#113E73" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <circle cx="225" cy="223" r="184" fill="url(#pinGlow)"/>
+
+  <g opacity="0.55" stroke="#7FB5E9" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="8 8">
+    <path d="M68 352C95 320 115 308 131 308"/>
+    <path d="M131 308C159 261 211 235 279 241"/>
+    <path d="M279 241C314 235 346 243 378 268"/>
+    <path d="M279 241C270 285 255 313 247 330"/>
+    <path d="M247 330C238 356 232 370 225 379"/>
+    <path d="M247 330C251 339 257 344 261 343"/>
+    <path d="M279 241C291 216 300 199 306 187"/>
+  </g>
+
+  <g filter="url(#shadow)" stroke="#6F8FB5" stroke-width="3.2" stroke-linejoin="round">
+    <path d="M223 27C240 16 266 16 288 26C307 35 317 53 316 74C315 94 302 111 282 118C262 125 241 121 226 109C212 97 207 80 210 62C212 49 216 37 223 27Z" fill="url(#landGradient)"/>
+    <path d="M264 127C289 111 321 106 347 112C372 118 390 135 392 158C394 178 381 196 358 206C335 216 306 218 284 208C262 198 248 180 248 161C248 149 253 136 264 127Z" fill="url(#landGradient)"/>
+    <path d="M108 195C136 166 181 149 229 150C281 151 323 173 333 207C340 232 325 257 299 282C271 308 229 322 184 322C147 322 114 305 94 281C74 257 78 226 108 195Z" fill="url(#landGradient)"/>
+    <path d="M321 181C349 170 383 171 407 182C429 193 441 215 438 241C434 266 417 286 389 299C360 312 327 311 304 297C281 283 268 261 271 237C274 214 292 192 321 181Z" fill="url(#landGradient)"/>
+    <path d="M24 300C32 286 53 276 75 278C100 281 122 297 131 320C136 335 126 357 104 380C82 401 52 403 32 386C13 369 10 330 24 300Z" fill="url(#landGradient)"/>
+    <path d="M248 284C271 278 298 281 318 295C338 309 347 330 342 351C337 371 317 385 292 388C269 391 248 381 237 363C226 345 228 322 248 284Z" fill="url(#landGradient)"/>
+    <path d="M222 287C237 294 251 311 255 331C258 345 251 359 256 373C260 387 252 397 239 404C229 410 218 410 211 404C204 397 203 384 206 372C209 360 208 346 202 335C196 324 201 304 222 287Z" fill="url(#landGradient)"/>
+  </g>
+
+  <g opacity="0.9" stroke="#2B629B" stroke-width="3">
+    <circle cx="68" cy="352" r="11" fill="#F3F9FF"/>
+    <circle cx="131" cy="308" r="11" fill="#F3F9FF"/>
+    <circle cx="225" cy="379" r="11" fill="#F3F9FF"/>
+    <circle cx="279" cy="241" r="11" fill="#F3F9FF"/>
+    <circle cx="306" cy="187" r="11" fill="#F3F9FF"/>
+    <circle cx="378" cy="268" r="11" fill="#F3F9FF"/>
+    <circle cx="261" cy="343" r="11" fill="#F3F9FF"/>
+    <circle cx="247" cy="330" r="11" fill="#F3F9FF"/>
+  </g>
+
+  <g fill="#1B4F86">
+    <circle cx="68" cy="352" r="4.5"/>
+    <circle cx="131" cy="308" r="4.5"/>
+    <circle cx="225" cy="379" r="4.5"/>
+    <circle cx="279" cy="241" r="4.5"/>
+    <circle cx="306" cy="187" r="4.5"/>
+    <circle cx="378" cy="268" r="4.5"/>
+    <circle cx="261" cy="343" r="4.5"/>
+    <circle cx="247" cy="330" r="4.5"/>
+  </g>
+
+  <path d="M70 352C95 326 117 316 131 308C162 291 205 250 279 241C332 235 358 246 378 268" stroke="url(#routeGradient)" stroke-width="4" stroke-linecap="round" opacity="0.55"/>
+</svg>

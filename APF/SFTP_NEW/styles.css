@@ -1,0 +1,118 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(180deg, #0f3340, #1d5a69 58%, #f3efe8 58%, #f3efe8 100%);
+  color: #11303a;
+}
+
+.workspace-shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 20px 72px;
+}
+
+.hero-card,
+.workspace-card {
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20px 50px rgba(9, 33, 39, 0.16);
+}
+
+.hero-card {
+  padding: 40px;
+}
+
+.hero-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.workspace-home,
+.workspace-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(17, 48, 58, 0.9);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  box-shadow: 0 14px 28px rgba(9, 33, 39, 0.2);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.workspace-home {
+  background: rgba(255, 255, 255, 0.94);
+  color: #11303a;
+}
+
+.workspace-home:hover,
+.workspace-home:focus-visible {
+  transform: translateY(-1px);
+  background: #ffffff;
+}
+
+.workspace-logout:hover,
+.workspace-logout:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(12, 35, 44, 0.96);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  color: #7e6230;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 14px;
+  font-size: clamp(2.4rem, 4vw, 3.6rem);
+}
+
+.lead {
+  max-width: 720px;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #4b6870;
+}
+
+.card-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.workspace-card {
+  padding: 28px;
+}
+
+.workspace-card p {
+  color: #567279;
+  line-height: 1.65;
+}
+
+@media (max-width: 640px) {
+  .hero-toolbar {
+    margin-bottom: 14px;
+  }
+
+  .workspace-home,
+  .workspace-logout {
+    width: 100%;
+  }
+}
