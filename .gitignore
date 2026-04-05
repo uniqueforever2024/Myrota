@@ -18,6 +18,7 @@ dist-ssr
 .idea
 .DS_Store
 .netlify
+APF/EDI_CERTIFICATE/
 *.suo
 *.ntvs*
 *.njsproj
