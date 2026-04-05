@@ -16,8 +16,8 @@ import DashboardShell from "./components/DashboardShell";
 import DirectoryManagerModal from "./components/DirectoryManagerModal";
 
 const AUTH_STORAGE_KEY = "apf_new_auth_session_v1";
-const MYROTA_HOME_URL = "http://localhost:5173/";
-const MYROTA_LOGIN_URL = "http://localhost:5173/?logout=1";
+const MYROTA_HOME_URL = "/";
+const MYROTA_LOGIN_URL = "/?logout=1";
 const DEFAULT_CREDENTIALS = {
   admin: { username: "admin", password: "admin123" }
 };

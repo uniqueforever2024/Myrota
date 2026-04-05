@@ -36,8 +36,8 @@ const label15El = document.getElementById("label-15");
 const labelExpiredEl = document.getElementById("label-expired");
 
 const windowCards = Array.from(document.querySelectorAll(".window-card"));
-const MYROTA_HOME_URL = "http://localhost:5173/";
-const MYROTA_LOGIN_URL = "http://localhost:5173/?logout=1";
+const MYROTA_HOME_URL = "/";
+const MYROTA_LOGIN_URL = "/?logout=1";
 
 let selectedFilter = "all";
 let searchTerm = "";
