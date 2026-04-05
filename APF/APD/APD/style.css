@@ -1,0 +1,232 @@
+/*
+ *  #144282   dark blue
+ *  #4B75B3   medium blue
+ *  #CDDCEC   light blue
+ */
+/*** General ***/
+* {
+  padding: 0;
+  margin: 0;
+}
+* html .visualIEFloatFix { height: 0.01%; }
+
+h1 {
+  color: #FFFFFF;
+  font-size: 1.4em;
+  margin-top: 0;
+}
+
+h2 {
+  color: #FFFFFF;
+  font-size: 1em;
+  margin-top: 0;
+}
+
+a:active,a:link,a:visited {
+  color: #FFFFFF;
+}
+a:hover {
+  color: #8CAFCD;
+  text-decoration : none;
+}
+
+.clear {
+  clear: both;
+}
+
+/*** Body ***/
+body {
+  font-family: verdana, arial, sans-serif;
+  font-size : 12px;
+  color: #616161;
+  /*background: #CDDCEC;*/
+}
+
+
+/*** MAP ***/
+#map {
+  text-align: center; 
+  height: 350px; 
+  margin: 50px;
+}
+#map img {
+  border-style:none;
+  border: 1px solid black;
+}
+
+
+
+/*** Header ***/
+#header {
+  background: #144282;
+  height: 75px;
+}
+
+#header h1 {
+  font-variant: small-caps;
+  font-size: 1.8em;
+}
+
+
+/*** BU Tab Menu ***/
+
+
+ul#tabnav { /* general menu settings */
+  text-align: center; /* set to left, right or center */
+  margin: 1em 0 1em 20px; /* set margins as desired */
+  font: bold 0.8em verdana, arial, sans-serif; /* set font as desired */
+  list-style-type: none;
+  padding: 10px 10px 5px 10px;
+  /* THIRD number must change with respect to padding-top (X) below */
+  position : absolute;
+  top: 38px;
+}
+
+* html body ul#tabnav {top: 33px; t\op: 38px;}
+
+
+
+ul#tabnav li {
+  display: inline;
+}
+
+ul#tabnav li a { /* settings for all tab links */
+  height: 20px;
+  padding: 5px 14px;
+  /* set padding (tab size) as desired; FIRST number must change with respect to padding-top (X) above */
+  background-color: #4B75B3; /* set unselected tab background color as desired */
+  color: #FFF; /* set unselected tab link color as desired */
+  margin-right: 0px;
+  
+  /* set additional spacing between tabs as desired */
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+ul#tabnav a:hover { /* settings for hover effect */
+  background: #CDDCEC;/*#CDDCEC;*/ /* set desired hover color */
+  color: #144282;
+}
+
+ul#tabnav li.selected a, ul#tabnav li.selected a:hover {
+  background: #FFFFFF;
+  color: #144282;
+}
+
+/*** I18N Tab Menu ***/
+
+ul#lang { /* general menu settings */
+  text-align: right; /* set to left, right or center */
+  margin: 0 1em 1em 0px; /* set margins as desired */
+  font: bold 0.8em verdana, arial, sans-serif; /* set font as desired */
+  list-style-type: none;
+  padding: 10px 10px 5px 10px;
+  /* THIRD number must change with respect to padding-top (X) below */
+  position : absolute;
+  top: 5px;
+  right: 10px;
+}
+
+ul#lang li {
+  display: inline;
+}
+
+ul#lang li a { /* settings for all tab links */
+  height: 20px;
+  padding: 5px 4px;
+  /* set padding (tab size) as desired; FIRST number must change with respect to padding-top (X) above */
+  background-color: #4B75B3; /* set unselected tab background color as desired */
+  color: #FFF; /* set unselected tab link color as desired */
+  margin-right: 0px;
+  
+  /* set additional spacing between tabs as desired */
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: none;
+}
+
+ul#lang a:hover { /* settings for hover effect */
+  background: #CDDCEC;/*#CDDCEC;*/ /* set desired hover color */
+  color: #144282;
+}
+
+ul#lang li.selected a, ul#lang li.selected a:hover {
+  background: #FFFFFF;
+  color: #144282;
+}
+/************************/
+
+div#header h1 {
+  color: #FFF;
+  position : absolute;
+  padding-left : 10px;
+  top : 5px;
+}
+
+/*** Footer ***/
+#footer {
+  text-align: center;
+  font-size: 0.8em;
+  background: #144282;
+  color: #FFF;
+  font: 0.8em verdana, arial, sans-serif;
+  padding : 5px;
+}
+
+h1 {
+	margin: 10px 0;
+}
+
+/**Sidebar = menu*/
+#sidebar {
+	float: left;
+	margin: 4px;	
+  padding: 0; 
+	display: inline;	
+}
+
+#sidebar h2 {
+	padding: 15px 0px 5px 0px;
+	/*background: url(square_arrow.gif) no-repeat 2px 12px;*/
+	margin: 0;
+	text-transform: uppercase;
+  font-weight: bold;
+}
+
+#sidebar ul {
+  padding-left: 10px;
+}
+#sidebar ul ul {
+  padding-left: 0px;
+}
+
+
+
+#sidebar ul.sidemenu {
+	list-style: none;
+	text-align: left;
+	margin: 0 0 8px 0;	
+	padding-right: 0;		
+	text-decoration: none;
+}
+
+#sidebar ul.sidemenu li {
+  color: #EC981F;
+}
+
+
+/*
+#sidebar ul.sidemenu li {
+	border-bottom: 1px solid #EFF0F1;
+	background: url(arrow.gif) no-repeat 2px 5px;
+	padding: 2px 5px 2px 20px;	
+}
+* html body #sidebar ul.sidemenu li { height: 1%; }
+#sidebar ul.sidemenu a {
+	font-weight: bold;
+	background-image: none;
+	text-decoration: none;	
+	font-size: 0.8em;
+}
+*/

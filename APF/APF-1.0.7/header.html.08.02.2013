@@ -1,0 +1,23 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd" >
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link href="style.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+	<div id="header">
+		<h1>Access to Production Files</h1>
+			<ul id="tabnav">
+				  <li class="selected"><a>Home</a></li>
+				  <li><a href="de/de/index.html"  target="_top">BU DE</a></li>
+				  <li><a href="fr/fr/index.html"  target="_top">BU FR</a></li>
+				  <li><a href="it/it/index.html"  target="_top">BU VIA FR</a></li>
+				  <li><a href="pl/pl/index.html"  target="_top">BU PL</a></li>
+				  <li><a href="ua/pl/index.html"  target="_top">BU UA</a></li>
+				  <li><a href="hr/pl/index.html"  target="_top">BU HR</a></li>
+				  <li><a href="si/pl/index.html"  target="_top">BU SI</a></li>
+				  <li><a href="lt/pl/index.html"  target="_top">BU LT</a></li>
+			</ul>
+	</div>
+</body>
+</html>

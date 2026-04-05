@@ -1,0 +1,61 @@
+/*
+ *  #144282   dark blue
+ *  #4B75B3   medium blue
+ *  #CDDCEC   light blue
+ */
+ 
+/*** General ***/
+* {
+  padding: 0;
+  margin: 0;
+}
+* html .visualIEFloatFix { height: 0.01%; }
+
+
+/*** Body ***/
+body {
+  font-family: verdana, arial, sans-serif;
+  font-size : 12px;
+  color: #616161;
+  /*background: #CDDCEC;*/
+}
+
+
+a:link { color: #005EB6; text-decoration: none; }
+a:active { color: #666666; text-decoration: none; }
+a:visited { color: #005EB6/*#888888*/; text-decoration: none; }
+a:hover { text-decoration:none; }
+
+
+h1 {
+  color: #4B75B3;
+  font-size: 1.4em;
+  margin-top: 0;
+  font-variant: small-caps;
+}
+
+.innertube{
+margin: 10px; /*Margins for inner DIV inside each column (to provide padding)*/
+margin-top: 10px;
+}
+
+.clear {
+  clear: both;
+}
+
+
+ul {
+  padding-top: 20px;
+}
+
+ul li  {
+  padding: 3px;
+  background-color: #eaeaea;
+  width: 500px;
+  list-style-type: none;
+  margin: 2px;  
+}
+
+
+
+

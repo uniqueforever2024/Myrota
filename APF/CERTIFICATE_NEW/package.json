@@ -1,0 +1,19 @@
+{
+  "name": "edi_certificate",
+  "version": "1.0.0",
+  "description": "Open certificate workspace for portal development",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "certificate",
+    "workspace",
+    "express"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "4.21.2"
+  }
+}

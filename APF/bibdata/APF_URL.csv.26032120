@@ -1,0 +1,782 @@
+#ims;;;;
+ Fichier APF_URL.csv de configuration des URLs;;;;
+
+# -------------------------------------------;;;;
+#               BU FRANCE;;;;
+# -------------------------------------------;;;;
+
+
+#-----------------------;;;;
+#----- Annonces clients;;;;
+#-----------------------;;;;
+FR;ANNONCES;ORDERWMS-OL;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/ORDERWMSOL_FR/BMAP/;FR.VIA.ORDERWMSOL@lc.re7.groupecat.com
+FR;ANNONCES;BENELLI-OL;eair.groupecat.com:8000/arch/RECU/BENELLIOL2VIA_FR/;FR.VIA.BENELLI.OL@lc.re7.groupecat.com 
+FR;ANNONCES;BERGERAT MONNOYEUR;cof7.groupecat.com:8000/arch/RECU/BERGERAT/;FR.BERAT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;BMW BIKES;frbs.groupecat.com:8000/arch/RECU/BMWAFGFR2CAT/;FR.BMWBIKES.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;BMW PARTS;cof7.groupecat.com:8000/arch/RECU/BMW/;FR.BMW.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;CECOP Ordres de Livraison;gen7.groupecat.com:8000/arch/RECU/CECOP/;FR.CECOP.DELIV-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;CEVA (MAN DE);cof7.groupecat.com:8000/arch/RECU/CEVA/;LC.CEVA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;CHACON;cof7.groupecat.com:8000/arch/RECU/CHACON/;FR.CHACON@lc.re7.groupecat.com
+FR;ANNONCES;CHEVROLET;cof7.groupecat.com:8000/arch/RECU/CHEVROLET/;FR.CHEVROLET.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;Claims Toyota;cof7.groupecat.com:8000/arch/RECU/TOYOTACLAIMS/;FR.claimstoyota@lc.re7.groupecat.com
+FR;ANNONCES;Car Glass;eair.groupecat.com:8000/arch/RECU/CARGLAS2VIA_FR/;FR.VIA.CARGLASS.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;COLLECTAGE APPRO USINE RENAULT;cof7.groupecat.com:8000/arch/RECU/DFPVFR/;FR.DFPV@lc.re7.groupecat.com
+FR;ANNONCES;DAF;cof7.groupecat.com:8000/arch/RECU/DAFFR/;FR.DAF.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;DFPVE retour emballages;cof7.groupecat.com:8000/arch/RECU/DFPVE/;FR.RENAULT.CONTAINERS@lc.re7.groupecat.com
+FR;ANNONCES;DIVA;cof7.groupecat.com:8000/arch/RECU/DIVA/;FR.DIVA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;DUCATI;cof7.groupecat.com:8000/arch/RECU/DUCATI/;FR.DUCATI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;EXADIS;eair.groupecat.com:8000/arch/RECU/EXADIS2VIA_FR/;FR.VIA.EXADIS@lc.re7.groupecat.com
+FR;ANNONCES;FIAT BE;eair.groupecat.com:8000/arch/RECU/FIAT2VIA_BE/;BE.VIA.FIAT.SHIPMENT-ORDERS@lc.re7.groupecat.com 
+FR;ANNONCES;FORD CLAIMS BE;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/FORDCLAIMS_BE/BMAP/;BE.VIA.FORD-CLAIMS@lc.re7.groupecat.com
+FR;ANNONCES;FORD FRANCE;cof7.groupecat.com:8000/arch/RECU/FORDFR/;FR.FORD@lc.re7.groupecat.com
+FR;ANNONCES;FUSO;frbs.groupecat.com:8000/arch/RECU/DAIMLER/;LC.DAIMLER.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;GEOCODES;frgnbb2b03.groupecat.com:8000/arch/B2B3/RECU/GEOCODE2VIA/;LC.VIA.GEOCODES@lc.re7.groupecat.com
+#FR;ANNONCES;GIANT;cof7.groupecat.com:8000/arch/RECU/JCLGIANT/;LC.GIAEU.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;GM OPEL;cof7.groupecat.com:8000/arch/RECU/GMOPEL/;FR.GMOPEL.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;GMF FRANCE;cof7.groupecat.com:8000/arch/RECU/GMFFR/;FR.GMFFRANCE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;GMF TAX;cof7.groupecat.com:8000/arch/RECU/GMFTAX/;FR.GMF.XDOCK@lc.re7.groupecat.com
+FR;ANNONCES;HAAK;cof7.groupecat.com:8000/arch/RECU/HAAK/;FR.HAAK.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;HYUNDAI;cof7.groupecat.com:8000/arch/RECU/HYUNDAI/;FR.HYUNDAI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;IMPRESSIONS MOBILES (Saab/Volvo);cof7.groupecat.com:8000/arch/RECU/IMP_MOBILE/;FR.SAABVOLVO.TRACKING-STATUS@lc.re7.groupecat.com
+FR;ANNONCES;INTEGRATION REFERENCES PIECES;cof7.groupecat.com:8000/arch/RECU/INTREFPIECES/;FR.REFERENCES.PIECES@lc.re7.groupecat.com 
+FR;ANNONCES;IVECO;cof7.groupecat.com:8000/arch/RECU/IVECO/;FR.IVECO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;JCLNL;cof7.groupecat.com:8000/arch/RECU/JCLNLFR/;LC.JCLNL.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;KAWASAKI Kuehne Nagel;cof7.groupecat.com:8000/arch/RECU/KAWAKN/;LC.KN.SHIPMENT-ORDERS.KAWASAKI@lc.re7.groupecat.com
+FR;ANNONCES;KIA;cof7.groupecat.com:8000/arch/RECU/KIA/;FR.KIA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;LM2S;cof7.groupecat.com:8000/arch/RECU/LM2SFR/;FR.LM2S.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;MAGNETTI MARELLI;eair.groupecat.com:8000/arch/RECU/MARELLI/;FR.CEVA.SHIPMENT-ORDERS.MARELLI@lc.re7.groupecat.com
+FR;ANNONCES;MAGNETTI MARELLI;eair.groupecat.com:8000/arch/RECU/MARELLI/;FR.VIA.MAGNETI.ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;MAN;frgnbb2b03.groupecat.com:8000/B2BI_archives/VIA2/MAN_FR/MAN_FR_IN/BMAP;FR.VIA.MAN.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;MAN;eair.groupecat.com:8000/arch/RECU/MAN2VIA_FR;FR.VIA.MAN.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;MAZDA;cof7.groupecat.com:8000/arch/RECU/MAZDA/;FR.MAZDA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;MERCEDES;eair.groupecat.com:8000/arch/RECU/MERCEDES2VIA_FR/;FR.VIA.MERCEDES@lc.re7.groupecat.com
+FR;ANNONCES;MITSUBISHI;cof7.groupecat.com:8000/arch/RECU/MITSUBFR/;LC.MITSUBISHI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;MITSUBISHI FUSO;cof7.groupecat.com:8000/arch/RECU/MITSUFUSO/;
+FR;ANNONCES;MITSUBISHI RETURNS;cof7.groupecat.com:8000/arch/RECU/MITSUBRT/;FR.MITSUBISHI.RETURNS@lc.re7.groupecat.com
+FR;ANNONCES;MOTEURS SUZUKI;frbs.groupecat.com:8000/arch/RECU/SUZUKI/;FR.MOTEURS-SUZUKI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;MOTOBYCAT;cof7.groupecat.com:8000/arch/RECU/MOTOBYCAT/;LC.MBC.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;MOTOBYCAT2SAP;ur05.groupecat.com:8000/arch/RECU/MBC2SAP/;
+#FR;ANNONCES;NISSAN;cof7.groupecat.com:8000/arch/RECU/NISSAN/;FR.NISSAN.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;NISSAN;eair.groupecat.com:8000/arch/RECU/NISSAN2VIA_FR/;FR.VIA.NISSAN.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;NISSAN ENEWS;eair.groupecat.com:8000/arch/RECU/NISSANENEWS2VIA_FR/;FR.VIA.NISSAN.ENEWS@lc.re7.groupecat.com
+#FR;ANNONCES;NISSAN CLAIMS;cof7.groupecat.com:8000/arch/RECU/NISSANFR/;FR.NISSAN.CLAIMS@lc.re7.groupecat.com
+FR;ANNONCES;NISSAN CLAIMS;eair.groupecat.com:8000/arch/RECU/NISSANCLAIMS2VIA_FR/;FR.VIA.NISSAN.CLAIMS@lc.re7.groupecat.com
+FR;ANNONCES;NISSAN LITIGES;eair.groupecat.com:8000/arch/RECU/NISSANLTG2VIA_FR/;FR.VIA.NISSAN.LITIGES@lc.re7.groupecat.com
+FR;ANNONCES;NISSAN TRACE;eair.groupecat.com:8000/arch/RECU/NISSANTRACE2VIA_FR/;FR.VIA.NISSAN-TRACE@lc.re7.groupecat.com
+FR;ANNONCES;NISSAN ENEWS;eair.groupecat.com:8000/arch/RECU/NISSANENEWS2VIA_FR/;FR.VIA.NISSAN.ENEWS@lc.re7.groupecat.com
+FR;ANNONCES;NORAUTO Ordres de Livraison;gen7.groupecat.com:8000/arch/RECU/NORAUTODO/;FR.NORAUTO.DELIV-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;Opel Facturation Format 92W;C7LC.groupecat.com:8000/arch/RECU/OPEL_92W2VIA/;FR.VIA.92W.SHIPMENT-FACTURATION@lc.re7.groupecat.com
+FR;ANNONCES;Opel Orders Format 92W;EAIR.groupecat.com:8000/arch/RECU/OPEL_EDI92WES2VIA_FR/;FR.VIA.EDI92W.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;ORDERPCL;eair.groupecat.com:8000/arch/RECU/VIA_ORDERPCL/;LC.VIA.ORDERPCL@lc.re7.groupecat.com
+FR;ANNONCES;ORDERQTY;eair.groupecat.com:8000/arch/RECU/VIA_ORDERQTY/;FR.VIA.ORDERQTY@lc.re7.groupecat.com
+FR;ANNONCES;PIAGGIO;cof7.groupecat.com:8000/arch/RECU/PIAGGIO/;FR.PIAGGIO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;RENAULT BELGIQUE;cof7.groupecat.com:8000/arch/RECU/RENAULT_BELGIQUE/;FR.RENAULT-BE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;RENAULT RETURNS;cof7.groupecat.com:8000/arch/RECU/RENAULT_RETOUR/;FR.RENAULT.SHIPMENT-ORDERS.RETURNS@lc.re7.groupecat.com 
+#FR;ANNONCES;RENAULT RNUR;frbs.groupecat.com:8000/arch/EMIS/RENAULT/;FR.RENAULT.SHIPMENT-ORDERS@lc.re7.groupecat.com FR.RENAULT.ADR@lc.re7.groupecat.com
+FR;ANNONCES;RENAULT RNUR;EAIR.groupecat.com:8000/arch/RECU/RENAULTRNUR2VIA_FR/;FR.VIA.RENAULT.SHIPMENT-ORDERS@lc.re7.groupecat.com 
+FR;ANNONCES;RENAULT ADR;EAIR.groupecat.com:8000/arch/RECU/RENAULTADR2VIA_FR/;FR.VIA.RENAULT.ADR@lc.re7.groupecat.com
+FR;ANNONCES;RENAULT SHIPPEO;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/RENAULT_SHIPPEO_FR/BMAP;FR.VIA.RENAULT-SHIPPEO@lc.re7.groupecat.com
+#FR;ANNONCES;RENAULT TWIZY;frbs.groupecat.com:8000/arch/RECU/TWIZY2FR/;LC.RENAULT-TWIZY.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;RENAULT TWIZY;eair.groupecat.com:80/arch/EAIR/RECU/TWIZY/;LC.RENAULT-TWIZY.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;RENAULT UNLOADING CONSTAT;eair.groupecat.com:8000/arch/RECU/RNLTUNLCONST2VIA_FR/;FR.VIA.RENAULT_UNLOADING-CONSTAT@lc.re7.groupecat.com 
+#Test Backup Mail Re7 pour RVI PR 15/04/2011 => Ajout @mail backup;;;;
+#FR;ANNONCES;RVI PR;frbs.groupecat.com:8000/arch/RECU/RVIPR/;
+FR;ANNONCES;RVI BELGIQUE;cof7.groupecat.com:8000/arch/RECU/RVIBE/;LC.RVIBE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;RVI Belgique GENT;EAIR.groupecat.com:8000/arch/RECU/RVIGENT;LC.RVIGENT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;RVI Belgique GENT;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/RVIGENT_FR/BMAP;LC.RVIGENT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;RVI PR;frbs.groupecat.com:8000/arch/RECU/RVIPR/;FR.RVI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;RVI PR;eair.groupecat.com:8000/arch/RECU/RVI/;FR.VIA.RVI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;Referentiel Tiers;cof7.groupecat.com:8000/arch/RECU/INREFTIERS/;FR.REFERENTIEL.TIERS@lc.re7.groupecat.com
+#FR;ANNONCES;SCANIA;eair.groupecat.com:8000/arch/RECU/SCANIA/;LC.SCANIA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;SCANIA (D16B);eair.groupecat.com:8000/arch/RECU/SCANIAD16B2VIA/;LC.VIA.SCANIA-D16B@lc.re7.groupecat.com
+FR;ANNONCES;SCANIA-B2Bi;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/SCANIA_D16B/FR/BMAP/;LC.VIA.SCANIA-D16B@lc.re7.groupecat.com
+FR;ANNONCES;SITES - Client startup;frbs.groupecat.com:8000/arch/EMIS/FRREFTIER/;FR.REFERENTIEL.TIERS@lc.re7.groupecat.com
+FR;ANNONCES;SITES-DEALERS update;cof7.groupecat.com:8000/arch/RECU/TIERSMASSE/;LC.SITE-UPDATES@lc.re7.groupecat.com
+FR;ANNONCES;SUZUKI CARS;eair.groupecat.com:8000/arch/RECU/SUZUKICARS2VIA_FR/;FR.VIA.SUZUKI-CARS@lc.re7.groupecat.com
+FR;ANNONCES;SUZUKI MARINE;cof7.groupecat.com:8000/arch/RECU/SUZMARFR/;LC.SUZU.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;STG;frbs.groupecat.com:8000/arch/EMIS/STG/;FR.STG.TRACKING-STATUS@lc.re7.groupecat.com
+FR;ANNONCES;TNT BE;cof7.groupecat.com:8000/arch/RECU/TNTBE/;LC.TNT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;TNT FR;cof7.groupecat.com:8000/arch/RECU/TNTFR/;LC.TNT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;TNT ITALIE;cof7.groupecat.com:8000/arch/RECU/TNT_ITALIE/;LC.TNT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#FR;ANNONCES;TOYOTA;cof7.groupecat.com:8000/arch/RECU/TOYOTAFR/;FR.TOYOTA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;TOYOTA;eair.groupecat.com:80/arch/EAIR/RECU/TOYOTA/;FR.TOYOTA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;TRACES RDVS ;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/TRACES_RVDS_LC/BMAP;LC.TRACES.RVDS@lc.re7.groupecat.com
+FR;ANNONCES;VDH;cof7.groupecat.com:8000/arch/RECU/VDHFR/;FR.VDH@lc.re7.groupecat.com
+FR;ANNONCES;VGF;eair.groupecat.com:8000/arch/RECU/VIA_VGF_FR/;FR.VIA.VGF.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;VOLVO CARS BELGIQUE;eair.groupecat.com:8000/arch/RECU/VVCBE/;FR.VIA.VVC.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;VOLVO CARS FRANCE;eair.groupecat.com:8000/arch/RECU/VVCFR/;FR.VVC.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;VOLVO GANT;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/VOLVOGANT_FR/;FR.VIA.VOLVO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+FR;ANNONCES;VOLVO PARTS BELGIQUE;eair.groupecat.com:8000/arch/RECU/VOLVOPARTS/;LC.VIA.VOLVOPARTS@lc.re7.groupecat.com
+FR;ANNONCES;VOLVO PENTA BELGIQUE;eair.groupecat.com:8000/arch/RECU/VOLVOPENTAS2VIA_FR/;LC.VIA.PENTAPARTS@lc.re7.groupecat.com
+FR;ANNONCES;VOLVOTRUCKS;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/VOLVOTRUCKS_FR/BMAP/;LC.VIA.VOLVOTRUCKS@lc.re7.groupecat.com
+FR;ANNONCES;VOLVO VCE;eair.groupecat.com:8000/arch/RECU/VOLVOVCE2VIA_FR/;FR.VIA.VOLVO.VCE@lc.re7.groupecat.com  
+FR;ANNONCES;YAMAHA;cof7.groupecat.com:8000/arch/RECU/YAMAHAFR/;FR.YAMAHA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+
+"### DCVOLTR	INTG MOBILE DC VOLTR    ";;;;
+"### KAWAEUFR	Annonces KAWA MOERDJIK  (fait : Kuehne Nagel)";;;;
+"### NISSAN	Annonces NISSAN         ";;;;
+"### RENAULT	ANNONCES RENAULT        ";;;;
+"### ROLLOPEL	Association rolls OPEL  ";;;;
+"### RVICAT	Annonces RVI CAT        ";;;;
+"### SCANIA	ANNONCES SCANIA         ";;;;
+"### TNTFR	Annonce TNT FIAT VATRY  ";;;;
+"### VOLTR	Annonces VOLVO Trucks   ";;;;
+
+
+#-----------------------;;;;
+#----- Annonces IOD sous-traitants ;;;;
+#-----------------------;;;;
+FR;ANNONCESCARRIERIOD;HAAK;cof7.groupecat.com:8000/arch/RECU/HAAK/;FR.HAAK.IOD@lc.re7.groupecat.com
+FR;ANNONCESCARRIERIOD;HAAK PIAGGIO;cof7.groupecat.com:8000/arch/RECU/HAAK_TNTBE/;FR.HAAK.IOD@lc.re7.groupecat.com
+FR;ANNONCESCARRIERIOD;MITSUBISHI RETURNS CONSTATS;cof7.groupecat.com:8000/arch/RECU/MITSUBRTC/;FR.MITSUBISHI.RETURNS.CONSTATS@lc.re7.groupecat.com
+
+#-----------------------;;;;
+#----- Fichiers COLLAS;;;;
+#-----------------------;;;;
+FR;SCANS;Bordeaux;bdxa.groupecat.com:8000/arch/RECU/BDXA/;
+FR;SCANS;Cavaillon;cava.groupecat.com:8000/arch/RECU/CAVA/;
+FR;SCANS;Clermont;clfa.groupecat.com:8000/arch/RECU/CLFA/
+FR;SCANS;Dijon;dija.groupecat.com:8000/arch/RECU/DIJA/
+FR;SCANS;Douai;doua.groupecat.com:8000/arch/RECU/DOUA/
+FR;SCANS;Flins;flia.groupecat.com:8000/arch/RECU/FLIA/
+FR;SCANS;Irigny;irib.groupecat.com:8000/arch/RECU/IRIB/
+FR;SCANS;Paris;mita.groupecat.com:8000/arch/RECU/MITA/
+FR;SCANS;Nancy;nanb.groupecat.com:8000/arch/RECU/NANB/
+FR;SCANS;Rennes;rena.groupecat.com:8000/arch/RECU/RENA/
+FR;SCANS;Rouen;roua.groupecat.com:8000/arch/RECU/ROUA/
+FR;SCANS;Tigery;tgya.groupecat.com:8000/arch/RECU/TGYA/
+FR;SCANS;Toulouse;tlsa.groupecat.com:8000/arch/RECU/TLSA/
+FR;SCANS;Tours;toua.groupecat.com:8000/arch/RECU/TOUA/
+FR;SCANS;Tinqueux;tqxa.groupecat.com:8000/arch/RECU/TQXA/
+FR;SCANS;Villeneuve;vlna.groupecat.com:8000/arch/RECU/VLNA/
+FR;SCANS;Villevorde;vlva.groupecat.com:8000/arch/RECU/VLVA/
+FR;SCANS;Postes client;pgfr.groupecat.com:8000/arch/RECU/PGFR/
+
+#-----------------------;;;
+#----- Extractions Clients;;;
+#-----------------------;;;
+FR;EXTRACTIONS;ADR avec poids en erreur;ww23.cat.ad.groupecat.com:8085/data/BASLC/ADR/
+FR;EXTRACTIONS;BMW BIKES;frbs.groupecat.com:8000/arch/EMIS/CAT2BMWAFGFR/
+FR;EXTRACTIONS;BMW BIKES Extractions VIA ;EAIR.groupecat.com:8000/arch/EMIS/VIA2BMWBIKES_FR/
+FR;EXTRACTIONS;DERBI  - Extraction Wexlog;EAIR.groupecat.com:8000/arch/EMIS/VIA2DERBI_FR/
+#;;;
+FR;EXTRACTIONS;FIAT BE;C7LC.groupecat.com:8000/arch/EMIS/VIA2FIATBE/
+FR;EXTRACTIONS;FIAT BE HANNOVER;C7LC.groupecat.com:8000/arch/EMIS/VIA2FIATBEHAN/
+FR;EXTRACTIONS;JCLNL;cof7.groupecat.com:8000/arch/EMIS/EXTJCLNL/
+# Chaine IOD LM2S ;;;
+FR;EXTRACTIONS;LM2S;cof7.groupecat.com:8000/arch/EMIS/LM2SFR/
+#chaine MOTOBYCAT FR;;;
+FR;EXTRACTIONS;MOTOBYCAT FR;C7LC.groupecat.com:8000/arch/EMIS/VIA2MBC2_FR/
+#chaines NISSAN;;;
+FR;EXTRACTIONS;NISSAN Constats ;C7LC.groupecat.com:8000/arch/RECU/VIAS2NISSAN/
+FR;EXTRACTIONS;NISSAN ENEWS ;C7LC.groupecat.com:8000/arch/EMIS/NISSANENEWS2VIA_FR/
+# Chaine DPR_ARRIV;;;
+FR;EXTRACTIONS;Renault - Constat d'arrivage ;C7LC.groupecat.com:8000/arch/RECU/RNLTCONSTATS_ARR/
+FR;EXTRACTIONS;Renault - Constat d'arrivee Client;cof7.groupecat.com:8000/arch/EMIS/CMG_DPRARRIV/
+FR;EXTRACTIONS;Renault Shippeo;C7LC.groupecat.com:8000/arch/EMIS/VIA2RENSHIP_FR/
+# Chaine CMG_DPRCONST;;;
+FR;EXTRACTIONS;Renault - Constat d'arrivee Plateforme;cof7.groupecat.com:8000/arch/EMIS/CMG_DPRCONST/
+FR;EXTRACTIONS;Renault - Bacs NDU;C7LC.groupecat.com:8000/arch/EMIS/BACS_NDU/
+FR;EXTRACTIONS;Renault - Daily POD;frbs.groupecat.com:8000/arch/RECU/POD_RENAULT/
+#0019423: ITG : VIA2 FR XIB Transformation for RENAULT SHIPPEO OUT POD
+FR;EXTRACTIONS;RENAULT SHIPPEO POD;c7lc.groupecat.com:8000/arch/RECU/VIA2RENSHIPPOD_FR/
+FR;EXTRACTIONS;RENAULT SHIPPEO OUT Manual events;c7lc.groupecat.com:8000/arch/EMIS/VIA2RENSHIPMAN_FR/
+#Re7 Mantis 5786 §3 => Ajout RVI PR IOD transmis aux clients  ;;;
+FR;EXTRACTIONS;RVI PR;cof7.groupecat.com:8000/arch/EMIS/RVIPR/
+FR;EXTRACTIONS;SUZUKI CARS (SUZIE);c7lc.groupecat.com:8000/arch/EMIS/SUZIEPOD/
+#FR;EXTRACTIONS;TNT;cof7.groupecat.com:8000/arch/EMIS/TNT/
+FR;EXTRACTIONS;TNT;c7lc.groupecat.com:8000/arch/EMIS/TNTFR/
+FR;EXTRACTIONS;VOLVO TRUCKS;eair.groupecat.com:8000/arch/RECU/VIAS2VOLVOTRUCKS/
+FR;EXTRACTIONS;Wexlog Ordres;cof7.groupecat.com:8000/arch/EMIS/FP2WEX/
+FR;EXTRACTIONS;YAMAHA;c7lc.groupecat.com:8000/arch/RECU/VIAS2YAMAHA_FR/
+### FR;EXTRACTIONS;ADR avec poids en erreur;Ww23\\Ftp\\Unix\\Out\\BASLC\\ADR
+####FR;EXTRACTIONS;"Kawasaki	";
+####FR;EXTRACTIONS;"Partexpress	";
+
+
+#-----------------------;;;
+#----- Extractions IOD sous-traitants;;;
+#-----------------------;;;
+FR;EXTRACTIONANNONCECARRIER;FORD;rff7.groupecat.com:8000/arch/EMIS/FORD/
+FR;EXTRACTIONANNONCECARRIER;HAAK;ww23.cat.ad.groupecat.com:8085/data/BASLC/HAAK/
+#FR;EXTRACTIONANNONCECARRIER;MOTOBYCAT;rff7.groupecat.com:8000/arch/EMIS/MOTOBYCAT/
+FR;EXTRACTIONANNONCECARRIER;MOTOBYCAT;frbs.groupecat.com:8000/arch/RECU/MOTOBYCAT/
+FR;EXTRACTIONANNONCECARRIER;Transcausse;cof7.groupecat.com:8000/arch/EMIS/TRANSCAUSSE/
+
+
+#-----------------------;;;
+#----- Compte Rendu d'integration;;;
+#-----------------------;;;
+FR;INTEGRATION;BERGERAT MONNOYEUR;cof7.groupecat.com:8000/tmp/CMG_BERAT/
+FR;INTEGRATION;BMW BIKES;cof7.groupecat.com:8000/tmp/CMG_BMWAFGFR/
+FR;INTEGRATION;BMW PARTS;cof7.groupecat.com:8000/tmp/CMG_BMWFR2/
+#FR;INTEGRATION;BMW STRASBOURG;cof7.groupecat.com:8000/spool/CMG_BMWINTG/
+#FR;INTEGRATION;BMW TIGERY;cof7.groupecat.com:8000/spool/CMG_BMWINTG/
+#FR;INTEGRATION;BMW CONTENANTS;cof7.groupecat.com:8000/spool/CMG_BMWINTG/
+FR;INTEGRATION;CECOP Ordres de Livraison;gen7.groupecat.com:8000/tmp/GDS_CECOP/
+FR;INTEGRATION;CEVA (MAN DE);cof7.groupecat.com:8000/tmp/CMG_CEVABE/
+FR;INTEGRATION;CHACON;cof7.groupecat.com:8000/tmp/CMG_CHACON/
+FR;INTEGRATION;CHEVROLET;cof7.groupecat.com:8000/tmp/CMG_CHEVROLET/
+FR;INTEGRATION;Claims Toyota;cof7.groupecat.com:8000/tmp/CMG_TOYOTACLAIMS/
+FR;INTEGRATION;COLLECTAGE APPRO USINE RENAULT;cof7.groupecat.com:8000/tmp/CMG_DFPVFR/
+FR;INTEGRATION;DAF;cof7.groupecat.com:8000/tmp/CMG_DAFFR/
+FR;INTEGRATION;DFPVE;cof7.groupecat.com:8000/tmp/CMG_DFPVEINT/
+FR;INTEGRATION;DIVA;cof7.groupecat.com:8000/spool/CMG_INTGDIVA/
+FR;INTEGRATION;DUCATI;cof7.groupecat.com:8000/tmp/CMG_DUCATIFR/
+FR;INTEGRATION;FORD FRANCE;cof7.groupecat.com:8000/tmp/CMG_FORDFR/
+FR;INTEGRATION;FUSO;cof7.groupecat.com:8000/tmp/CMG_DAIMLER/
+FR;INTEGRATION;GIANT;cof7.groupecat.com:8000/tmp/CMG_JCLFR/
+FR;INTEGRATION;GM OPEL;cof7.groupecat.com:8000/spool/CMG_OPELINTG/
+FR;INTEGRATION;GMF FRANCE;cof7.groupecat.com:8000/tmp/CMG_GMFDSO/
+FR;INTEGRATION;GMF TAX;cof7.groupecat.com:8000/tmp/CMG_GMFTAX/
+FR;INTEGRATION;HAAK;cof7.groupecat.com:8000/tmp/CMG_HAAK/
+FR;INTEGRATION;IMP. MOBILES;cof7.groupecat.com:8000/tmp/CMG_IMPMOB/
+FR;INTEGRATION;INTEGRATION REFERENCES PIECES;cof7.groupecat.com:8000/tmp/CMG_INTREFPIE/
+FR;INTEGRATION;IVECO;cof7.groupecat.com:8000/tmp/CMG_IVECO/
+FR;INTEGRATION;JCLNL;cof7.groupecat.com:8000/tmp/CMG_JCLNL/
+FR;INTEGRATION;KAWA MOERDJIK;cof7.groupecat.com:8000/tmp/CMG_KAWAEUFR/
+FR;INTEGRATION;KIA;cof7.groupecat.com:8000/tmp/CMG_KIALC/
+FR;INTEGRATION;LM2S;cof7.groupecat.com:8000/tmp/CMG_LM2SFR/
+FR;INTEGRATION;MAGNETTI MARELLI;cof7.groupecat.com:8000/tmp/CMG_MARELLIN/
+FR;INTEGRATION;MAZDA;cof7.groupecat.com:8000/tmp/CMG_MAZDAINT/
+FR;INTEGRATION;MITSUBISHI;cof7.groupecat.com:8000/tmp/CMG_MITSUB/
+#FR;INTEGRATION;MITSUBISHI FUSO;cof7.groupecat.com:8000/tmp/CMG_MFUSOINT/
+FR;INTEGRATION;MITSUBISHI RETURNS;cof7.groupecat.com:8000/tmp/CMG_MITSUBRT/
+FR;INTEGRATION;MOTEURS SUZUKI;cof7.groupecat.com:8000/tmp/CMG_SUZUKIIN/
+FR;INTEGRATION;MOTOBYCAT;cof7.groupecat.com:8000/tmp/CMG_MBCAT/
+FR;INTEGRATION;NISSAN;cof7.groupecat.com:8000/tmp/CMG_NISSAN/
+FR;INTEGRATION;NISSAN CLAIMS;cof7.groupecat.com:8000/tmp/CMG_NISSANFR/
+FR;INTEGRATION;NISSAN LITIGES;cof7.groupecat.com:8000/tmp/CMG_NISSANLI/
+FR;INTEGRATION;NISSAN ENEWS;cof7.groupecat.com:8000/tmp/CMG_NISSFRIN/
+FR;INTEGRATION;NORAUTO Ordres de Livraison;gen7.groupecat.com:8000/tmp/GDS_NORAUTODO/
+FR;INTEGRATION;PIAGGIO;cof7.groupecat.com:8000/tmp/CMG_PIAGGIO/
+FR;INTEGRATION;RENAULT BELGIQUE;cof7.groupecat.com:8000/tmp/CMG_RENBEL/
+FR;INTEGRATION;RENAULT RETURNS;cof7.groupecat.com:8000/tmp/CMG_RENRET/
+FR;INTEGRATION;RENAULT RNUR;cof7.groupecat.com:8000/spool/CMG_RENAULT/
+FR;INTEGRATION;RENAULT TWIZY;cof7.groupecat.com:8000/tmp/CMG_TWIZYFR/
+FR;INTEGRATION;RVI BELGIQUE;cof7.groupecat.com:8000/tmp/CMG_RVIBE/
+FR;INTEGRATION;RVI Belgique GENT;cof7.groupecat.com:8000/tmp/CMG_RVIGE/
+FR;INTEGRATION;RVI CAT;cof7.groupecat.com:8000/tmp/CMG_RVIPRNIN/
+FR;INTEGRATION;SCANIA;cof7.groupecat.com:8000/tmp/CMG_SCANIAIN/
+FR;INTEGRATION;SITES - Client startup;cof7.groupecat.com:8000/chaine/CMG_INREFTIER/
+FR;INTEGRATION;SITES-DEALERS update;cof7.groupecat.com:8000/tmp/CMG_SQLLOAD_TIERS/
+FR;INTEGRATION;SUZUKI MARINE;cof7.groupecat.com:8000/tmp/CMG_SUZMARFR/
+FR;INTEGRATION;TNT BE;cof7.groupecat.com:8000/tmp/CMG_TNTBE/
+FR;INTEGRATION;TNT FR;cof7.groupecat.com:8000/tmp/CMG_TNTVAFR/
+FR;INTEGRATION;TNT ITALIE;cof7.groupecat.com:8000/tmp/CMG_TNTIF/
+FR;INTEGRATION;TOYOTA;cof7.groupecat.com:8000/tmp/CMG_TOYOTAFR/
+FR;INTEGRATION;VDH;cof7.groupecat.com:8000/tmp/CMG_VDHFR/
+FR;INTEGRATION;VOLVO CARS BELGIQUE;cof7.groupecat.com:8000/tmp/CMG_VVCFR/
+FR;INTEGRATION;VOLVO GANT;cof7.groupecat.com:8000/tmp/CMG_VOLVGANT/
+FR;INTEGRATION;VOLVO PARTS BELGIQUE;cof7.groupecat.com:8000/tmp/CMG_VOTBE/
+FR;INTEGRATION;VOLVO PENTA BELGIQUE;cof7.groupecat.com:8000/tmp/CMG_VOPBE/
+FR;INTEGRATION;YAMAHA;cof7.groupecat.com:8000/tmp/CMG_YAMAFRINT/
+
+#==================== il manque =========================================;;;
+####INTG MOBILE DC SAAB     ;;;
+####INTG MOBILE DC VOLTR    ;;;
+####Association rolls OPEL  ;;;
+
+#-----------------------;;;
+#----- Compte Rendu d'integration IOD sous-traitants;;;
+#-----------------------;;;
+#FR;INTEGRATIONIODCARRIER;HAAK;cof7.groupecat.com:8000/tmp/CMG_HAAK/
+#FR;INTEGRATIONIODCARRIER;HAAK PIAGGIO;cof7.groupecat.com:8000/tmp/CMG_HAAK_TNTBE/
+FR;INTEGRATIONIODCARRIER;MITSUBISHI RETURNS CONSTATS;cof7.groupecat.com:8000/tmp/CMG_MITSUBRTC/
+
+
+#-----------------------;;;
+#----- Compte Rendu d'integration COLLAS;;;
+#-----------------------;;;
+FR;COLLAS;Bordeaux;bdxa.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Cavaillon;cava.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Clermont;clfa.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Dijon;dija.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Douai;doua.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Flins;flia.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Irigny;irib.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Paris;mita.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Nancy;nanb.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Rennes;rena.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Rouen;roua.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Tygery;tgya.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Toulouse;tlsa.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Tours;toua.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Tinqueux;tqxa.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Vatry;vata.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Villeneuve;vlna.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Villevorde;vlva.groupecat.com:8000/bibwork/integrmg/
+FR;COLLAS;Poste client;acbf.groupecat.com:8000/bibwork/integrmg/
+
+#-----------------------;;;
+#----- Documents d'impression;;;
+#-----------------------;;;
+FR;IMPRESSION;Bordeaux;bdxa.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Cavaillon;cava.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Clermont;clfa.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Dijon;dija.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Douai;doua.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Flins;flia.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Irigny;irib.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Paris;mita.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Nancy;nanb.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Rennes;rena.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Rouen;roua.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Tygery;tgya.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Toulouse;tlsa.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Tours;toua.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Tinqueux;tqxa.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Vatry;vata.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Villeneuve;vlna.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Villevorde;vlva.groupecat.com:8000/bibwork/
+FR;IMPRESSION;Docs. MotoByCAT;wbfr.groupecat.com:8000/bibwork/MBC/
+
+#-------------------------------;;;
+#----- Saisie 1 (SAP -> MG Lots) ;;;
+#--------------------------------;;;
+FR;saisie1SAP2MGlots;FR10;rff7.groupecat.com:8000/arch/RECU/SAISIE1MGLOT/
+FR;CrINTGsaisie1SAP2MGlots;FR10;rff7.groupecat.com:8000/chaine/CMG_SAISIE1MGLOT/
+
+#-------------------------------;;;
+#----- Saisie 2 (MG Lots -> SAP) ;;;
+#--------------------------------;;;
+FR;saisie2MGlots2SAP;FR10;rff7.groupecat.com:8000/arch/RECU/SAISIE2MGLOT/
+FR;CrINTGsaisie2MGlots2SAP;FR10;rff7.groupecat.com:8000/chaine/CMG_SAISIE2MGLOT/
+
+
+
+################### *** ###################;;;
+#               BU ITALIE                 #;;;
+###########################################;;;
+#----- Compte Rendu d'integration;;;
+
+#-----------------------;;;;
+#----- Annonces clients;;;;
+#-----------------------;;;;
+IT;ANNONCES;CEVA - CATTAD;frbs.groupecat.com:8000/arch/RECU/TAD/;
+IT;ANNONCES;KAWASAKI;coi7.groupecat.com:8000/arch/RECU/KAWAKN/;LC.KN.SHIPMENT-ORDERS.KAWASAKI@lc.re7.groupecat.com
+IT;ANNONCES;RENAULT Italie;coi7.groupecat.com:8000/arch/RECU/RENAULTIS/;
+IT;ANNONCES;SITES - Client startup;frbs.groupecat.com:8000/arch/EMIS/ITREFTIER/;IT.REFERENTIEL.TIERS@lc.re7.groupecat.com
+
+#-----------------------;;;;
+#----- Fichiers COLLAS;;;;
+#-----------------------;;;;
+IT;SCANS;San colombano;sizb.groupecat.com:8000/arch/RECU/SIZB/;
+
+#-----------------------;;;;
+#----- Extractions Clients;;;;
+#-----------------------;;;
+IT;EXTRACTIONS;Galliker;coi7.groupecat.com:8000/arch/EMIS/GALLIKER/
+IT;EXTRACTIONS;Qualinight;coi7.groupecat.com:8000/arch/EMIS/QUALINIGHT/
+IT;EXTRACTIONS;OTE;coi7.groupecat.com:8000/arch/EMIS/OTE/
+IT;EXTRACTIONS;SAIMA;coi7.groupecat.com:8000/arch/EMIS/SAIMA/
+IT;EXTRACTIONS;CEVA CATTAD;sizb.groupecat.com:8000/arch/EMIS/coi7/
+
+#-----------------------;;;
+#----- Compte Rendu d'integration;;;
+#-----------------------;;;
+IT;INTEGRATION;CEVA - CATTAD;coi7.groupecat.com:8000/tmp/CMG_CATTADIN/
+IT;INTEGRATION;KAWASAKI K&N;coi7.groupecat.com:8000/tmp/CMG_KAWAEUIT/
+IT;INTEGRATION;QUALINIGHT;coi7.groupecat.com:8000/bibwork/CMG_INTQUAL/
+IT;INTEGRATION;RENAULT IT;coi7.groupecat.com:8000/spool/
+IT;INTEGRATION;SITES - Client startup;coi7.groupecat.com:8000/chaine/CMG_INREFTIER/
+
+#-----------------------;;;
+#----- Compte Rendu d'integration COLLAS;;;
+#-----------------------;;;
+IT;COLLAS;San colombano;sizb.groupecat.com:8000/bibwork/integrmg/
+
+#-----------------------;;;
+#----- Documents d'impression;;;
+#-----------------------;;;
+IT;IMPRESSION;San colombano;sizb.groupecat.com:8000/bibwork/
+
+
+################### *** ###################;;;
+#               BU POLOGNE                #;;;
+###########################################;;;
+#----- Compte Rendu d'integration;;;
+
+#-----------------------;;;;
+#----- Annonces clients;;;;
+#-----------------------;;;;
+#PL;ANNONCES;ALCOPA;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/ALCOPA2VIA_PL/BMAP/;PL.ALCOPA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;ALCOPA;frgnbb2b03.groupecat.com:8000/arch/RECU/ALCOPA2VIA_PL/BMAP/;PL.VIA.ALCOPA_ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;BRIDGESTONE_PL;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/BRIDGESTONE_PL/BMAP/;LC.BRIDGESTONE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;Continental orders HR;eair.groupecat.com:8000/arch/RECU/CONTINENTAL2VIA_HR/;PL.VIA.CONTINENTAL.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;CEVA (MAN DE);frbs.groupecat.com:8000/arch/EMIS/CEVAPL/;LC.CEVA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;CLAAS;EAIR.groupecat.com:8000/arch/RECU/CLAAS2VIAPL;PL.VIA.CLAAS.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;EXXON;eair.groupecat.com:8000/arch/RECU/EXXON2VIAPL/;PL.VIA.EXXON.SHIPMENT-ORDERS@lc.re7.groupecat.com
+# PL;ANNONCES;FIAT;cop7.groupecat.com:8000/arch/RECU/TNTPLINT/;LC.TNT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;FLORENTYNA ;eair.groupecat.com:8000/arch/RECU/FLORENTYNA2VIA_PL/;PL.VIA.FLORENTYNA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;FORD;eair.groupecat.com:8000/arch/RECU/FORD2VIA_PL/;PL.VIA.FORD.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;FUCHS;eair.groupecat.com:8000/arch/RECU/FUCHS2VIA_PL/;PL.VIA.FUCHS.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#PL;ANNONCES;GM Poland;cop7.groupecat.com:8000/arch/RECU/GMPOL/;PL.GM.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;HAKO;cop7.groupecat.com:8000/arch/RECU/HAKO/;PL.HAKO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;HONDA;cop7.groupecat.com:8000/arch/RECU/HONDABE/;PL.HONDA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+# Correction APF Incident 600-02-15427547;;;;
+#PL;ANNONCES;HONDA BIKES;frbs.groupecat.com:8000/arch/RECU/HONDABIKE/;PL.HONDA.SHIPMENT-ORDERS.BIKES@lc.re7.groupecat.com
+PL;ANNONCES;HONDA BIKES;cop7.groupecat.com:8000/arch/RECU/HONDABIKE/;PL.HONDA.SHIPMENT-ORDERS.BIKES@lc.re7.groupecat.com
+PL;ANNONCES;IVECO ;eair.groupecat.com:8000/arch/RECU/IVECO2VIA_PL/;PL.VIA.IVECO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;IVECO CHNI;EAIR.groupecat.com:8000/arch/RECU/IVECOCNHI_PL/;PL.VIA.IVECOCNHI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;IN NIGHT - BOSCH;cop7.groupecat.com:8000/arch/RECU/BOSHPL/;PL.BOSH.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;IN NIGHT - SUZUKI;cop7.groupecat.com:8000/arch/RECU/INIGHTPL/;PL.INNIGHT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;JUNGHEINRICH;cop7.groupecat.com:8000/arch/RECU/JUNGHPL/;PL.JUNGH.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;KIADE;cop7.groupecat.com:8000/arch/RECU/KIADE/;PL.KIADE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;KRAMP;eair.groupecat.com:8000/arch/RECU/KRAMP2VIA_PL/;PL.VIA.KRAMP.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;MAGNETTI MARELLI;cop7.groupecat.com:8000/arch/RECU/MAGNETTI/;PL.MAGNE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;MANDA;cop7.groupecat.com:8000/arch/RECU/MANPL/;LC.MANDA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#PL;ANNONCES;MANDE;cop7.groupecat.com:8000/arch/RECU/MANPROPL/;PL.MANDE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;MANDE;eair.groupecat.com:8000/arch/RECU/MANDE2VIA_PLE/;PL.MANDE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;MATEUS PL;eair.groupecat.com:8000/arch/RECU/MATEUS2VIA_PL;PL.VIA.MATEUS.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;MAZDA POLOGNE;cop7.groupecat.com:8000/arch/RECU/MAZDAPL/;PL.MAZDA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;MITSUBISHI;cop7.groupecat.com:8000/arch/RECU/MITSUBPL/;LC.MITSUBISHI.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;ORDERPCL;eair.groupecat.com:8000/arch/RECU/VIAPLORDERPCL/;PL.VIA.ORDERPCL@lc.re7.groupecat.com
+PL;ANNONCES;ORDERQTY;eair.groupecat.com:8000/arch/RECU/VIAPLORDERQTY/;PL.VIA.ORDERQTY@lc.re7.groupecat.com
+PL;ANNONCES;RABALUX;eair.groupecat.com:8000/arch/RECU/RABALUX2VIA_PL/;PL.VIA.RABALUX.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;RVI France;frbs.groupecat.com:8000/arch/RECU/RVIFRPL/;PL.RVIFR.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#PL;ANNONCES;SCANIA;eair.groupecat.com:8000/arch/RECU/SCANIA2VIA_PL/;PL.VIA.SCANIA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#PL;ANNONCES;SCANIA (BELGIUM);frbs.groupecat.com:8000/arch/RECU/SCANIAPL/;PL.SCANIA.SHIPMENT-ORDERS.BELGIUM@lc.re7.groupecat.com
+PL;ANNONCES;SCANIA-B2Bi;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/SCANIA_D16B/PL/BMAP/;LC.VIA.SCANIA-D16B@lc.re7.groupecat.com
+PL;ANNONCES;SITES - Client startup;frbs.groupecat.com:8000/arch/EMIS/PLREFTIER/;PL.REFERENTIEL.TIERS@lc.re7.groupecat.com
+PL;ANNONCES;SITES-DEALERS update;cop7.groupecat.com:8000/arch/RECU/TIERSMASSE/;LC.SITE-UPDATES@lc.re7.groupecat.com
+PL;ANNONCES;SOLARIS;eair.groupecat.com:8000/arch/RECU/SOLARIS2VIA_PL;PL.VIA.SOLARIS.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;STALGAST;cop7.groupecat.com:8000/arch/RECU/STLPL/;PL.Stalgast.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;STIHL;eair.groupecat.com:8000/arch/RECU/STIHL2VIA_PL/;PL.VIA.STIHL.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;STILL;eair.groupecat.com:8000/arch/RECU/STILL2VIA_PL/;PL.VIA.STILL.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;SUZUKI BIKES;frbs.groupecat.com:8000/arch/RECU/SUZUKIPL/;PL.SUZUKI.ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;SUZUKI CARS (SUZIE);cop7.groupecat.com:8000/arch/RECU/SUZIEPL/;PL.SUZIE.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;TIP ;EAIR.groupecat.com:8000/arch/RECU/TIP2VIA_PL/;PL.VIA.TIP.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;TNTPL (FIAT);eair.groupecat.com:8000/arch/RECU/TNT2VIA_PL/;LC.TNT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;TVH PL;eair.groupecat.com:8000/arch/RECU/TVH2VIA_PL;PL.VIA.TVH.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;TOYOTA;eair.groupecat.com:8000/arch/RECU/TOYOTA2VIAPL;PL.TOYOTA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;VALEO;cop7.groupecat.com:8000/arch/RECU/VALEO/;PL.VALEO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#PL;ANNONCES;VOLKSWAGEN;cop7.groupecat.com:8000/arch/RECU/KTPOLVW/;PL.KTPOL.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;VOLKSWAGEN;eair.groupecat.com:8000/arch/RECU/VOLKSWAGEN2VIA_PL/;PL.VIA.VGP.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;VOLKSWAGEN-B2Bi;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/VOLKSWAGEN_PL/BMAP/;PL.VIA.VGP.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;VOLVO CARS;cop7.groupecat.com:8000/arch/RECU/VCCAU/;PL.VCARS.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;VOLVO - VOLAU;eair.groupecat.com:80/arch/EAIR/RECU/VOLAUPL2XIB/;PL.VOLAU.SHIPMENT-ORDERS@lc.re7.groupecat.com 
+PL;ANNONCES;VOLVO - VOLBE;cop7.groupecat.com:8000/arch/RECU/VOLVO/;PL.VOLVO.DELIV-ORDERS@lc.re7.groupecat.com
+#PL;ANNONCES;VOLVO - VOLPL;frbs.groupecat.com:8000/arch/EMIS/VOLVOPL/;PL.VOLVO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;VOLVO - VOLPL;eair.groupecat.com:8000/arch/RECU/VOLVO2VIAPL/;PL.VIA.VOLVO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;WCAT;cop7.groupecat.com:8000/arch/RECU/GRP_WCAT/;PL.WCAT.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;WINKLER;eair.groupecat.com:8000/arch/RECU/WINKLER2VIA_PL/;PL.VIA.WINKLER.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;YAMAHA BIKES;eair.groupecat.com:8000/arch/RECU/YAMAHA_BIKEPL_SFTPEE/;PL.YAMAHA.SHIPMENT-ORDERS.BIKES@lc.re7.groupecat.com
+PL;ANNONCES;YAMAHA PARTS;eair.groupecat.com:8000/arch/RECU/YAMAHAPT2VIA_PL/;PL.VIA.YAMAHA2.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;ZUST;eair.groupecat.com:8000/arch/RECU/ZUST2VIA_PL/;PL.VIA.ZUST.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;VALEOHR;eair.groupecat.com:8000/arch/RECU/VALEOHR2VIA_PL/;PL.VIA.VALEOHR.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;SUZUKI HR;eair.groupecat.com:8000/arch/RECU/SUZHR2VIA_PL/;PL.VIA.SUZHR.SHIPMENT-ORDERS@lc.re7.groupecat.com
+PL;ANNONCES;IODPARTNER_PL;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/IODPARTNERS_PL/BMAP/;PL.VIA.IODPARTNERS@lc.re7.groupecat.com
+
+
+#-----------------------;;;;
+#----- Fichiers COLLAS;;;;
+#-----------------------;;;;
+PL;SCANS;Bydgoszcz;byda.groupecat.com:8000/arch/RECU/BYDA/;
+PL;SCANS;Dabrowa;daba.groupecat.com:8000/arch/RECU/DABA/;
+PL;SCANS;Srem;srea.groupecat.com:8000/arch/RECU/SREA/;
+PL;SCANS;Warszawa;vara.groupecat.com:8000/arch/RECU/VARA/;
+PL;SCANS;GPRS;frbs.groupecat.com:8000/arch/RECU/LASGPRSP/
+PL;SCANS;Poste client;acbp.groupecat.com:8000/arch/RECU/ACBP/
+
+#-----------------------;;;
+#----- Extractions Clients;;;
+#-----------------------;;;
+PL;EXTRACTIONS;CNHi project P44;c7lc.groupecat.com:8000/arch/EMIS/VIA2CNHi_P44_PL/
+PL;EXTRACTIONS;Honda;c7lc.groupecat.com:8000/arch/EMIS/HONDABIKE/
+PL;EXTRACTIONS;IN NIGHT;cop7.groupecat.com:8000/arch/EMIS/INIGHTPL/
+PL;EXTRACTIONS;KRAMP;eair.groupecat.com:8000/arch/EMIS/VIA2KRAMP_PL/
+PL;EXTRACTIONS;KTPOL;cop7.groupecat.com:8000/arch/EMIS/EXTIODKTPOL/
+PL;EXTRACTIONS;KTPOL OUT Extraction VIA ;c7lc.groupecat.com:8000/arch/EMIS/VIA2VOLKSWAGENKTPOL_PL/
+#PL;EXTRACTIONS;MAGNETTI MARELLI;cop7.groupecat.com:8000/arch/EMIS/EXTMAGNETTI/
+PL;EXTRACTIONS;MAGNETTI MARELLI;c7lc.groupecat.com:8000/arch/EMIS/EXTMAGNETTI/
+PL;EXTRACTIONS;MANDA;cop7.groupecat.com:8000/arch/EMIS/IODMAN/
+PL;EXTRACTIONS;Renault Bacs NDU;cop7.groupecat.com:8000/arch/EMIS/BACS_NDU/
+PL;EXTRACTIONS;SOLARIS;c7lc.groupecat.com:8000/arch/EMIS/VIA2SOLARIS_PL/
+PL;EXTRACTIONS;STILL ;C7LC.groupecat.com:8000/arch/EMIS/VIA2STILL_CONSTAT_PL/
+PL;EXTRACTIONS;SUZUKI BIKES;cop7.groupecat.com:8000/arch/EMIS/SUZUKIPL/
+#PL;EXTRACTIONS;SUZUKI CARS (SUZIE);cop7.groupecat.com:8000/arch/EMIS/SUZIEPOD/
+PL;EXTRACTIONS;SUZUKI CARS (SUZIE);c7lc.groupecat.com:8000/arch/EMIS/SUZIEPOD/
+PL;EXTRACTIONS;SUZUKI HR;c7lc.groupecat.com:8000/arch/EMIS/VIA2SUZUKIHR_PL/
+#PL;EXTRACTIONS;TNT;cop7.groupecat.com:8000/arch/EMIS/TNTPL/
+PL;EXTRACTIONS;TVH PL;c7lc.groupecat.com:8000/arch/EMIS/VIAPL2TVH
+PL;EXTRACTIONS;TNT;C7LC.groupecat.com:8000/arch/EMIS/TNTPL/
+PL;EXTRACTIONS;VGPL;c7lc.groupecat.com:8000/arch/EMIS/VIAS2VGPL/
+#PL;EXTRACTIONS;WCAT;cop7.groupecat.com:8000/arch/EMIS/EXTIODSOLARIS/
+PL;EXTRACTIONS;WCAT;c7lc.groupecat.com:8000/arch/EMIS/EXTSOLARISPL/
+#PL;EXTRACTIONS;YAMAHA;cop7.groupecat.com:8000/arch/EMIS/YAMAHAIODPO/
+PL;EXTRACTIONS;YAMAHA;c7lc.groupecat.com:8000/arch/EMIS/EXT_YAMAHAPL/
+PL;EXTRACTIONS;IVECOCNHi;c7lc.groupecat.com:8000/arch/EMIS/VIA2IVECOCNHi
+PL;EXTRACTIONS;MAZDA;c7lc.groupecat.com:8000/arch/EMIS/MAZDA2VIA_PL/
+PL;EXTRACTIONS;PEPCO LT;c7lc.groupecat.com:8000/arch/EMIS/VIA2PEPCO_LT/
+PL;EXTRACTIONS;PEPCO LT OUT;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/PEPCO_LT_PL/AMAP/
+
+#----------------------;;;
+#----- Extractions Clients REFERENTIELS CLIENTS;;;
+#-----------------------;;;
+PL;REFCLIENTS;MAN routing;c7lc.groupecat.com:8000/arch/EMIS/MANROUT_PL/
+PL;REFCLIENTS;VALEO;cop7.groupecat.com:8000/arch/EMIS/VALEO/
+PL;REFCLIENTS;YAMAHA;cop7.groupecat.com:8000/arch/EMIS/YAMAHATIERS/
+
+#----- Compte Rendu d'integration;;;
+PL;INTEGRATION;ALCOPA;cop7.groupecat.com:8000/tmp/CMG_ALCOPA/
+PL;INTEGRATION;CEVA;cop7.groupecat.com:8000/tmp/CMG_CEVAPL/
+PL;INTEGRATION;CLAAS;cop7.groupecat.com:8000/tmp/CMG_CLAASPL/
+PL;INTEGRATION;GM Poland;cop7.groupecat.com:8000/tmp/CMG_GMPOL/
+PL;INTEGRATION;HAKO;cop7.groupecat.com:8000/tmp/CMG_HAKO/
+PL;INTEGRATION;HONDA;cop7.groupecat.com:8000/spool/CMG_HONDAB/
+PL;INTEGRATION;HONDA BIKES;cop7.groupecat.com:8000/tmp/CMG_HONDBKPL/
+PL;INTEGRATION;INNIGHT - BOSCH;cop7.groupecat.com:8000/tmp/CMG_BOSHPL/
+PL;INTEGRATION;INNIGHT - SUZUKI;cop7.groupecat.com:8000/tmp/CMG_INIGHTPL/
+PL;INTEGRATION;JUNGHEINRICH;cop7.groupecat.com:8000/tmp/CMG_JUNGHPL/
+PL;INTEGRATION;KIADE;cop7.groupecat.com:8000/tmp/CMG_KIADEPL/
+PL;INTEGRATION;MANDA;cop7.groupecat.com:8000/tmp/CMG_MANPL/
+PL;INTEGRATION;MANDE;cop7.groupecat.com:8000/tmp/CMG_MANPROPL/
+PL;INTEGRATION;MAGNETTI MARELLI;cop7.groupecat.com:8000/tmp/CMG_MAGNETTI/
+PL;INTEGRATION;MAZDA POLOGNE;cop7.groupecat.com:8000/tmp/CMG_MAZDAPL/
+PL;INTEGRATION;MITSUBISHI;cop7.groupecat.com:8000/tmp/CMG_MITSUB/
+PL;INTEGRATION;RVI France;cop7.groupecat.com:8000/tmp/CMG_RVIFRPL/
+PL;INTEGRATION;SCANIA;cop7.groupecat.com:8000/tmp/CMG_SCANIAPL/
+PL;INTEGRATION;SCANIA (BELGIUM);cop7.groupecat.com:8000/tmp/CMG_SCANIAPL/
+PL;INTEGRATION;SITES - Client startup;cop7.groupecat.com:8000/chaine/CMG_INREFTIER/
+PL;INTEGRATION;SITES-DEALERS update;cop7.groupecat.com:8000/tmp/CMG_SQLLOAD_TIERS/
+PL;INTEGRATION;TNTPL (FIAT);cop7.groupecat.com:8000/tmp/CMG_TNTPLINT/
+PL;INTEGRATION;STALGAST;cop7.groupecat.com:8000/tmp/CMG_STLPL/
+PL;INTEGRATION;SUZUKI BIKES;cop7.groupecat.com:8000/tmp/CMG_SUZUKINT/
+PL;INTEGRATION;SUZUKI CARS (SUZIE);cop7.groupecat.com:8000/tmp/CMG_SUZIEPL/
+PL;INTEGRATION;TOYOTA;cop7.groupecat.com:8000/tmp/CMG_TOYPLINT/
+PL;INTEGRATION;VALEO;cop7.groupecat.com:8000/tmp/CMG_VALEPLIN/
+PL;INTEGRATION;VOLKSWAGEN;cop7.groupecat.com:8000/tmp/CMG_KTPOLVW/
+PL;INTEGRATION;VOLVO CARS;cop7.groupecat.com:8000/tmp/CMG_VCCAUPL/
+#PL;INTEGRATION;VOLVO - VOLAU;cop7.groupecat.com:8000/tmp/CMG_VOLAUPL/
+PL;INTEGRATION;VOLVO - VOLBE;cop7.groupecat.com:8000/tmp/CMG_VOLVPLIN/
+PL;INTEGRATION;VOLVO - VOLPL;cop7.groupecat.com:8000/tmp/CMG_VOLVOPL/
+PL;INTEGRATION;WCAT;cop7.groupecat.com:8000/tmp/CMG_WCAT/
+PL;INTEGRATION;YAMAHA BIKES;cop7.groupecat.com:8000/tmp/CMG_YAMAHAPLBIKES/
+PL;INTEGRATION;YAMAHA PARTS;cop7.groupecat.com:8000/tmp/CMG_YAMAHAPLPARTS/
+
+#-----------------------;;;
+#----- Compte Rendu d'integration COLLAS;;;
+#-----------------------;;;
+PL;COLLAS;Bydgoszcz;byda.groupecat.com:8000/bibwork/integrmg/
+PL;COLLAS;Dabrowa;daba.groupecat.com:8000/bibwork/integrmg/
+PL;COLLAS;Srem;srea.groupecat.com:8000/bibwork/integrmg/
+PL;COLLAS;Warszawa;vara.groupecat.com:8000/bibwork/integrmg/
+PL;COLLAS;GPRS;MGPL.groupecat.com:8000/bibwork/integrmg/
+PL;COLLAS;Poste client;acbp.groupecat.com:8000/bibwork/integrmg/
+
+#----- Documents d'impression;;;
+PL;IMPRESSION;Bydgoszcz;byda.groupecat.com:8000/bibwork/
+PL;IMPRESSION;Dabrowa;daba.groupecat.com:8000/bibwork/
+PL;IMPRESSION;Srem;srea.groupecat.com:8000/bibwork/
+PL;IMPRESSION;Warszawa;vara.groupecat.com:8000/bibwork/
+PL;IMPRESSION;Poste client;acbp.groupecat.com:8000/bibwork/
+
+
+
+
+################### *** ###################;;;
+#               BU CROATIE (HR)           #;;;
+###########################################;;;
+
+#----- Annonces clients;;;;
+HR;ANNONCES;IOD PARTNERS;eair.groupecat.com:8000/arch/RECU/IODPARTNERS2VIA_HR/;HR.VIA.IODPARTNERS@lc.re7.groupecat.com
+HR;ANNONCES;MAZDA;frgnbb2b03.groupecat.com:8000/B2BI_archives/VIA2/MAZDA_HR/MAZDA_HR_IN/BMAP/;HR.VIA.MAZDAHR.SHIPMENT-ORDERS@lc.re7.groupecat.com
+HR;ANNONCES;MICHELIN ;frgnbb2b03.groupecat.com:8000/arch/B2B3/RECU/MICHELIN2VIA_HR;PL.VIA.MICHELIN.SHIPMENT-ORDERS@lc.re7.groupecat.com
+HR;ANNONCES;Renault - RENHR;coh7.groupecat.com:8000/arch/RECU/RENHR/;HR.RENHR.SHIPMENT-ORDERS@lc.re7.groupecat.com
+HR;ANNONCES;SITES - Client startup;frbs.groupecat.com:8000/arch/EMIS/HRREFTIER/;HR.REFERENTIEL.TIERS@lc.re7.groupecat.com
+HR;ANNONCES;TEKNOX;frgnbb2b03.groupecat.com:8000/B2BI_archives/VIA2/TEKNOX_HR/TEKNOX_HR_IN/BMAP/;HR.VIA.TEKNOX.SHIPMENT-ORDERS@lc.re7.groupecat.com
+
+#----- Compte Rendu d'integration;;;;
+HR;INTEGRATION;Renault - RENHR;coh7.groupecat.com:8000/tmp/CMG_RENHR/;
+HR;INTEGRATION;SITES - Client startup;coh7.groupecat.com:8000/chaine/CMG_INREFTIER/;
+
+#----- Documents d'impression;;;;
+HR;IMPRESSION;poirieda;lmh7.groupecat.com:8000/bibwork/poirieda/;
+HR;IMPRESSION;wyszynra;lmh7.groupecat.com:8000/bibwork/wyszynra/;
+
+
+#-----------------------;;;
+###----- Extractions Clients;;;
+###-----------------------;;;
+HR;EXTRACTIONS;MICHELIN HR;c7lc.groupecat.com:8000/arch/EMIS/MICHELIN_HR/
+HR;EXTRACTIONS;MICHELIN HR (XML);frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/MICHELIN_HR_OUT/AMAP/;
+
+
+################### *** ###################;;;;
+#               BU LITUANIE (LT)          #;;;;
+###########################################;;;;
+
+#----- Annonces clients;;;;
+LT;ANNONCES;SITES - Client startup;frbs.groupecat.com:8000/arch/EMIS/LIREFTIER/;LT.REFERENTIEL.TIERS@lc.re7.groupecat.com
+#LT;ANNONCES;PEPCO;eair.groupecat.com:8000/arch/RECU/PEPCO2VIA_LT/;LT.VIA.PEPCO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+LT;ANNONCES;PEPCO;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/PEPCO_LT/BMAP/;LT.VIA.PEPCO.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#----- Compte Rendu d'integration;;;;
+LT;INTEGRATION;SITES - Client startup;col7.groupecat.com:8000/chaine/CMG_INREFTIER/;
+
+
+#-----------------------;;;
+##----- Extractions Clients;;;
+##-----------------------;;;
+LT;EXTRACTIONS;iVAZ LT;c7lc.groupecat.com:8000/arch/EMIS/VIA2iVAZ_LT/;(CSV)
+LT;EXTRACTIONS;iVAZ LT OUT;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/iVAZ_LT/AMAP/;(XML)
+
+
+################### *** ###################;;;;
+#               BU SPAIN (IB)          #;;;;
+###########################################;;;;
+
+#----- Annonces clients;;;;
+IB;ANNONCES;ALBATROS ;eair.groupecat.com:8000/arch/RECU/ALBATROS2VIA_ES/;IB.VIA.ALBATROS-LOGISTIC@lc.re7.groupecat.com
+IB;ANNONCES;ALERCE;eair.groupecat.com:8000/arch/RECU/ALERCE2VIA_IB;
+IB;ANNONCES;APLI PAPER;eair.groupecat.com:8000/arch/RECU/APLI-PAPER2VIA_IB;IB.VIA.APLI-PAPER@lc.re7.groupecat.com
+IB;ANNONCES;APRIMATIC;eair.groupecat.com:8000/arch/RECU/APRIMATIC2VIA_IB;IB.VIA.APRIMATIC@lc.re7.groupecat.com
+IB;ANNONCES;ATLASCOPCO;eair.groupecat.com:8000/arch/RECU/ATLASCOPCO2VIA_IB;IB.VIA.ATLAS-COPCO@lc.re7.groupecat.com
+IB;ANNONCES;ANTALA;eair.groupecat.com:8000/arch/RECU/ANTALA2VIA_IB;IB.VIA.ANTALA@lc.re7.groupecat.com
+IB;ANNONCES;ANTALIS ;eair.groupecat.com:8000/arch/RECU/ANTALISP2VIA_ES/;IB.VIA.ANTALIS-IBERIA@lc.re7.groupecat.com
+IB;ANNONCES;BAXI CALEFACCION;eair.groupecat.com:8000/arch/RECU/BAXICALEFACCION2VIA_IB;IB.VIA.BAXI-CALEFACCION@lc.re7.groupecat.com
+IB;ANNONCES;BORDADOS HERNANDEZ;eair.groupecat.com:8000/arch/RECU/BORDADOSHERNANDEZ_ES;IB.VIA.BORDADOS-HERNANDEZ@lc.re7.groupecat.com
+IB;ANNONCES;CABLES RCT ;EAIR.groupecat.com:8000/arch/RECU/CABLESRCT2VIA_ES;IB.VIA.CABLESRCT@lc.re7.groupecat.com
+IB;ANNONCES;CARGLASS;eair.groupecat.com:8000/arch/RECU/CARGLASS2VIA_ES/;IB.VIA.CARGLASS@lc.re7.groupecat.com 
+IB;ANNONCES;CASA DORADA;EAIR.groupecat.com:8000/arch/RECU/CASADORADA_ES;IB.VIA.CASA-DORADA@lc.re7.groupecat.com
+IB;ANNONCES;CAYCO ;EAIR.groupecat.com:8000/arch/RECU/CAYCO2VIA_IB;
+IB;ANNONCES;CLAUDIO REIG ;eair.groupecat.com:8000/arch/RECU/CLAUDIOREIG2VIA_IB;IB.VIA.CLAUDIO-REIG@lc.re7.groupecat.com
+IB;ANNONCES;CLIMA HOSTELERIA;eair.groupecat.com:8000/arch/RECU/CLIMAHOSTELERIA2VIA_ES/;IB.VIA.CLIMA-HOSTELERIA@lc.re7.groupecat.com  
+#IB;ANNONCES;CNH ;eair.groupecat.com:8000/arch/RECU/CNH2VIA_ES;ES.VIA.CNH@lc.re7.groupecat.com
+IB;ANNONCES;CNH_IB;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/CNH_IB/BMAP/;ES.VIA.CNH@lc.re7.groupecat.com
+IB;ANNONCES;BLD;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/BLD_IB/BMAP/;IB.VIA.BLD@lc.re7.groupecat.com
+IB;ANNONCES;HANKOOK;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/HANKOOK_IB/BMAP/;IB.VIA.HANKOOK@lc.re7.groupecat.com
+IB;ANNONCES;Torraspapel-Order;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/TORRASPAPEL_IB/BMAP/;IB.VIA.TORRAS-PAPEL.UPDATE@lc.re7.groupecat.com
+IB;ANNONCES;CODORNIU  ;eair.groupecat.com:8000/arch/RECU/CODORNIU2VIA_ES;IB.VIA.CODORNIU@lc.re7.groupecat.com
+IB;ANNONCES;COSAN-LUBRICANTES2VIA;eair.groupecat.com:8000/arch/RECU/COSAN-LUBRICANTES2VIA_IB;IB.VIA.COSAN-LUBRICANTES@lc.re7.groupecat.com
+IB;ANNONCES;CMR;eair.groupecat.com:8000/arch/RECU/CMR2VIA_ES;IB.VIA.SPAIN.CMR@lc.re7.groupecat.com
+#IB;ANNONCES;DIESEL-TECHNIC;eair.groupecat.com:8000/arch/RECU/DIESELTEC2VIA_ES;IB.VIA.DIESEL-TECHNIC@lc.re7.groupecat.com
+IB;ANNONCES;DIESEL-TECHNIC;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/DIESEL_TECHNIC_ES/BMAP;IB.VIA.DIESEL-TECHNIC@lc.re7.groupecat.com 
+IB;ANNONCES;DIVA (DAT);EAIR.groupecat.com:8000/arch/RECU/DIVA2VIA_ES;IB.VIA.DIVA.SHIPMENT-ORDERS@lc.re7.groupecat.com 
+IB;ANNONCES;DIVA (ZIP);C7LC.groupecat.com:8000/arch/RECU/DIVA2VIA_ES;IB.VIA.DIVA.SHIPMENT-ORDERS@lc.re7.groupecat.com 
+IB;ANNONCES;EUROJUGUETES;EAIR.groupecat.com:8000/arch/RECU/EUROJUGUETES_ES;IB.VIA.EUROJUGUETES@lc.re7.groupecat.com 
+IB;ANNONCES;FM LOGISTIC ES;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/FM_LOGISTIC_ES/BMAP/;IB.VIA.FM-LOGISTIC@lc.re7.groupecat.com
+IB;ANNONCES;GALP;eair.groupecat.com:8000/arch/RECU/GALP2VIA_IB;IB.VIA.GALP@lc.re7.groupecat.com
+IB;ANNONCES;GENYEN;eair.groupecat.com:8000/arch/RECU/GENYEN2VIA_ES/;IB.VIA.GENYEN@lc.re7.groupecat.com
+IB;ANNONCES;GLOVIS;eair.groupecat.com:8000/arch/RECU/GLOVIS2VIA_ES;IB.VIA.GLOVIS@lc.re7.groupecat.com
+IB;ANNONCES;GRANOVITA ;EAIR.groupecat.com:8000/arch/RECU/GRANOVITA_ES;IB.VIA.GRANOVITA@lc.re7.groupecat.com 
+IB;ANNONCES;GRUPOBERGE ;EAIR.groupecat.com:8000/arch/RECU/GRUPOBERGE2VIA_ES;IB.VIA.GRUPOBERGE@lc.re7.groupecat.com
+IB;ANNONCES;GTN;eair.groupecat.com:8000/arch/RECU/GTN2VIA_ES/;IB.VIA.GTN@lc.re7.groupecat.com
+IB;ANNONCES;INTEPLAS ;EAIR.groupecat.com:8000/arch/RECU/INTEPLAS2VIA_SP;IB.VIA.INTEPLAS@lc.re7.groupecat.com
+IB;ANNONCES;INTERSERVICE AMENI;eair.groupecat.com:8000/arch/RECU/ITRSERVICEAMENI2VIA_ES2/;IB.VIA.INTERSERVICE-AMENI@lc.re7.groupecat.com
+IB;ANNONCES;IOD PARTENERS;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/IODPARTNERS_IB/BMAP/;IB.VIA.IODPARTNERS@lc.re7.groupecat.com
+IB;ANNONCES;ISOPIPE IBERICA;eair.groupecat.com:8000/arch/RECU/ISOPIPEIB2VIA_IB;IB.VIA.ISOPIPE-IBERICA@lc.re7.groupecat.com
+IB;ANNONCES;IVECO ;eair.groupecat.com:8000/arch/RECU/IVECO2VIA_ES/;IB.VIA.IVECO.SHIPMENT-ORDERS@lc.re7.groupecat.com 
+IB;ANNONCES;JEREMIAS ESPANA;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/JEREMIAS_ES/BMAP;IB.VIA.JEREMIAS@lc.re7.groupecat.com
+IB;ANNONCES;JM BRUNEAU;eair.groupecat.com:8000/arch/RECU/JMBRUNEAU2VIA_IB;IB.VIA.JM-BRUNEAU@lc.re7.groupecat.com
+#IB;ANNONCES;KTM SPORT;eair.groupecat.com:8000/arch/RECU/KTMSPORT2VIA_ES/;IB.VIA.KTM-SPORT@lc.re7.groupecat.com 
+IB;ANNONCES;KTM SPORT;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/KTM_SPORT_GMBH_ES/BMAP/;;IB.VIA.KTM-SPORT@lc.re7.groupecat.com 
+IB;ANNONCES;LACHINATA;eair.groupecat.com:8000/arch/RECU/LACHINATA2VIA_ES;IB.VIA.LACHINATA@lc.re7.groupecat.com
+IB;ANNONCES;LIDERFLOR;eair.groupecat.com:8000/arch/RECU/LIDERFLOR2VIA_ES/;IB.VIA.LIDERFLOR@lc.re7.groupecat.com
+IB;ANNONCES;LOGIMAT ;EAIR.groupecat.com:8000/arch/RECU/LOGIMAT2VIA_IB;
+IB;ANNONCES;MAZDA PT ;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/MAZDA_PT/BMAP/;PT.VIA.MAZDA.SHIPMENT-ORDERS@lc.re7.groupecat.com
+#IB;ANNONCES;MOTO BORDOY;eair.groupecat.com:8000/arch/RECU/MOTOS-BORDOY2VIA_IB;IB.VIA.MOTOS-BORDOY@lc.re7.groupecat.com
+IB;ANNONCES;MOTO BORDOY;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/MOTOS_BORDOY_IB/BMAP/;IB.VIA.MOTOS-BORDOY@lc.re7.groupecat.com
+IB;ANNONCES;MICHELIN;eair.groupecat.com:8000/arch/RECU/MICHELIN2VIA_IB;IB.VIA.MICHELIN.SHIPMENT-ORDERS@lc.re7.groupecat.com
+IB;ANNONCES;MICHELIN HR;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/MICHELIN_HR/BMAP/;PL.VIA.MICHELIN.SHIPMENT-ORDERS@lc.re7.groupecat.com
+IB;ANNONCES;MICHELIN PKP;EAIR.groupecat.com:8000/arch/RECU/MICHELINPKP2VIA_ES;IB.VIA.MICHELIN@lc.re7.groupecat.com
+IB;ANNONCES;NEX IB;frgnbb2b03.groupecat.com:8000/B2BI_archives/VIA2/NEX_IB/NEX_IB_IN/BMAP;IB.VIA.NEX@lc.re7.groupecat.com
+IB;ANNONCES;OFFICE DEPOT;eair.groupecat.com:8000/arch/RECU/OFFICEDEP2VIA_IB/;IB.VIA.OFFICE.DEPOT@lc.re7.groupecat.com 
+IB;ANNONCES;ONELEC ;eair.groupecat.com:8000/arch/RECU/ONELEC2VIA_IB;IB.VIA.ONELEC@lc.re7.groupecat.com
+IB;ANNONCES;ORDER QTY ;EAIR.groupecat.com:8000/arch/RECU/IBORDERQTY2VIA;IB.VIA.ORDERQTY@lc.re7.groupecat.com
+#IB;ANNONCES;ORDER PCL  ;EAIR.groupecat.com:8000/arch/RECU/IBORDERPCL2VIA;IB.VIA.ORDERPCL@lc.re7.groupecat.com
+IB;ANNONCES;ORDER PCL-B2Bi;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/ORDERPCL_IB/BMAP/;IB.VIA.ORDERPCL@lc.re7.groupecat.com
+IB;ANNONCES;ORDER GN PCL  ;EAIR.groupecat.com:8000/arch/RECU/ORDERGNPCL2VIA_ES;IB.VIA.ORDERGNPCL@lc.re7.groupecat.com
+IB;ANNONCES;PETRONAS LUBRICANT ;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/PETRONAS_LUBRICANT_IB/BMAP;IB.VIA.PETRONAS-LUBRICANT@lc.re7.groupecat.com
+IB;ANNONCES;PIKOLINOS;eair.groupecat.com:8000/arch/RECU/PIKOLINOS2VIA_IB;IB.VIA.PIKOLINOS@lc.re7.groupecat.com
+IB;ANNONCES;PLASTICO ERUM ;eair.groupecat.com:8000/arch/RECU/PLASTICOERUM2VIA_IB;IB.VIA.PLASTICO-ERUM@lc.re7.groupecat.com
+IB;ANNONCES;PLASTIMYRS ;eair.groupecat.com:8000/arch/RECU/PLASTIMYR2VIA_IB;IB.VIA.PLASTIMYRS@lc.re7.groupecat.com
+IB;ANNONCES;QUALIMAX ;EAIR.groupecat.com:8000/arch/RECU/QUALIMAX2VIA_SP;IB.VIA.QUALIMAX@lc.re7.groupecat.com
+IB;ANNONCES;RECSA SAP ;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/SAPRECSA_IB/BMAP;IB.VIA.RECSA-SAP@lc.re7.groupecat.com
+IB;ANNONCES;Renaults DAYS ;EAIR.groupecat.com:8000/arch/RECU/RECSADAY2VIA_ES;IB.VIA.RENAULT.DAY00@lc.re7.groupecat.com
+#IB;ANNONCES;Renaults NIGHT ;EAIR.groupecat.com:8000/arch/RECU/RECSANIGHT2VIA_ES;IB.VIA.RENAULT.NIGHT@lc.re7.groupecat.com
+IB;ANNONCES;RENAULT NIGHT;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/RENAULT_NIGHT_IB/BMAP/;IB.VIA.RENAULT.NIGHT@lc.re7.groupecat.com
+IB;ANNONCES;Renaults PKP ;EAIR.groupecat.com:8000/arch/RECU/RECSAPKP2VIA_ES;IB.VIA.RENAULT.PKP@lc.re7.groupecat.com
+IB;ANNONCES;Renaults SAP  ;EAIR.groupecat.com:8000/arch/RECU/RECSASAP2VIA_ES;IB.VIA.RECSA-SAP@lc.re7.groupecat.com
+IB;ANNONCES;RENAULT-PT;eair.groupecat.com:8000/arch/RECU/RENAULT2VIA_IB;IB.VIA.RENAULT-PT@lc.re7.groupecat.com
+#IB;ANNONCES;REPSO-LRYLESA;eair.groupecat.com:8000/arch/RECU/REPSOLRYLESA2VIA_ES;IB.VIA.REPSOL-RYLESA@lc.re7.groupecat.com 
+IB;ANNONCES;REPSOL-RYLESA;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/REPSOLRYLES_IB/BMAP/;IB.VIA.REPSOL-RYLESA@lc.re7.groupecat.com
+IB;ANNONCES;SAINT-GOBAIN;EAIR.groupecat.com:8000/arch/RECU/STGOBAIN2VIA_ES;IB.VIA.SAINT-GOBAIN@lc.prod.groupecat.com
+#IB;ANNONCES;SCANIA ;EAIR.groupecat.com:8000/arch/RECU/SCANIA2VIA_SP;IB.VIA.SCANIA@lc.re7.groupecat.com
+IB;ANNONCES;SCANIA-B2Bi;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/SCANIA_D16B/IB/BMAP/;LC.VIA.SCANIA-D16B@lc.re7.groupecat.com
+IB;ANNONCES;SERVICIOS DEL PRAT;eair.groupecat.com:8000/arch/RECU/SERVICIOSDP2VIA_ES/;IB.VIA.SERVICIOS-DEL-PRAT@lc.re7.groupecat.com 
+IB;ANNONCES;SPAD-SOCIEDAD;eair.groupecat.com:8000/arch/RECU/SPAD-SOCIEDAD2VIA_ES/;IB.VIA.SPAD-SOCIEDAD@lc.re7.groupecat.com
+IB;ANNONCES;TAFATRANS;eair.groupecat.com:8000/arch/RECU/TAFATRANS2VIA_IB;
+IB;ANNONCES;TCOS;eair.groupecat.com:8000/arch/RECU/TCOS2VIA_IB;IB.VIA.SPAIN.TCOS@lc.re7.groupecat.com
+IB;ANNONCES;TIRESUR MADRID;eair.groupecat.com:8000/arch/RECU/TIRESURMAD2VIA_ES/;IB.VIA.TIRESUR-MAD@lc.re7.groupecat.com
+IB;ANNONCES;TIRESUR GRANADA;eair.groupecat.com:8000/arch/RECU/TIRESURGRA2VIA_ES/;IB.VIA.TIRESUR-GRA@lc.re7.groupecat.com
+IB;ANNONCES;TIRESUR CARREFOUR;eair.groupecat.com:8000/arch/RECU/TIRESURCARF2VIA_ES/;IB.VIA.TIRESUR-CARREFOUR@lc.re7.groupecat.com
+IB;ANNONCES;TOYOTA PT ;eair.groupecat.com:8000/arch/RECU/TOYOTA-PT2VIA_IB;IB.VIA.TOYOTA-PT@lc.re7.groupecat.com
+IB;ANNONCES;TRANSAGUEDA;eair.groupecat.com:8000/arch/RECU/TRANSAGUEDA2VIA_ES/;IB.VIA.INTERSERVICE-AMENI@lc.re7.groupecat.com
+IB;ANNONCES;TRANSPORTES ESTEBAN;eair.groupecat.com:8000/arch/RECU/TRANSESTEBAN2VIA_IB;
+IB;ANNONCES;LODISTOL;eair.groupecat.com:8000/arch/RECU/LODISTOL2VIA_IB;
+IB;ANNONCES;UTC-CLIMA;eair.groupecat.com:8000/arch/RECU/UTCCLIMA2VIA_ES/;IB.VIA.UTC-CLIMA@lc.re7.groupecat.com
+IB;ANNONCES;VALOINSA;eair.groupecat.com:8000/arch/RECU/VALOINSA2VIA_IB;
+#IB;ANNONCES;YAMAHA;eair.groupecat.com:8000/arch/RECU/YAMAHA2VIA_IB;IB.VIA.YAMAHA@lc.re7.groupecat.com
+IB;ANNONCES;YAMAHA ES;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/YAMAHA_ES/BMAP;IB.VIA.YAMAHA@lc.re7.groupecat.com
+IB;ANNONCES;YAMAHA PT;eair.groupecat.com:8000/arch/RECU/YAMAHAPT2VIA_ES/;IB.VIA.YAMAHA-PT@lc.re7.groupecat.com
+IB;ANNONCES;VALEO;eair.groupecat.com:8000/arch/RECU/VALEO2VIA_ES/;IB.VIA.VALEO@lc.re7.groupecat.com
+IB;ANNONCES;VOLVO CARS  ;eair.groupecat.com:8000/arch/RECU/VOLVOCARS2VIA_IB;IB.VIA.VOLVO-CARS@lc.re7.groupecat.com
+IB;ANNONCES;VOLVO TRUCKS;eair.groupecat.com:8000/arch/RECU/VOLVOTRUCKS_ES/;IB.VIA.VOLVO-TRUCKS@lc.re7.groupecat.com
+IB;ANNONCES;ZARGES;eair.groupecat.com:8000/arch/RECU/ZARGES2VIA_IB;IB.VIA.ZARGES@lc.re7.groupecat.com
+IB;ANNONCES;DAF IB;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/DAF_IB/BMAP;IB.VIA.DAF@lc.re7.groupecat.com
+
+
+#-----------------------;;;;
+#----- Annonces IOD sous-traitants;;;;
+#-----------------------;;;;
+#IB;EXTRACTIONS;VOLVO TRUCKS;eair.groupecat.com:8000/arch/RECU/VIAS2VOLVOTRUCKS/;
+IB;EXTRACTIONS;ALERCE;comr.groupecat.com:8000/arch/RECU/ALERCE2OUT/;
+IB;EXTRACTIONS;CAYCO;comr.groupecat.com:8000/arch/RECU/WEX2CAYCOOUT/;
+IB;EXTRACTIONS;LOGIMAT;comr.groupecat.com:8000/arch/RECU/WEX2LOGIMATOUT/;
+IB;EXTRACTIONS;MIARCO;c7lc.groupecat.com:8000/arch/EMIS/VIA2MIARCO_ES/;
+#IB;EXTRACTIONS;MICHELIN (csv);c7lc.groupecat.com:8000/arch/EMIS/VIA2MICHELIN_ES/;
+IB;EXTRACTIONS;MICHELIN (csv);eair.groupecat.com:8000/arch/RECU/VIA2MICHELIN_ES_SPLIT/;
+IB;EXTRACTIONS;MICHELIN (EDIFACT);eair.groupecat.com:8000/arch/EMIS/VIA2MICHELIN_ES/;
+IB;EXTRACTIONS;ONE TO ONE;c7lc.groupecat.com:8000/arch/EMIS/VIA2O2O_ES/;
+IB;EXTRACTIONS;RECSA SAP;c7lc.groupecat.com:8000/arch/EMIS/SAPHESES/;
+IB;EXTRACTIONS;REPSOL (csv);c7lc.groupecat.com:8000/arch/EMIS/VIA2REPSOL_ES/;
+IB;EXTRACTIONS;REPSOL (xml);eair.groupecat.com:8000/arch/EMIS/VIA2REPSOL_ES/;
+IB;EXTRACTIONS;REPSOL ORDER (csv);c7lc.groupecat.com:8000/arch/EMIS/VIA2REPSOL_ORD_ES/;
+IB;EXTRACTIONS;REPSOL ORDER (xml);eair.groupecat.com:8000/arch/EMIS/VIA2REPSOL_ORD_ES/;
+IB;EXTRACTIONS;TAFATRANS;comr.groupecat.com:8000/arch/RECU/VIA2TAFATRANS/;
+IB;EXTRACTIONS;TRANSPORTES ESTEBAN;comr.groupecat.com:8000/arch/RECU/VIA2TTRANSESTEBAN_IB/;
+IB;EXTRACTIONS;VALOINSA;comr.groupecat.com:8000/arch/RECU/WEX2VALOINSAOUT/;
+IB;EXTRACTIONS;YAMAHA;c7lc.groupecat.com:8000/arch/EMIS/EXT_YAMAHA_IB/;
+IB;EXTRACTIONS;MAZDA OUT PT;c7lc.groupecat.com:8000/arch/EMIS/VIA2MAZDA_PT/
+
+################### *** ###################;;;;
+#               BU SLOVENIE (SI)          #;;;;
+###########################################;;;;
+
+#----- Annonces clients;;;;
+SI;ANNONCES;SITES - Client startup;frbs.groupecat.com:8000/arch/EMIS/SIREFTIER/;SI.REFERENTIEL.TIERS@lc.re7.groupecat.com
+SI;ANNONCES;TOYOTA;cos7.groupecat.com:8000/arch/RECU/TOYOTA/;PL.TOYOTA.SHIPMENT-ORDERS.SLOVENIE@lc.re7.groupecat.com
+
+#----- Extractions Clients;;;;
+SI;EXTRACTIONS;SLOVENIE;cos7.groupecat.com:8000/arch/EMIS/SLOVENIE/;
+
+#----- Compte Rendu d'integration;;;;
+SI;INTEGRATION;SITES - Client startup;cos7.groupecat.com:8000/chaine/CMG_INREFTIER/;
+SI;INTEGRATION;TOYOTA;cos7.groupecat.com:8000/chaine/CMG_TOYPLINT/;
+
+
+
+################### *** ###################;;;;
+#               BU UKRAINE (UA)           #;;;;
+###########################################;;;;
+
+#----- Annonces clients;;;;
+UA;ANNONCES;NISSAN UA;frgnbb2b03.groupecat.com:8000/B2BI_archives/RECU/NISSAN_UA/BMAP;UA.VIA.NISSAN.SHIPMENT-ORDERS@lc.re7.groupecat.com 
+UA;ANNONCES;ORDERQTY UA;eair.groupecat.com:8000/arch/RECU/ORDERQTY2VIA_UA/;UA.VIA.ORDERQTY@lc.re7.groupecat.com
+UA;ANNONCES;ORDERPCL UA;eair.groupecat.com:8000/arch/RECU/ORDERPCL2VIA_UA/;UA.VIA.ORDERPCL@lc.re7.groupecat.com
+UA;ANNONCES;ORDERGNPCL UA;eair.groupecat.com:8000/arch/RECU/ORDERGNPCL2VIA_UA/;UA.VIA.ORDERGNPCL@lc.re7.groupecat.com
+UA;ANNONCES;SITES - Client startup;frbs.groupecat.com:8000/arch/EMIS/UAREFTIER/;UA.REFERENTIEL.TIERS@lc.re7.groupecat.com
+
+#----- Compte Rendu d'integration;;;;
+UA;INTEGRATION;SITES - Client startup;cou7.groupecat.com:8000/chaine/CMG_INREFTIER/;

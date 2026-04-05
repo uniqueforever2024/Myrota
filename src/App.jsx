@@ -501,9 +501,7 @@ function generateWeeks(year, month) {
 export default function App() {
   const initialPortalSession = readPortalLoginSession();
   const prefersDark = true; // default dark
-  const [page, setPage] = useState(
-    initialPortalSession.isAuthenticated ? "dashboard" : "home"
-  ); // home | dashboard | logs | report | notifications | jira-details
+  const [page, setPage] = useState("home"); // home | dashboard | logs | report | notifications | jira-details
   const [isAuthenticated, setIsAuthenticated] = useState(initialPortalSession.isAuthenticated);
   const [isAdmin, setIsAdmin] = useState(initialPortalSession.isAdmin);
   const [darkMode] = useState(prefersDark);
@@ -946,7 +944,7 @@ export default function App() {
     });
 
     navStackRef.current = ["home"];
-    setPage("dashboard");
+    setPage("home");
     setShowAdminModal(false);
     setAdminPass("");
     setIsAuthenticated(true);
@@ -1078,9 +1076,13 @@ export default function App() {
       <button
         onClick={goHome}
         title="Home"
-        className="text-2xl hover:scale-110 transition text-white"
+        className={`rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
+          page === "home"
+            ? "btn-glass text-white"
+            : "glass-chip hover:scale-105"
+        }`}
       >
-        🏠
+        HOME
       </button>
 
       {isAdmin && (

@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyRota Implementation Documentation</title>
+    <style>
+      :root {
+        --bg: #eef4ff;
+        --paper: #ffffff;
+        --ink: #10213b;
+        --muted: #5f6f8d;
+        --line: #d8e2f3;
+        --brand: #1d4ed8;
+        --brand-soft: #dbeafe;
+        --accent: #0f766e;
+        --accent-soft: #d1fae5;
+        --warn: #9a3412;
+        --warn-soft: #ffedd5;
+        --rose: #9f1239;
+        --rose-soft: #ffe4e6;
+        --gold: #a16207;
+        --gold-soft: #fef3c7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(180deg, #eff6ff 0%, #f8fafc 100%);
+        color: var(--ink);
+        font-family: "Segoe UI", Calibri, Arial, sans-serif;
+        line-height: 1.5;
+      }
+
+      body {
+        padding: 28px;
+      }
+
+      .document {
+        max-width: 980px;
+        margin: 0 auto;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+      }
+
+      .hero {
+        padding: 44px 48px 34px;
+        background:
+          radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 32%),
+          radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 28%),
+          linear-gradient(135deg, #0f172a 0%, #102b62 54%, #153b7e 100%);
+        color: #f8fbff;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 6px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 18px 0 10px;
+        font-size: 34px;
+        line-height: 1.12;
+      }
+
+      .hero p {
+        max-width: 760px;
+        margin: 0;
+        color: rgba(248, 251, 255, 0.86);
+        font-size: 16px;
+      }
+
+      .meta-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .meta-card {
+        padding: 14px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .meta-card .label {
+        margin-bottom: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: rgba(248, 251, 255, 0.66);
+      }
+
+      .meta-card .value {
+        font-size: 15px;
+        font-weight: 700;
+        color: #ffffff;
+        word-break: break-word;
+      }
+
+      .content {
+        padding: 34px 48px 42px;
+      }
+
+      h2 {
+        margin: 28px 0 14px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--line);
+        font-size: 24px;
+        line-height: 1.2;
+        color: #12264a;
+      }
+
+      h3 {
+        margin: 24px 0 10px;
+        font-size: 18px;
+        line-height: 1.25;
+        color: #17305e;
+      }
+
+      p {
+        margin: 10px 0 0;
+      }
+
+      ul,
+      ol {
+        margin: 10px 0 0 20px;
+        padding: 0;
+      }
+
+      li {
+        margin: 6px 0;
+      }
+
+      code,
+      .mono {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.95em;
+      }
+
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+      }
+
+      .summary-card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      }
+
+      .summary-card h3 {
+        margin-top: 0;
+      }
+
+      .callout {
+        margin-top: 16px;
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #f8fbff;
+      }
+
+      .callout.info {
+        border-color: #bfdbfe;
+        background: var(--brand-soft);
+      }
+
+      .callout.success {
+        border-color: #a7f3d0;
+        background: var(--accent-soft);
+      }
+
+      .callout.warn {
+        border-color: #fed7aa;
+        background: var(--warn-soft);
+      }
+
+      .callout.rose {
+        border-color: #fecdd3;
+        background: var(--rose-soft);
+      }
+
+      .callout.gold {
+        border-color: #fde68a;
+        background: var(--gold-soft);
+      }
+
+      .diagram {
+        margin-top: 14px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: #0f172a;
+        color: #e2e8f0;
+        white-space: pre-wrap;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 14px;
+        border-collapse: collapse;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th:last-child,
+      td:last-child {
+        border-right: 0;
+      }
+
+      thead th {
+        background: #eff6ff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #274172;
+      }
+
+      tbody tr:nth-child(even) td {
+        background: #fbfdff;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: #f8fbff;
+        font-size: 12px;
+        font-weight: 700;
+        color: #274172;
+      }
+
+      .footer-note {
+        margin-top: 28px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .page-break {
+        break-before: page;
+        page-break-before: always;
+      }
+
+      @page {
+        size: A4;
+        margin: 16mm;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+          padding: 0;
+        }
+
+        .document {
+          max-width: none;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="document">
+      <section class="hero">
+        <div class="eyebrow">Implementation Documentation</div>
+        <h1>MyRota Web Application</h1>
+        <p>
+          Technical handover and implementation record for the rota management,
+          live home dashboard, ONCALL reporting, Firestore-backed team data,
+          and Netlify-hosted Jira dashboard integration.
+        </p>
+
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="label">Prepared On</div>
+            <div class="value">April 4, 2026</div>
+          </div>
+          <div class="meta-card">
+            <div class="label">Code Revision</div>
+            <div class="value mono">76148ee</div>
+          </div>
+          <div class="meta-card">
+            <div class="label">Primary URL</div>
+            <div class="value">https://myrota.netlify.app/</div>
+          </div>
+          <div class="meta-card">
+            <div class="label">Firebase Project</div>
+            <div class="value mono">myrota-13aa3</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content">
+        <h2>1. Executive Summary</h2>
+        <p>
+          MyRota is a React and Vite based rota management application that now opens directly into a
+          live operational dashboard instead of a login landing page. The application supports
+          user-facing rota visibility, admin-controlled rota editing, live team status and leave
+          planning, ONCALL reporting with Excel export, and a Jira dashboard backed by a Netlify
+          Function.
+        </p>
+        <p>
+          Firestore remains the source of truth for users, rota assignments, admin configuration,
+          and audit logs. The Jira integration was intentionally moved away from Firebase Functions
+          because production Firebase Functions required a paid plan. The current production Jira
+          proxy runs on Netlify Functions and supports a mock mode for preview and branch deploys.
+        </p>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <h3>Business Outcome</h3>
+            <ul>
+              <li>Home page shows live working status and next three days of leave planning.</li>
+              <li>Users can view rota data but only admin can modify shifts or leave.</li>
+              <li>Jira issue counts and details are visible directly inside the app.</li>
+              <li>ONCALL / night / weekend shift reporting can be exported to Excel.</li>
+            </ul>
+          </article>
+          <article class="summary-card">
+            <h3>Key Technical Outcome</h3>
+            <ul>
+              <li>Netlify now hosts both the frontend and the Jira backend proxy.</li>
+              <li>Firestore user ordering follows the numeric <code>position</code> field.</li>
+              <li>Browser Firestore reliability was improved with long-polling configuration.</li>
+              <li>Preview environments can show mock Jira data without using live credentials.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="callout info">
+          <strong>Current production state:</strong> the live Jira endpoint
+          <span class="mono">/.netlify/functions/jiraDashboard?mode=summary</span>
+          was validated on April 4, 2026 and returned live counts successfully.
+        </div>
+
+        <h2>2. Technology Stack</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Implementation</th>
+              <th>Current Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Frontend</td>
+              <td>React 19 + Vite 7</td>
+              <td>Main web UI, navigation, dashboard rendering, report export, and Jira views.</td>
+            </tr>
+            <tr>
+              <td>Styling</td>
+              <td>Tailwind utility classes plus inline component styles and <code>src/App.css</code></td>
+              <td>Glassmorphism panels, responsive layout, mobile sticky table behavior, branded header.</td>
+            </tr>
+            <tr>
+              <td>Primary data store</td>
+              <td>Firebase Firestore</td>
+              <td>Users, rota assignments, logs, and admin configuration.</td>
+            </tr>
+            <tr>
+              <td>Authentication gate</td>
+              <td>Simple admin password validation from Firestore</td>
+              <td>Controls access to rota editing and log visibility.</td>
+            </tr>
+            <tr>
+              <td>Reporting</td>
+              <td><code>xlsx</code> + <code>file-saver</code></td>
+              <td>Excel export of ONCALL / C / WS report rows.</td>
+            </tr>
+            <tr>
+              <td>Jira backend</td>
+              <td>Netlify Functions</td>
+              <td>Secure server-side Jira querying without exposing credentials to the browser.</td>
+            </tr>
+            <tr>
+              <td>Hosting</td>
+              <td>Netlify</td>
+              <td>Production frontend deployment and Jira serverless runtime.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>3. Solution Architecture</h2>
+        <div class="diagram">Browser (myrota.netlify.app)
+  |
+  +-- React / Vite frontend
+  |     |
+  |     +-- Home dashboard
+  |     +-- ROTA dashboard
+  |     +-- ONCALL report
+  |     +-- Jira dashboard cards
+  |     +-- Jira detail page
+  |
+  +-- Firestore reads / writes
+  |     |
+  |     +-- users collection
+  |     +-- rota/master document
+  |     +-- config/admin document
+  |     +-- logs collection
+  |
+  +-- Netlify Function: /.netlify/functions/jiraDashboard
+        |
+        +-- Reads Netlify environment variables
+        +-- Executes Jira JQL queries
+        +-- Returns summary or detail JSON to frontend
+        +-- Uses mock data in preview / branch deploy contexts</div>
+
+        <div class="callout success">
+          <strong>Important architectural change:</strong> Firebase Functions are no longer the intended
+          production path for Jira. The active production Jira proxy is the Netlify Function located at
+          <span class="mono">netlify/functions/jiraDashboard.js</span>.
+        </div>
+
+        <h2>4. Delivered Functional Scope</h2>
+
+        <h3>4.1 Home Page</h3>
+        <ul>
+          <li>The application opens directly into the home dashboard instead of a login landing banner.</li>
+          <li>The main title is <strong>What about Today?</strong>.</li>
+          <li>Two glassmorphism panels are shown side by side on large screens and stacked on mobile.</li>
+          <li>The live status panel uses green glass styling.</li>
+          <li>The leave plan panel uses red / rose glass styling.</li>
+          <li>Below those two panels, the Jira dashboard appears inside a yellow glass section.</li>
+        </ul>
+
+        <h3>4.2 Live Team Status Panel</h3>
+        <ul>
+          <li>Shows the current date in IST.</li>
+          <li>Displays who is on leave today.</li>
+          <li>Displays who is doing morning shift today.</li>
+          <li>Displays who is doing night shift today.</li>
+          <li>On weekends, shows weekend support availability in the simplified format <em>{name} is available on weekend</em>.</li>
+          <li>Avoids duplicate weekend notifications.</li>
+        </ul>
+
+        <h3>4.3 Leave Plan Panel</h3>
+        <ul>
+          <li>Shows leave information for the next three days.</li>
+          <li>Uses relative wording such as <em>tomorrow</em> and <em>day after tomorrow</em>.</li>
+          <li>Falls back to a positive empty state when no leave is planned.</li>
+        </ul>
+
+        <h3>4.4 ROTA Dashboard</h3>
+        <ul>
+          <li>Opens from the <strong>ROTA</strong> button in the top navigation.</li>
+          <li>The ROTA button is visually highlighted and marked with a <strong>NEW</strong> ribbon.</li>
+          <li>Supports week tabs plus a whole-month view.</li>
+          <li>Supports month and year selection.</li>
+          <li>The year selector is dynamic and allows the next year once the current month is December.</li>
+          <li>Tables use a readable sticky employee column on mobile.</li>
+        </ul>
+
+        <h3>4.5 ONCALL Report</h3>
+        <ul>
+          <li>The old dialer icon was replaced by a labeled <strong>ONCALL</strong> button.</li>
+          <li>The ONCALL page lists C and WS assignments for the selected month.</li>
+          <li>The resulting report can be exported to Excel.</li>
+        </ul>
+
+        <h3>4.6 Jira Dashboard</h3>
+        <ul>
+          <li>Shows <strong>EDI_MAPPING</strong>, <strong>EDI_SUPPORT</strong>, and <strong>CHANGE_REQUEST</strong> sections.</li>
+          <li>Each count opens a separate Jira detail page inside the application.</li>
+          <li>The details page links out to the underlying Jira issue.</li>
+          <li>Refresh actions are available on both summary and detail views.</li>
+          <li>Preview environments can run with mock Jira data instead of live credentials.</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <h2>5. Access Control and User Experience Rules</h2>
+
+        <h3>5.1 Admin Mode</h3>
+        <ul>
+          <li>Admin mode is entered by clicking the MyRota logo.</li>
+          <li>When already in admin mode, clicking the logo returns the user to home.</li>
+          <li>The admin password is read from <code>config/admin</code> first and falls back to <code>users/admin</code>.</li>
+          <li>Only admin users can change rota data or see the change log page.</li>
+        </ul>
+
+        <h3>5.2 User Mode Restrictions</h3>
+        <ul>
+          <li>Regular users have view-only access.</li>
+          <li>The user-facing leave update path was removed.</li>
+          <li>The employee document with ID <code>admin</code> is hidden from user-facing employee lists and notifications.</li>
+        </ul>
+
+        <h3>5.3 Employee List Rules</h3>
+        <ul>
+          <li>Users are read from Firestore collection <code>users</code>.</li>
+          <li>Display order follows the numeric <code>position</code> field.</li>
+          <li>Missing or invalid positions sort to the bottom.</li>
+          <li>The display name replacement rule maps <code>Asutosh</code> to <code>Komal</code>.</li>
+          <li>Duplicate names are removed after ordering.</li>
+        </ul>
+
+        <h3>5.4 Mobile UX Updates</h3>
+        <ul>
+          <li>The mobile logo size was reduced to prevent overlap with the ROTA button.</li>
+          <li>The week table preserves horizontal scroll position while editing.</li>
+          <li>The sticky name column keeps employee names visible while scrolling horizontally.</li>
+        </ul>
+
+        <h2>6. Business Logic Rules</h2>
+
+        <h3>6.1 Shift and Leave Codes</h3>
+        <div class="pill-row">
+          <span class="pill">A = Morning Shift</span>
+          <span class="pill">B = Normal Shift</span>
+          <span class="pill">C = Night Shift</span>
+          <span class="pill">WS = Weekend Shift</span>
+          <span class="pill">W = Weekend Off</span>
+          <span class="pill">PL = Personal Leave</span>
+          <span class="pill">RH = Restricted Holiday</span>
+          <span class="pill">CH = Company Holiday</span>
+          <span class="pill">HD = Half Day</span>
+        </div>
+
+        <h3>6.2 Calendar Rules</h3>
+        <ul>
+          <li>Base year is 2025.</li>
+          <li>For 2025, only November and December are available.</li>
+          <li>All years after 2025 expose the full January to December range.</li>
+          <li>When the current month is December, the next year is added to the selector.</li>
+        </ul>
+
+        <h3>6.3 Report Rules</h3>
+        <ul>
+          <li>The ONCALL report includes only rows where the effective shift is <code>C</code> or <code>WS</code>.</li>
+          <li>Report rows are built from the selected month, selected year, employee list, and final resolved shift values.</li>
+        </ul>
+
+        <h3>6.4 Rota Value Resolution</h3>
+        <ul>
+          <li>Assignments support both name-based and index-based rota keys.</li>
+          <li>Object values may carry both <code>shift</code> and <code>leave</code>.</li>
+          <li>Fallback scanning is used for leave detection where old key shapes or older data formats still exist.</li>
+        </ul>
+
+        <h2>7. Data Model and Persistence</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Firestore Path</th>
+              <th>Purpose</th>
+              <th>Usage</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>users/{username}</code></td>
+              <td>User master data</td>
+              <td>Document IDs provide employee names. <code>position</code> controls display order. Admin fallback password may also exist in <code>users/admin</code>.</td>
+            </tr>
+            <tr>
+              <td><code>rota/master</code></td>
+              <td>Central rota document</td>
+              <td>Stores key-based day assignments such as <code>year-month-week-employee-day</code>, with values containing shift / leave information.</td>
+            </tr>
+            <tr>
+              <td><code>config/admin</code></td>
+              <td>Admin configuration</td>
+              <td>Primary source for admin password and related configuration.</td>
+            </tr>
+            <tr>
+              <td><code>logs/{logId}</code></td>
+              <td>Audit history</td>
+              <td>Tracks shift changes and update events for admin review.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="callout warn">
+          <strong>Firestore client configuration:</strong> the frontend now uses
+          <code>initializeFirestore()</code> with long-polling assistance in
+          <code>src/firebase.js</code> to reduce connection issues in deployed browsers.
+        </div>
+
+        <h2>8. Jira Integration</h2>
+
+        <h3>8.1 Current Runtime Model</h3>
+        <ul>
+          <li>The browser never calls Jira directly.</li>
+          <li>The frontend calls <code>/.netlify/functions/jiraDashboard</code>.</li>
+          <li>The Netlify Function reads <code>JIRA_BASE_URL</code>, <code>JIRA_USERNAME</code>, and <code>JIRA_PASSWORD</code> from environment variables.</li>
+          <li>The backend performs Jira REST API search requests using Basic authentication.</li>
+        </ul>
+
+        <h3>8.2 Why Netlify Functions Were Introduced</h3>
+        <ul>
+          <li>Firebase Functions deployment required paid billing enablement for the project.</li>
+          <li>The application was already hosted on Netlify, making Netlify Functions the simplest free production path.</li>
+          <li>Netlify deploy contexts also made it easy to introduce a test / preview mode.</li>
+        </ul>
+
+        <h3>8.3 Jira Views Implemented</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>View ID</th>
+              <th>Business Meaning</th>
+              <th>Source Project / Filter</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>mappingInProgress</code></td>
+              <td>EDI mapping stories in progress</td>
+              <td>Project <code>EDI</code>, issue type <code>Story</code>, status <code>In Progress</code></td>
+            </tr>
+            <tr>
+              <td><code>mappingOpenEpic</code></td>
+              <td>EDI open epics for mapping leads</td>
+              <td>Project <code>EDI</code>, issue type <code>Epic</code>, status <code>Open</code>, assignees <code>MudigoNa</code> and <code>naveen.mudigonda</code></td>
+            </tr>
+            <tr>
+              <td><code>supportInProgress</code></td>
+              <td>HCL-EDI support tickets in progress</td>
+              <td>Project <code>HCLSM</code>, custom field team = <code>HCL-EDI</code>, status <code>In Progress</code></td>
+            </tr>
+            <tr>
+              <td><code>supportOnHold</code></td>
+              <td>HCL-EDI support tickets on hold</td>
+              <td>Project <code>HCLSM</code>, custom field team = <code>HCL-EDI</code>, status <code>ON-HOLD</code></td>
+            </tr>
+            <tr>
+              <td><code>changesThisWeek</code></td>
+              <td>Tracked change requests for selected assignees</td>
+              <td>Project <code>HCLCR</code>, defined status list, defined assignee list</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>8.4 Preview / Test Environment Strategy</h3>
+        <ul>
+          <li><code>netlify.toml</code> sets <code>JIRA_DASHBOARD_USE_MOCK=true</code> for preview and branch deploys.</li>
+          <li>Production keeps <code>JIRA_DASHBOARD_USE_MOCK=false</code>.</li>
+          <li>The frontend shows <strong>Preview</strong> instead of <strong>Live</strong> whenever mock data is active.</li>
+          <li>Mock summary and detail payloads are maintained in <code>netlify/jira/mockData.js</code>.</li>
+        </ul>
+
+        <div class="callout gold">
+          <strong>Production environment variables required in Netlify:</strong>
+          <span class="mono">JIRA_BASE_URL</span>,
+          <span class="mono">JIRA_USERNAME</span>,
+          <span class="mono">JIRA_PASSWORD</span>.
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>9. Deployment and Local Development</h2>
+
+        <h3>9.1 Production Deployment</h3>
+        <ul>
+          <li>Frontend and Jira backend deploy from GitHub to Netlify.</li>
+          <li>No Firebase Functions deployment is required for Jira anymore.</li>
+          <li>Firestore remains active for data storage and admin / user data retrieval.</li>
+        </ul>
+
+        <h3>9.2 Local Development Commands</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Command</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>npm start</code></td>
+              <td>Runs the Vite development server.</td>
+            </tr>
+            <tr>
+              <td><code>npm run build</code></td>
+              <td>Build validation for production assets.</td>
+            </tr>
+            <tr>
+              <td><code>npm run netlify:dev</code></td>
+              <td>Runs Netlify local dev so the frontend and Jira function share one origin.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>9.3 Legacy / Non-Production Items</h3>
+        <ul>
+          <li>The <code>functions/</code> directory still exists in the repository but is no longer the intended production Jira backend.</li>
+          <li>Preview Jira behavior should be validated against the Netlify function path, not the older Firebase function URL.</li>
+        </ul>
+
+        <h2>10. Validation Snapshot</h2>
+        <p>
+          The following checkpoints were validated while preparing this document on April 4, 2026:
+        </p>
+        <ul>
+          <li><code>npm run build</code> completed successfully on the current machine.</li>
+          <li>The live Jira summary endpoint returned status 200 from Netlify.</li>
+          <li>The frontend bundle on production updated after the Netlify migration and heading cleanup.</li>
+        </ul>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Live Jira Metric</th>
+              <th>Observed Value</th>
+              <th>Observation Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>EDI_MAPPING - In Progress</td>
+              <td>13</td>
+              <td>April 4, 2026</td>
+            </tr>
+            <tr>
+              <td>EDI_MAPPING - Open Epic</td>
+              <td>5</td>
+              <td>April 4, 2026</td>
+            </tr>
+            <tr>
+              <td>EDI_SUPPORT - In Progress</td>
+              <td>6</td>
+              <td>April 4, 2026</td>
+            </tr>
+            <tr>
+              <td>EDI_SUPPORT - On Hold</td>
+              <td>9</td>
+              <td>April 4, 2026</td>
+            </tr>
+            <tr>
+              <td>CHANGE_REQUEST - Total Count</td>
+              <td>9</td>
+              <td>April 4, 2026</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>11. Key Files for Maintenance</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>File</th>
+              <th>Responsibility</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>src/App.jsx</code></td>
+              <td>Main application shell, home page, rota dashboard, admin flow, ONCALL report, and core Firestore interactions.</td>
+            </tr>
+            <tr>
+              <td><code>src/firebase.js</code></td>
+              <td>Firebase initialization and Firestore connectivity configuration.</td>
+            </tr>
+            <tr>
+              <td><code>src/jira/JiraDashboardSection.jsx</code></td>
+              <td>Jira summary cards on the home page.</td>
+            </tr>
+            <tr>
+              <td><code>src/jira/JiraIssuesPage.jsx</code></td>
+              <td>Detailed issue list view for any Jira card or metric.</td>
+            </tr>
+            <tr>
+              <td><code>src/jira/api.js</code></td>
+              <td>Frontend Jira API client and endpoint fallback behavior.</td>
+            </tr>
+            <tr>
+              <td><code>netlify/functions/jiraDashboard.js</code></td>
+              <td>Netlify serverless entry point for Jira summary and detail requests.</td>
+            </tr>
+            <tr>
+              <td><code>netlify/jira/viewDefinitions.js</code></td>
+              <td>Canonical JQL view definitions and detail field list.</td>
+            </tr>
+            <tr>
+              <td><code>netlify/jira/mockData.js</code></td>
+              <td>Preview / test environment Jira payloads.</td>
+            </tr>
+            <tr>
+              <td><code>netlify/jira/client.js</code></td>
+              <td>Jira environment variable parsing, auth header creation, and REST search execution.</td>
+            </tr>
+            <tr>
+              <td><code>netlify.toml</code></td>
+              <td>Netlify build, functions, dev, and deploy-context environment configuration.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="footer-note">
+          Document generated from the current codebase and validated production behavior as of April 4, 2026.
+          This file is intended for handover, maintenance planning, and deployment reference.
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

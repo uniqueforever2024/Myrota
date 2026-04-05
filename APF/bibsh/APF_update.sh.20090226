@@ -1,0 +1,79 @@
+#!/bin/sh
+
+if [ "${1:-"NULL"}" = "-f" ]
+then
+	MAJ_FORCE="OUI"
+	echo "MAJ_FORCE = OUI"
+else
+	echo "Pas de MaJ forcee ${1:-"NULL"} <> -f ..."
+fi
+
+# Titres des pages HTML
+# ---------------------------
+annonces_fr="Fichiers Annonces"
+annonces_de="Kunden DFU"
+annonces_it="Announce Files"
+annonces_pl="Announce Files"
+scans_fr="Fichiers Collas"
+scans_de="Fichiers Collas"
+scans_it="Fichiers Collas"
+scans_pl="Fichiers Collas"
+collas_fr="C.R. Collas"
+collas_de="C.R. Collas"
+collas_it="C.R. Collas"
+collas_pl="C.R. Collas"
+refclients_fr="Ref. clients"
+refclients_de="Ref. clients"
+refclients_it="Ref. clients"
+refclients_pl="Ref. clients"
+extractions_fr="IOD emis"
+extractions_de="Sent IOD"
+extractions_it="Sent IOD"
+extractions_pl="Sent IOD"
+impression_fr="Documents generes"
+impression_de="Printout Documents"
+impression_it="Printout Documents"
+impression_pl="Printout Documents"
+integration_fr="C.R. d'Integration"
+integration_de="Integration Reports"
+integration_it="Integration Reports"
+integration_pl="Integration Reports"
+
+for une_bu in fr de it pl
+do
+	echo "Generation des fichiers html pour la B.U. <$une_bu>..."
+	for un_type_data in scans annonces collas extractions impression integration refclients
+	do
+		case $un_type_data in
+		"scans"|"annonces"|"collas"|"extractions"|"impression"|"integration"|"refclients")
+			TITRE=$(eval echo \$${un_type_data}_${une_bu})
+			;;
+		*)
+			TITRE="Unknown type files"
+			;;
+		esac
+	(
+		cat  $APF_HOME/bibdata/gen.header | sed -e "s/_BU_/${une_bu}/" -e "s/_TITRE_/${TITRE}/"
+		grep -i "^${une_bu};${un_type_data};" $APF_HOME/bibdata/APF_URL.csv | \
+			while read ligne
+			do
+				une_url=$(echo "$ligne" | cut -d\; -f4)
+				un_libelle=$(echo "$ligne" | cut -d\; -f3)
+				echo "<li><a href=\"http://${une_url}\" target=\"_self\">${un_libelle}</a></li>"
+			done
+		cat  $APF_HOME/bibdata/gen.footer
+		) > /tmp/${une_bu}_gen.${un_type_data}.html
+		if [ "$MAJ_FORCE" = "OUI" ]
+		then
+			echo "Copie dans $APF_HOME/APF/${une_bu}/gen.${un_type_data}.html..."
+			cp /tmp/${une_bu}_gen.${un_type_data}.html $APF_HOME/APF/${une_bu}/gen.${un_type_data}.html
+		else
+			echo "Pas de MaJ forcee..."
+		fi
+	done
+	ls -ltr /tmp/${une_bu}_gen.*.html
+	echo "OK"
+done
+
+
+
