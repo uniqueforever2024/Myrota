@@ -1034,11 +1034,10 @@ export default function App() {
   const TopNav = (
     <div className="flex items-center gap-3 md:gap-6 top-nav-actions">
       <div className="nav-featured-item">
-        <span className="nav-feature-ribbon">NEW</span>
         <button
           onClick={() => setPage("dashboard")}
           title="ROTA"
-          className={`nav-rota-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
+          className={`top-nav-text-button nav-rota-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
             page === "dashboard"
               ? "nav-rota-button--active"
               : "nav-rota-button--idle"
@@ -1052,7 +1051,7 @@ export default function App() {
       <button
         onClick={() => setPage("report")}
         title="ONCALL"
-        className={`rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
+        className={`top-nav-text-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
           page === "report"
             ? "btn-glass text-white"
             : "glass-chip hover:scale-105"
@@ -1066,7 +1065,7 @@ export default function App() {
         <button
           onClick={() => setPage("logs")}
           title="Logs"
-          className="text-2xl hover:scale-110 transition text-white/90"
+          className="top-nav-icon-button inline-flex items-center justify-center rounded-xl text-2xl transition text-white/90 hover:scale-110"
         >
           📄
         </button>
@@ -1076,7 +1075,7 @@ export default function App() {
       <button
         onClick={goHome}
         title="Home"
-        className={`rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
+        className={`top-nav-text-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
           page === "home"
             ? "btn-glass text-white"
             : "glass-chip hover:scale-105"
@@ -1091,7 +1090,7 @@ export default function App() {
           onClick={handleAdminLogout}
           title="Logout from admin mode"
           aria-label="Logout from admin mode"
-          className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-amber-300/20 bg-amber-400/10 text-amber-100 transition hover:scale-105 hover:border-amber-300/35 hover:bg-amber-400/16 hover:text-white"
+          className="top-nav-icon-button inline-flex h-11 w-11 items-center justify-center rounded-xl border border-amber-300/20 bg-amber-400/10 text-amber-100 transition hover:scale-105 hover:border-amber-300/35 hover:bg-amber-400/16 hover:text-white"
         >
           <LogoutIcon />
         </button>
@@ -1102,7 +1101,7 @@ export default function App() {
         onClick={handlePortalLogout}
         title="Logout"
         aria-label="Logout"
-        className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-rose-300/20 bg-rose-400/10 text-rose-100 transition hover:scale-105 hover:border-rose-300/35 hover:bg-rose-400/16 hover:text-white"
+        className="top-nav-icon-button inline-flex h-11 w-11 items-center justify-center rounded-xl border border-rose-300/20 bg-rose-400/10 text-rose-100 transition hover:scale-105 hover:border-rose-300/35 hover:bg-rose-400/16 hover:text-white"
       >
         <LogoutIcon />
       </button>
@@ -1819,13 +1818,13 @@ export default function App() {
         ) : (
           <>
         {/* HEADER */}
-        <header className="sticky top-0 z-40 flex items-center justify-between gap-3 px-3 py-3 sm:px-4 glass-nav">
+        <header className="app-header sticky top-0 z-40 flex items-center justify-between gap-3 px-3 py-3 sm:px-4 glass-nav">
           <div
-            className="flex min-w-0 items-center gap-1.5 sm:gap-2 cursor-pointer"
+            className="app-brand flex min-w-0 items-center gap-1.5 sm:gap-2 cursor-pointer"
             onClick={handleLogoClick}
             title={isAdmin ? "Back to home" : "Open admin mode"}
           >
-            <BrandLogo className="h-8 w-8 shrink-0 sm:h-10 sm:w-10 md:h-11 md:w-11 drop-shadow" />
+            <BrandLogo className="app-brand-logo h-8 w-8 shrink-0 sm:h-10 sm:w-10 md:h-11 md:w-11 drop-shadow" />
             <h1 className="text-3xl font-black leading-none logo-title">
               My<span className="logo-blue">R</span>
               <span className="logo-green">o</span>
@@ -1836,7 +1835,7 @@ export default function App() {
           {TopNav}
         </header>
 
-        <QuickAccessRibbon />
+        {page === "home" && <QuickAccessRibbon />}
 
         <main className="flex-grow px-4 md:px-6 lg:px-10 py-8">
           {/* Back button below navbar (not on dashboard) */}
@@ -1993,6 +1992,22 @@ export default function App() {
             border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 10px 25px rgba(2, 6, 23, 0.55);
             backdrop-filter: blur(18px);
+          }
+          .app-header {
+            row-gap: 0.85rem;
+          }
+          .app-brand,
+          .top-nav-actions {
+            min-width: 0;
+          }
+          .top-nav-text-button,
+          .top-nav-icon-button,
+          .nav-featured-item {
+            flex: 0 0 auto;
+          }
+          .top-nav-icon-button {
+            min-height: 2.75rem;
+            min-width: 2.75rem;
           }
           .login-shell {
             isolation: isolate;
@@ -2345,24 +2360,6 @@ export default function App() {
             display: flex;
             align-items: center;
             justify-content: center;
-            padding-top: 0.6rem;
-          }
-          .nav-feature-ribbon {
-            position: absolute;
-            top: -0.2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            border-radius: 999px;
-            padding: 0.18rem 0.55rem;
-            font-size: 0.58rem;
-            font-weight: 900;
-            letter-spacing: 0.22em;
-            color: #fff7ed;
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.95), rgba(245, 158, 11, 0.95));
-            border: 1px solid rgba(255,255,255,0.22);
-            box-shadow: 0 10px 24px rgba(244, 63, 94, 0.28);
-            pointer-events: none;
-            z-index: 2;
           }
           .nav-rota-button {
             min-width: 88px;
@@ -2405,9 +2402,41 @@ export default function App() {
               filter: saturate(1.14);
             }
           }
+          @media (max-width: 768px) {
+            .app-header {
+              flex-wrap: wrap;
+              justify-content: center;
+              align-items: center;
+            }
+            .app-brand {
+              width: 100%;
+              justify-content: center;
+            }
+            .top-nav-actions {
+              width: 100%;
+              justify-content: flex-start;
+              flex-wrap: nowrap;
+              overflow-x: auto;
+              padding-bottom: 0.15rem;
+              scrollbar-width: none;
+              -ms-overflow-style: none;
+            }
+            .top-nav-actions::-webkit-scrollbar {
+              display: none;
+            }
+          }
           @media (max-width: 640px) {
+            .app-header {
+              gap: 0.7rem;
+              padding-top: 0.8rem;
+              padding-bottom: 0.8rem;
+            }
+            .app-brand-logo {
+              height: 1.95rem !important;
+              width: 1.95rem !important;
+            }
             .logo-title {
-              font-size: 1.7rem;
+              font-size: clamp(1.35rem, 6vw, 1.65rem);
               letter-spacing: 0.04em;
             }
             .login-shell {
@@ -2446,13 +2475,28 @@ export default function App() {
               padding: 0.9rem 0.95rem;
             }
             .top-nav-actions {
-              gap: 0.35rem !important;
+              gap: 0.45rem !important;
             }
             .nav-featured-item {
-              padding-top: 0.72rem;
+              padding-top: 0;
+            }
+            .top-nav-text-button,
+            .nav-rota-button {
+              min-height: 2.55rem;
+              padding: 0.68rem 0.82rem !important;
+              font-size: 0.68rem !important;
+              letter-spacing: 0.16em !important;
+              white-space: nowrap;
+            }
+            .top-nav-icon-button {
+              min-height: 2.55rem;
+              min-width: 2.55rem;
+              height: 2.55rem !important;
+              width: 2.55rem !important;
+              font-size: 1.2rem;
             }
             .nav-rota-button {
-              min-width: 78px;
+              min-width: 72px;
             }
             .quick-ribbon-wrap {
               padding-top: 0.85rem;
@@ -2475,6 +2519,17 @@ export default function App() {
             .quick-link-label {
               font-size: 0.66rem;
               letter-spacing: 0.18em;
+            }
+          }
+          @media (max-width: 420px) {
+            .logo-title {
+              font-size: 1.22rem;
+            }
+            .top-nav-text-button,
+            .nav-rota-button {
+              padding: 0.62rem 0.74rem !important;
+              font-size: 0.62rem !important;
+              letter-spacing: 0.14em !important;
             }
           }
           .simple-footer {
