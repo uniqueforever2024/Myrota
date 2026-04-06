@@ -215,7 +215,7 @@ function DashboardShell({
 
             <a
               className="primary-button support-button"
-              href="mailto:HCL-EDI_TEAM@gmail.com?subject=EDI%20LC%20APF%20Support"
+              href="mailto:HCL-EDI-TEAM@hcltech.com?subject=EDI%20LC%20APF%20Support"
             >
               {t("supportButton", "Email support")}
             </a>
