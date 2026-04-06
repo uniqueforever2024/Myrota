@@ -35,6 +35,15 @@ const PORTAL_SHARED_LOGIN_STORAGE_KEY = "myrota.portal.login.shared.v1";
 const PORTAL_LOGOUT_QUERY_KEY = "logout";
 const PORTAL_DEFAULT_USERNAME = "admin";
 const PORTAL_ALLOWED_PASSWORDS = new Set(["VeryGood2022", "VeryGood2019"]);
+const LEGACY_ADMIN_PASSWORD = "password";
+const ADMIN_PASSWORD_FIELD_NAMES = [
+  "password",
+  "adminPassword",
+  "admin_password",
+  "adminPass",
+  "passcode",
+  "pin",
+];
 const CERTIFICATE_STORAGE_KEY = "certificate_new_records_v1";
 
 const clearPortalLoginSession = () => {
@@ -125,6 +134,30 @@ const readCertificateExpiryAlerts = () => {
   } catch {
     return [];
   }
+};
+
+const readAdminPasswordFromSource = (source, depth = 0) => {
+  if (!source || typeof source !== "object" || depth > 2) {
+    return null;
+  }
+
+  for (const fieldName of ADMIN_PASSWORD_FIELD_NAMES) {
+    const value = source?.[fieldName];
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  for (const value of Object.values(source)) {
+    if (value && typeof value === "object") {
+      const nestedPassword = readAdminPasswordFromSource(value, depth + 1);
+      if (nestedPassword) {
+        return nestedPassword;
+      }
+    }
+  }
+
+  return null;
 };
 
 const readPortalLoginSession = () => {
@@ -1073,33 +1106,52 @@ export default function App() {
   };
 
   /* AUTH */
+  const resolveAdminPassword = async () => {
+    const configuredFromState = readAdminPasswordFromSource(adminSettings);
+    if (configuredFromState) {
+      return configuredFromState;
+    }
+
+    try {
+      const adminConfigSnap = await getDoc(doc(db, "config", "admin"));
+      if (adminConfigSnap.exists()) {
+        const adminConfigData = adminConfigSnap.data();
+        setAdminSettings(adminConfigData || null);
+
+        const configuredFromConfig = readAdminPasswordFromSource(adminConfigData);
+        if (configuredFromConfig) {
+          return configuredFromConfig;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to read admin config:", err);
+    }
+
+    try {
+      const adminUserSnap = await getDoc(doc(db, "users", "admin"));
+      if (adminUserSnap.exists()) {
+        const adminDocData = adminUserSnap.data();
+        const configuredFromUser = readAdminPasswordFromSource(adminDocData);
+        if (configuredFromUser) {
+          return configuredFromUser;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to read admin user password fallback:", err);
+    }
+
+    // Preserve the historical admin password so production keeps working
+    // even if Firestore config is missing or still loading.
+    return LEGACY_ADMIN_PASSWORD;
+  };
+
   const handleAdminLogin = async () => {
     const typed = adminPass.trim();
     if (!typed) {
       alert("Please enter password");
       return;
     }
-    let configured =
-      typeof adminSettings?.password === "string" && adminSettings.password.trim().length
-        ? adminSettings.password.trim()
-        : null;
-    if (!configured) {
-      try {
-        const adminUserSnap = await getDoc(doc(db, "users", "admin"));
-        if (adminUserSnap.exists()) {
-          const adminDocData = adminUserSnap.data();
-          if (typeof adminDocData?.password === "string" && adminDocData.password.trim().length) {
-            configured = adminDocData.password.trim();
-          }
-        }
-      } catch (err) {
-        console.error("Failed to read admin user password fallback:", err);
-      }
-    }
-    if (!configured) {
-      alert("Admin password is not configured. Add it under config/admin or users/admin.");
-      return;
-    }
+    const configured = await resolveAdminPassword();
     if (typed === configured) {
       setIsAdmin(true);
       setPage("dashboard");
