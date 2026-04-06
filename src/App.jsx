@@ -35,7 +35,6 @@ const PORTAL_SHARED_LOGIN_STORAGE_KEY = "myrota.portal.login.shared.v1";
 const PORTAL_LOGOUT_QUERY_KEY = "logout";
 const PORTAL_DEFAULT_USERNAME = "admin";
 const PORTAL_ALLOWED_PASSWORDS = new Set(["VeryGood2022", "VeryGood2019"]);
-const LEGACY_ADMIN_PASSWORD = "password";
 const ADMIN_PASSWORD_FIELD_NAMES = [
   "password",
   "adminPassword",
@@ -1107,6 +1106,19 @@ export default function App() {
 
   /* AUTH */
   const resolveAdminPassword = async () => {
+    try {
+      const adminUserSnap = await getDoc(doc(db, "users", "admin"));
+      if (adminUserSnap.exists()) {
+        const adminDocData = adminUserSnap.data();
+        const configuredFromUser = readAdminPasswordFromSource(adminDocData);
+        if (configuredFromUser) {
+          return configuredFromUser;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to read admin user password:", err);
+    }
+
     const configuredFromState = readAdminPasswordFromSource(adminSettings);
     if (configuredFromState) {
       return configuredFromState;
@@ -1127,22 +1139,7 @@ export default function App() {
       console.error("Failed to read admin config:", err);
     }
 
-    try {
-      const adminUserSnap = await getDoc(doc(db, "users", "admin"));
-      if (adminUserSnap.exists()) {
-        const adminDocData = adminUserSnap.data();
-        const configuredFromUser = readAdminPasswordFromSource(adminDocData);
-        if (configuredFromUser) {
-          return configuredFromUser;
-        }
-      }
-    } catch (err) {
-      console.error("Failed to read admin user password fallback:", err);
-    }
-
-    // Preserve the historical admin password so production keeps working
-    // even if Firestore config is missing or still loading.
-    return LEGACY_ADMIN_PASSWORD;
+    return null;
   };
 
   const handleAdminLogin = async () => {
@@ -1152,6 +1149,10 @@ export default function App() {
       return;
     }
     const configured = await resolveAdminPassword();
+    if (!configured) {
+      alert("Admin password is not configured. Add it under users/admin or config/admin.");
+      return;
+    }
     if (typed === configured) {
       setIsAdmin(true);
       setPage("dashboard");
