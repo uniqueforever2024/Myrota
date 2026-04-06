@@ -61,7 +61,7 @@ function App() {
     backup: ""
   });
 
-  const { entries, loaded, actions } = useDirectoryData();
+  const { entries, loaded, error: directoryError, actions } = useDirectoryData();
   const text = getText(route.lang);
   const canManage = Boolean(session);
   const currentBu = route.bu || "fr";
@@ -402,6 +402,7 @@ function App() {
         openManagerForCurrentContext={openManagerForCurrentContext}
         downloadBulkTemplate={downloadBulkTemplate}
         importBulkFile={importBulkFile}
+        directoryError={directoryError}
         managerNotice={managerNotice}
         managerError={managerError}
         managerSaving={managerSaving}

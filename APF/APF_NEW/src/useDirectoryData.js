@@ -21,10 +21,27 @@ function resolveApiBase() {
 const API_BASE = resolveApiBase();
 const API_URL = `${API_BASE}/directory-data`;
 
+function readApiError(response, payload, fallbackMessage) {
+  const payloadMessage =
+    (typeof payload?.error === "string" && payload.error.trim()) ||
+    (typeof payload?.message === "string" && payload.message.trim());
+
+  if (payloadMessage) {
+    return payloadMessage;
+  }
+
+  if (response?.status) {
+    return `${fallbackMessage} (status ${response.status})`;
+  }
+
+  return fallbackMessage;
+}
+
 export default function useDirectoryData() {
   const [seedEntries, setSeedEntries] = useState([]);
   const [entries, setEntries] = useState([]);
   const [loaded, setLoaded] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -36,21 +53,22 @@ export default function useDirectoryData() {
 
     const loadEntries = async () => {
       try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL, { cache: "no-store" });
+        const contentType = response.headers.get("content-type") || "";
+        const payload = contentType.includes("application/json") ? await response.json() : null;
 
         if (!response.ok) {
-          throw new Error(`Directory API failed with status ${response.status}`);
+          throw new Error(readApiError(response, payload, "Directory API request failed."));
         }
-
-        const dataFile = await response.json();
 
         if (!active) {
           return;
         }
 
-        const parsedSeed = parseEntries(dataFile);
+        const parsedSeed = parseEntries(payload || {});
         setSeedEntries(parsedSeed);
         setEntries(parsedSeed);
+        setError("");
         setLoaded(true);
       } catch (error) {
         if (!active) {
@@ -59,6 +77,7 @@ export default function useDirectoryData() {
 
         setSeedEntries([]);
         setEntries([]);
+        setError(error?.message || "Oracle directory data is not available right now.");
         setLoaded(true);
       }
     };
@@ -81,18 +100,20 @@ export default function useDirectoryData() {
         entries: normalizedEntries
       })
     });
+    const contentType = response.headers.get("content-type") || "";
+    const savedPayload = contentType.includes("application/json") ? await response.json() : null;
 
     if (!response.ok) {
-      throw new Error("Save failed");
+      throw new Error(readApiError(response, savedPayload, "Save failed."));
     }
 
-    const savedPayload = await response.json();
     const savedEntries = Array.isArray(savedPayload.entries)
       ? savedPayload.entries.map(normalizeEntry)
       : [];
 
     setSeedEntries(savedEntries);
     setEntries(savedEntries);
+    setError("");
   };
 
   const actions = useMemo(
@@ -123,6 +144,7 @@ export default function useDirectoryData() {
     seedEntries,
     entries,
     loaded,
+    error,
     actions
   };
 }

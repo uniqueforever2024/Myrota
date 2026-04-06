@@ -407,6 +407,7 @@ async function ensureDatabaseReady() {
       await initializeCertificateDatabase();
       dbReady = true;
     })().catch((error) => {
+      console.error("Oracle workspace initialization failed", error);
       dbReady = false;
       initPromise = null;
       throw error;

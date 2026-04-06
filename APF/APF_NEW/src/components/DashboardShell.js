@@ -21,6 +21,7 @@ function DashboardShell({
   openManagerForCurrentContext,
   downloadBulkTemplate,
   importBulkFile,
+  directoryError,
   managerNotice,
   managerError,
   managerSaving,
@@ -160,6 +161,7 @@ function DashboardShell({
         </div>
       </nav>
 
+      {directoryError ? <div className="page-status manager-error">{directoryError}</div> : null}
       {managerNotice ? <div className="page-status manager-notice">{managerNotice}</div> : null}
       {managerError ? <div className="page-status manager-error">{managerError}</div> : null}
 

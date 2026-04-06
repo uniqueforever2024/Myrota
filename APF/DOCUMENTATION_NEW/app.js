@@ -424,17 +424,25 @@ async function requestApi(path, options = {}) {
 }
 
 async function detectApi() {
+  let lastErrorMessage = "";
+
   for (const candidate of API_CANDIDATES) {
     try {
       const response = await fetch(`${candidate}/health`, { cache: "no-store" });
+      const contentType = response.headers.get("content-type") || "";
+      const payload = contentType.includes("application/json") ? await response.json() : null;
 
       if (!response.ok) {
+        if (payload?.error) {
+          lastErrorMessage = payload.error;
+        }
         continue;
       }
 
-      const payload = await response.json();
-
       if (payload.storage !== "oracle" && payload.dbReady !== true) {
+        if (payload?.error) {
+          lastErrorMessage = payload.error;
+        }
         continue;
       }
 
@@ -446,13 +454,20 @@ async function detectApi() {
 
       setWorkspaceStatus("Connected to Oracle workspace.", "success");
       return true;
-    } catch {
-      // Try the next candidate path.
+    } catch (error) {
+      if (!lastErrorMessage && error?.message) {
+        lastErrorMessage = error.message;
+      }
     }
   }
 
   apiBaseUrl = "";
-  setWorkspaceStatus("Oracle workspace is not reachable right now.", "error");
+  setWorkspaceStatus(
+    lastErrorMessage
+      ? `Oracle workspace error: ${lastErrorMessage}`
+      : "Oracle workspace is not reachable right now.",
+    "error"
+  );
   return false;
 }
 

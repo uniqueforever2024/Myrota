@@ -71,6 +71,20 @@ Netlify Functions expect:
 - `JIRA_PASSWORD`
 - `JIRA_DASHBOARD_USE_MOCK` for preview-mode mocking
 
+## Oracle Environment Variables
+
+The Oracle-backed APF microsites on Netlify expect:
+
+- `ORACLE_USER`
+- `ORACLE_PASSWORD`
+- Either `ORACLE_CONNECT_STRING`, or `ORACLE_HOST` plus `ORACLE_SERVICE_NAME` / `ORACLE_SID`
+
+Deployment note:
+
+- Netlify environment variables only provide credentials and connection values to the function.
+- The Oracle server still has to be reachable from Netlify at runtime. If the database is inside a private corporate network, VPN-only segment, or restricted firewall, the function will still fail even when the env vars are correct.
+- If you currently use a short TNS alias, prefer a full Easy Connect string such as `host:1521/service_name` unless you are also supplying Oracle network config files.
+
 ## Documentation Pack
 
 - Presentation deck: `docs/myrota-architecture-presentation.html`

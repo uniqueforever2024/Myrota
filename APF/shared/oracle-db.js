@@ -129,10 +129,39 @@ function getOracleConfig() {
   const connectString = String(
     process.env.ORACLE_CONNECT_STRING || buildConnectStringFromParts()
   ).trim();
+  const host = String(process.env.ORACLE_HOST || "").trim();
+  const missingConfig = [];
 
-  if (!user || !password || !connectString) {
+  if (!user) {
+    missingConfig.push("ORACLE_USER");
+  }
+
+  if (!password) {
+    missingConfig.push("ORACLE_PASSWORD");
+  }
+
+  if (!connectString) {
+    missingConfig.push(
+      host
+        ? "ORACLE_SERVICE_NAME or ORACLE_SID"
+        : "ORACLE_CONNECT_STRING or ORACLE_HOST with ORACLE_SERVICE_NAME/ORACLE_SID"
+    );
+  }
+
+  if (missingConfig.length > 0) {
     throw new Error(
-      "ORACLE_USER and ORACLE_PASSWORD must be configured, plus either ORACLE_CONNECT_STRING or ORACLE_HOST with ORACLE_SERVICE_NAME/ORACLE_SID."
+      `Missing Oracle configuration: ${missingConfig.join(", ")}.`
+    );
+  }
+
+  if (
+    process.env.ORACLE_CONNECT_STRING &&
+    !/[/:=()]/.test(connectString) &&
+    !process.env.TNS_ADMIN &&
+    !process.env.ORACLE_CONFIG_DIR
+  ) {
+    throw new Error(
+      "ORACLE_CONNECT_STRING looks like a TNS alias. On Netlify, use a full Easy Connect string such as host:1521/service_name, or configure TNS_ADMIN/ORACLE_CONFIG_DIR with tnsnames.ora."
     );
   }
 
