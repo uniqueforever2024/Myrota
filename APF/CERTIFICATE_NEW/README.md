@@ -1,14 +1,13 @@
 # CERTIFICATE_NEW
 
-Open certificate workspace used during the build phase of the portal.
+Oracle-backed certificate workspace used by the portal.
 
 ## Current mode
 
 - No login page
-- No database dependency yet
-- No SSH tunnel dependency
-- Static Express workspace with direct access
-- Local browser storage for certificate tracking until DB hookup is added
+- Oracle database persistence for certificate tracking
+- Static workspace with direct access plus API endpoints
+- Works from the APF portal route and from the standalone server
 
 ## Run
 
@@ -26,11 +25,13 @@ Open certificate workspace used during the build phase of the portal.
 ## API
 
 - `GET /api/health`
+- `GET /api/certificates`
+- `POST /api/certificates`
+- `PUT /api/certificates/:id`
+- `DELETE /api/certificates/:id`
 
 ## Notes
 
-- This project is intentionally open-access for now so the portal can be developed without backend blockers.
-- The portal now includes a dashboard for `30 day`, `15 day`, and `expired` certificate alerts.
-- New certificate tracking entries are stored in browser storage for now.
-- The upload control is present as a UI placeholder and can be connected to database storage later.
-- Secure authentication and database storage can be added back later once the pages and flows are finalized.
+- The portal remains open-access for now.
+- Certificate records are stored in the `MYROTA_CERTIFICATE` Oracle table.
+- Upload metadata and file data are saved with the certificate record.

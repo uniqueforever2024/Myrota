@@ -1,6 +1,7 @@
-const STORAGE_KEY = "certificate_new_records_v1";
+const API_CANDIDATES = ["/api", "./api", "../api"];
 const SESSION_KEY = "certificate_new_session_v1";
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
+const TEMPLATE_FILE_NAME = "certificate-bulk-template.xlsx";
 
 const workspaceStatusEl = document.getElementById("workspace-status");
 const logoutButton = document.getElementById("logout-button");
@@ -9,27 +10,34 @@ const reopenButton = document.getElementById("reopen-button");
 const homeButton = document.getElementById("home-button");
 const manageButton = document.getElementById("manage-button");
 const toggleFormButton = document.getElementById("toggle-form-button");
+const downloadTemplateButton = document.getElementById("download-template-button");
+const importFileInput = document.getElementById("import-file-input");
 const formPanel = document.getElementById("form-panel");
 const closeFormButton = document.getElementById("close-form-button");
 const certificateForm = document.getElementById("certificate-form");
+const certificateIdInput = document.getElementById("certificate-id");
 const resetFormButton = document.getElementById("reset-form-button");
+const saveCertificateButton = document.getElementById("save-certificate-button");
 const uploadInput = document.getElementById("certificate-upload");
 const uploadNameEl = document.getElementById("upload-name");
 const formStatusEl = document.getElementById("form-status");
+const formEyebrowEl = document.getElementById("form-eyebrow");
+const formTitleEl = document.getElementById("form-title");
 const todayDateEl = document.getElementById("today-date");
 const detailsTitleEl = document.getElementById("details-title");
 const detailsCopyEl = document.getElementById("details-copy");
 const detailsCountEl = document.getElementById("details-count");
 const detailsShell = document.getElementById("details-shell");
-const detailsPanel = document.getElementById("details-panel");
 const closeDetailsButton = document.getElementById("close-details-button");
 const searchInput = document.getElementById("search-input");
 const tableBodyEl = document.getElementById("certificate-table-body");
 
+const countTrackedEl = document.getElementById("count-tracked");
 const count7El = document.getElementById("count-7");
 const count30El = document.getElementById("count-30");
 const count15El = document.getElementById("count-15");
 const countExpiredEl = document.getElementById("count-expired");
+const labelTrackedEl = document.getElementById("label-tracked");
 const label7El = document.getElementById("label-7");
 const label30El = document.getElementById("label-30");
 const label15El = document.getElementById("label-15");
@@ -38,75 +46,39 @@ const labelExpiredEl = document.getElementById("label-expired");
 const windowCards = Array.from(document.querySelectorAll(".window-card"));
 const MYROTA_HOME_URL = "/";
 const MYROTA_LOGIN_URL = "/?logout=1";
+const urlState = new URL(window.location.href);
+const popupMode = urlState.searchParams.get("mode") || "";
+const popupRecordId = urlState.searchParams.get("id") || "";
+const isPopupFormMode = popupMode === "add" || popupMode === "edit";
+const POPUP_SYNC_KEY = "certificate_new_sync_v1";
 
 let selectedFilter = "all";
 let searchTerm = "";
-let certificates = loadCertificates();
+let certificates = [];
+let pendingUpload = null;
+let apiBaseUrl = "";
+let formMode = popupMode === "edit" ? "edit" : "add";
 
-function createDateString(offsetDays) {
-  const date = new Date();
-  date.setHours(0, 0, 0, 0);
-  date.setDate(date.getDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
-function createSeedCertificates() {
-  return [
-    {
-      id: "seed-alpha",
-      partnerName: "Partner Alpha",
-      certificateType: "OFTP",
-      contactTeam: "EDI Operations",
-      issuedDate: createDateString(-320),
-      expiryDate: createDateString(27),
-      uploadName: "partner-alpha-oftp.cer",
-      notes: "Production endpoint certificate"
-    },
-    {
-      id: "seed-beta",
-      partnerName: "Partner Beta",
-      certificateType: "AS2",
-      contactTeam: "B2B Integration Team",
-      issuedDate: createDateString(-340),
-      expiryDate: createDateString(12),
-      uploadName: "partner-beta-as2.pem",
-      notes: "Urgent renewal already requested"
-    },
-    {
-      id: "seed-gamma",
-      partnerName: "Partner Gamma",
-      certificateType: "SSL",
-      contactTeam: "Security Team",
-      issuedDate: createDateString(-390),
-      expiryDate: createDateString(-4),
-      uploadName: "partner-gamma-ssl.crt",
-      notes: "Expired and pending replacement"
-    },
-    {
-      id: "seed-delta",
-      partnerName: "Partner Delta",
-      certificateType: "VPN",
-      contactTeam: "Network Team",
-      issuedDate: createDateString(-210),
-      expiryDate: createDateString(5),
-      uploadName: "partner-delta-vpn.pfx",
-      notes: "Network tunnel certificate"
-    },
-    {
-      id: "seed-epsilon",
-      partnerName: "Partner Epsilon",
-      certificateType: "SFTP Key Pair",
-      contactTeam: "SFTP Admin Team",
-      issuedDate: createDateString(-120),
-      expiryDate: createDateString(63),
-      uploadName: "partner-epsilon-key.pub",
-      notes: "Active certificate outside alert windows"
-    }
-  ];
-}
+function setWorkspaceStatus(message, type = "") {
+  if (!workspaceStatusEl) {
+    return;
+  }
 
-function saveCertificates(records) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+  workspaceStatusEl.textContent = message || "";
+  workspaceStatusEl.classList.remove("success", "error");
+
+  if (type) {
+    workspaceStatusEl.classList.add(type);
+  }
 }
 
 function setFormStatus(message, type) {
@@ -118,37 +90,131 @@ function setFormStatus(message, type) {
   }
 }
 
-function loadCertificates() {
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-
-    if (!stored) {
-      const seeds = createSeedCertificates();
-      saveCertificates(seeds);
-      return seeds;
-    }
-
-    const parsed = JSON.parse(stored);
-
-    if (!Array.isArray(parsed)) {
-      return createSeedCertificates();
-    }
-
-    const onlySeedRecords =
-      parsed.length > 0 && parsed.every((record) => String(record?.id || "").startsWith("seed-"));
-
-    return onlySeedRecords ? createSeedCertificates() : parsed;
-  } catch (error) {
-    return createSeedCertificates();
-  }
-}
-
 function setSessionOpen(isOpen) {
   window.sessionStorage.setItem(SESSION_KEY, isOpen ? "open" : "closed");
 }
 
 function isSessionClosed() {
   return window.sessionStorage.getItem(SESSION_KEY) === "closed";
+}
+
+function buildModeUrl(mode, recordId = "") {
+  const nextUrl = new URL(window.location.href);
+  nextUrl.searchParams.set("mode", mode);
+
+  if (recordId) {
+    nextUrl.searchParams.set("id", recordId);
+  } else {
+    nextUrl.searchParams.delete("id");
+  }
+
+  return nextUrl.toString();
+}
+
+function buildHomeUrl() {
+  const nextUrl = new URL(window.location.href);
+  nextUrl.searchParams.delete("mode");
+  nextUrl.searchParams.delete("id");
+  return nextUrl.toString();
+}
+
+function publishCertificateSync(message) {
+  const payload = {
+    type: "certificate-sync",
+    message,
+    at: Date.now(),
+  };
+
+  try {
+    window.localStorage.setItem(POPUP_SYNC_KEY, JSON.stringify(payload));
+  } catch {
+    // Ignore storage sync failures.
+  }
+
+  if (window.opener && !window.opener.closed) {
+    try {
+      window.opener.postMessage(payload, window.location.origin);
+    } catch {
+      // Ignore opener messaging failures.
+    }
+  }
+}
+
+async function refreshPortalAfterPopup(message) {
+  await loadCertificatesFromApi();
+  selectedFilter = "all";
+  searchTerm = "";
+
+  if (searchInput) {
+    searchInput.value = "";
+  }
+
+  closeDetailsPanel();
+  renderPortal();
+
+  if (message) {
+    setWorkspaceStatus(message, "success");
+  }
+}
+
+function openCertificatePopup(mode, recordId = "") {
+  const popupWindow = window.open(
+    buildModeUrl(mode, recordId),
+    recordId ? `certificate-${recordId}` : "certificate-add",
+    "width=920,height=920,resizable=yes,scrollbars=yes"
+  );
+
+  if (popupWindow) {
+    popupWindow.focus();
+    return;
+  }
+
+  window.location.assign(buildModeUrl(mode, recordId));
+}
+
+function createCertificateId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return `cert-${window.crypto.randomUUID()}`;
+  }
+
+  return `cert-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeCertificate(record) {
+  return {
+    id: String(record.id || "").trim() || createCertificateId(),
+    partnerName: String(record.partnerName || "").trim(),
+    certificateType: String(record.certificateType || "").trim(),
+    contactTeam: String(record.contactTeam || "").trim(),
+    issuedDate: String(record.issuedDate || "").trim(),
+    expiryDate: String(record.expiryDate || "").trim(),
+    uploadName: String(record.uploadName || "").trim(),
+    uploadType: String(record.uploadType || "").trim(),
+    uploadDataUrl: String(record.uploadDataUrl || "").trim(),
+    notes: String(record.notes || "").trim(),
+    createdAt: String(record.createdAt || "").trim(),
+    updatedAt: String(record.updatedAt || "").trim(),
+  };
+}
+
+function setFormMode(mode) {
+  formMode = mode === "edit" ? "edit" : "add";
+
+  if (formEyebrowEl) {
+    formEyebrowEl.textContent = formMode === "edit" ? "Edit Certificate" : "Add Certificate";
+  }
+
+  if (formTitleEl) {
+    formTitleEl.textContent =
+      formMode === "edit"
+        ? "Update an existing tracked certificate"
+        : "Add a new certificate for tracking";
+  }
+
+  if (saveCertificateButton) {
+    saveCertificateButton.textContent =
+      formMode === "edit" ? "Save Changes" : "Save Certificate";
+  }
 }
 
 function startOfLocalDay(dateInput) {
@@ -186,10 +252,14 @@ function getStatus(record) {
 }
 
 function formatDate(dateString) {
+  if (!dateString) {
+    return "-";
+  }
+
   return new Date(`${dateString}T00:00:00`).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
-    year: "numeric"
+    year: "numeric",
   });
 }
 
@@ -236,7 +306,7 @@ function getGroupedRecords() {
       expiring7: [],
       expiring30: [],
       expiring15: [],
-      active: []
+      active: [],
     }
   );
 }
@@ -248,7 +318,7 @@ function getSelectedRecords() {
     return {
       title: "Certificates expiring in 16 to 30 days",
       copy: "These certificates are inside the 30 day planning window.",
-      records: grouped.expiring30
+      records: grouped.expiring30,
     };
   }
 
@@ -256,7 +326,7 @@ function getSelectedRecords() {
     return {
       title: "Certificates expiring in 8 to 15 days",
       copy: "These certificates are inside the 15 day window and need follow-up soon.",
-      records: grouped.expiring15
+      records: grouped.expiring15,
     };
   }
 
@@ -264,7 +334,7 @@ function getSelectedRecords() {
     return {
       title: "Expired certificates",
       copy: "These certificates have already expired and need immediate attention.",
-      records: grouped.expired
+      records: grouped.expired,
     };
   }
 
@@ -272,7 +342,7 @@ function getSelectedRecords() {
     return {
       title: "Certificates expiring in less than 7 days",
       copy: "These certificates are very close to expiry and need urgent action.",
-      records: grouped.expiring7
+      records: grouped.expiring7,
     };
   }
 
@@ -284,19 +354,23 @@ function getSelectedRecords() {
       ...grouped.expiring7,
       ...grouped.expiring15,
       ...grouped.expiring30,
-      ...grouped.active
-    ]
+      ...grouped.active,
+    ],
   };
 }
 
 function renderWindowCounts() {
   const grouped = getGroupedRecords();
+  const trackedCount = certificates.length;
 
+  countTrackedEl.textContent = String(trackedCount);
   count7El.textContent = String(grouped.expiring7.length);
   count30El.textContent = String(grouped.expiring30.length);
   count15El.textContent = String(grouped.expiring15.length);
   countExpiredEl.textContent = String(grouped.expired.length);
 
+  labelTrackedEl.textContent =
+    trackedCount === 0 ? "No certificate tracked yet" : "Click to view all tracked certificates";
   label7El.textContent =
     grouped.expiring7.length === 0 ? "No certificate in this window" : "Click to view all details";
   label30El.textContent =
@@ -328,16 +402,16 @@ function renderTable() {
   todayDateEl.textContent = new Date().toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "long",
-    year: "numeric"
+    year: "numeric",
   });
 
   if (!sortedRecords.length) {
     tableBodyEl.innerHTML = `
       <tr>
-        <td colspan="7">
+        <td colspan="9">
           <div class="empty-state">${
             searchTerm
-              ? `No certificates found for "${searchTerm}".`
+              ? `No certificates found for "${escapeHtml(searchTerm)}".`
               : "No certificates found in this selection."
           }</div>
         </td>
@@ -353,18 +427,32 @@ function renderTable() {
 
       return `
         <tr>
-          <td>${record.partnerName}</td>
-          <td>${record.certificateType}</td>
-          <td>${record.contactTeam || "-"}</td>
-          <td>${formatDate(record.issuedDate)}</td>
-          <td>${formatDate(record.expiryDate)}</td>
-          <td>${record.uploadName || "Upload pending"}</td>
+          <td>${escapeHtml(record.partnerName)}</td>
+          <td>${escapeHtml(record.certificateType)}</td>
+          <td>${escapeHtml(record.contactTeam || "-")}</td>
+          <td>${escapeHtml(formatDate(record.issuedDate))}</td>
+          <td>${escapeHtml(formatDate(record.expiryDate))}</td>
+          <td>${escapeHtml(record.uploadName || "Upload pending")}</td>
           <td>
             <span class="status-chip ${status}">
-              ${getStatusLabel(status, daysUntilExpiry)}
+              ${escapeHtml(getStatusLabel(status, daysUntilExpiry))}
             </span>
           </td>
-          <td>${record.notes || "-"}</td>
+          <td>${escapeHtml(record.notes || "-")}</td>
+          <td>
+            <div class="row-actions">
+              <button class="row-action" type="button" data-action="edit" data-id="${escapeHtml(
+                record.id
+              )}">
+                Edit
+              </button>
+              <button class="row-action danger" type="button" data-action="delete" data-id="${escapeHtml(
+                record.id
+              )}">
+                Delete
+              </button>
+            </div>
+          </td>
         </tr>
       `;
     })
@@ -397,36 +485,467 @@ function closeDetailsPanel() {
 
 function openFormPanel() {
   formPanel.classList.remove("hidden");
-  toggleFormButton.textContent = "Hide Form";
+
+  if (!isPopupFormMode && toggleFormButton) {
+    toggleFormButton.textContent = "Hide Form";
+  }
 }
 
 function closeFormPanel() {
+  if (isPopupFormMode) {
+    window.close();
+    window.setTimeout(() => {
+      window.location.assign(buildHomeUrl());
+    }, 180);
+    return;
+  }
+
   formPanel.classList.add("hidden");
-  toggleFormButton.textContent = "Add Certificate";
+
+  if (toggleFormButton) {
+    toggleFormButton.textContent = "Add Certificate";
+  }
 }
 
-function updateUploadLabel() {
-  const selectedFile = uploadInput.files && uploadInput.files[0];
-  uploadNameEl.textContent = selectedFile ? selectedFile.name : "No file selected yet";
+function resetPendingUpload() {
+  pendingUpload = null;
+  uploadInput.value = "";
+  uploadNameEl.textContent = "No file selected yet";
 }
 
 function clearForm() {
   certificateForm.reset();
-  updateUploadLabel();
+  certificateIdInput.value = "";
+  setFormStatus("", "");
+  resetPendingUpload();
+  setFormMode(isPopupFormMode && popupMode === "edit" ? "edit" : "add");
+}
+
+function populateForm(record) {
+  certificateIdInput.value = record.id;
+  certificateForm.elements.partnerName.value = record.partnerName;
+  certificateForm.elements.certificateType.value = record.certificateType;
+  certificateForm.elements.contactTeam.value = record.contactTeam;
+  certificateForm.elements.issuedDate.value = record.issuedDate;
+  certificateForm.elements.expiryDate.value = record.expiryDate;
+  certificateForm.elements.notes.value = record.notes || "";
+
+  if (record.uploadName || record.uploadType || record.uploadDataUrl) {
+    pendingUpload = {
+      name: record.uploadName || "",
+      type: record.uploadType || "application/octet-stream",
+      dataUrl: record.uploadDataUrl || "",
+    };
+    uploadNameEl.textContent = record.uploadName || "Existing upload kept";
+  } else {
+    resetPendingUpload();
+  }
+}
+
+function preparePopupForm(records = []) {
+  document.body.classList.add("popup-mode");
+  openFormPanel();
+
+  if (popupMode === "edit") {
+    const existingRecord = records.find((record) => record.id === popupRecordId);
+
+    if (!existingRecord) {
+      setFormStatus("Unable to find the selected certificate for editing.", "error");
+      setFormMode("edit");
+      return;
+    }
+
+    setFormMode("edit");
+    populateForm(existingRecord);
+    setFormStatus("", "");
+    return;
+  }
+
+  setFormMode("add");
+  clearForm();
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+async function updateUploadSelection() {
+  const selectedFile = uploadInput.files && uploadInput.files[0];
+
+  if (!selectedFile) {
+    resetPendingUpload();
+    return;
+  }
+
+  if (selectedFile.size > 2.5 * 1024 * 1024) {
+    setFormStatus("Please upload a file smaller than 2.5 MB.", "error");
+    resetPendingUpload();
+    return;
+  }
+
+  pendingUpload = {
+    name: selectedFile.name,
+    type: selectedFile.type || "application/octet-stream",
+    dataUrl: await readFileAsDataUrl(selectedFile),
+  };
+  uploadNameEl.textContent = pendingUpload.name;
   setFormStatus("", "");
 }
 
-function addCertificate(event) {
+function ensureXlsxLibrary() {
+  if (typeof XLSX === "undefined") {
+    throw new Error("Excel tools are not available right now.");
+  }
+}
+
+function buildTemplateRows() {
+  return [
+    {
+      id: "",
+      partnerName: "Partner Alpha",
+      certificateType: "AS2",
+      contactTeam: "EDI Support",
+      issuedDate: "2026-04-01",
+      expiryDate: "2027-04-01",
+      uploadName: "",
+      uploadType: "",
+      uploadDataUrl: "",
+      notes: "Renewal owner and environment notes",
+    },
+  ];
+}
+
+function downloadTemplate() {
+  ensureXlsxLibrary();
+
+  const worksheet = XLSX.utils.json_to_sheet(buildTemplateRows(), {
+    header: [
+      "id",
+      "partnerName",
+      "certificateType",
+      "contactTeam",
+      "issuedDate",
+      "expiryDate",
+      "uploadName",
+      "uploadType",
+      "uploadDataUrl",
+      "notes",
+    ],
+  });
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Certificates");
+  XLSX.writeFile(workbook, TEMPLATE_FILE_NAME);
+  setWorkspaceStatus("Certificate Excel template downloaded.", "success");
+}
+
+function getImportCell(row, key) {
+  const matchingKey = Object.keys(row).find(
+    (item) => item.trim().toLowerCase() === key.toLowerCase()
+  );
+
+  return matchingKey ? row[matchingKey] : "";
+}
+
+function normalizeImportedCertificate(row) {
+  return normalizeCertificate({
+    id: getImportCell(row, "id"),
+    partnerName: getImportCell(row, "partnerName"),
+    certificateType: getImportCell(row, "certificateType"),
+    contactTeam: getImportCell(row, "contactTeam"),
+    issuedDate: getImportCell(row, "issuedDate"),
+    expiryDate: getImportCell(row, "expiryDate"),
+    uploadName: getImportCell(row, "uploadName"),
+    uploadType: getImportCell(row, "uploadType"),
+    uploadDataUrl: getImportCell(row, "uploadDataUrl"),
+    notes: getImportCell(row, "notes"),
+  });
+}
+
+function mergeImportedCertificates(existingCertificates, importedCertificates) {
+  const nextCertificates = existingCertificates.map((record) =>
+    normalizeCertificate(record)
+  );
+  let added = 0;
+  let updated = 0;
+  let skipped = 0;
+
+  importedCertificates.forEach((record) => {
+    if (
+      !record.partnerName ||
+      !record.certificateType ||
+      !record.contactTeam ||
+      !record.issuedDate ||
+      !record.expiryDate
+    ) {
+      skipped += 1;
+      return;
+    }
+
+    if (new Date(record.expiryDate).getTime() < new Date(record.issuedDate).getTime()) {
+      skipped += 1;
+      return;
+    }
+
+    const idMatchIndex = record.id
+      ? nextCertificates.findIndex((item) => item.id === record.id)
+      : -1;
+
+    const fallbackMatchIndex = nextCertificates.findIndex(
+      (item) =>
+        item.partnerName.trim().toLowerCase() ===
+          record.partnerName.trim().toLowerCase() &&
+        item.certificateType.trim().toLowerCase() ===
+          record.certificateType.trim().toLowerCase() &&
+        item.contactTeam.trim().toLowerCase() ===
+          record.contactTeam.trim().toLowerCase()
+    );
+
+    const targetIndex = idMatchIndex >= 0 ? idMatchIndex : fallbackMatchIndex;
+
+    if (targetIndex >= 0) {
+      nextCertificates[targetIndex] = normalizeCertificate({
+        ...nextCertificates[targetIndex],
+        ...record,
+        id: nextCertificates[targetIndex].id,
+      });
+      updated += 1;
+      return;
+    }
+
+    nextCertificates.push(
+      normalizeCertificate({
+        ...record,
+        id: record.id || createCertificateId(),
+      })
+    );
+    added += 1;
+  });
+
+  return {
+    records: nextCertificates,
+    added,
+    updated,
+    skipped,
+  };
+}
+
+async function requestApi(path, options = {}) {
+  if (!apiBaseUrl) {
+    throw new Error("Oracle workspace is not available.");
+  }
+
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const payload = contentType.includes("application/json") ? await response.json() : null;
+
+  if (!response.ok) {
+    throw new Error(payload?.message || payload?.error || "Oracle API request failed.");
+  }
+
+  return payload;
+}
+
+async function detectApi() {
+  for (const candidate of API_CANDIDATES) {
+    try {
+      const response = await fetch(`${candidate}/health`, { cache: "no-store" });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const payload = await response.json();
+
+      if (payload.storage !== "oracle" && payload.dbReady !== true) {
+        continue;
+      }
+
+      apiBaseUrl = candidate;
+
+      if (payload.apfHomeUrl && homeButton) {
+        homeButton.href = payload.apfHomeUrl;
+      }
+
+      setWorkspaceStatus("Connected to Oracle workspace.", "success");
+      return true;
+    } catch {
+      // Try the next candidate.
+    }
+  }
+
+  apiBaseUrl = "";
+  setWorkspaceStatus("Oracle workspace is not reachable right now.", "error");
+  return false;
+}
+
+async function ensureApiReady() {
+  if (apiBaseUrl) {
+    return true;
+  }
+
+  return detectApi();
+}
+
+async function loadCertificatesFromApi() {
+  const hasApi = await detectApi();
+
+  if (!hasApi) {
+    certificates = [];
+    renderPortal();
+    return;
+  }
+
+  try {
+    const payload = await requestApi("/certificates");
+    certificates = Array.isArray(payload.records)
+      ? payload.records.map(normalizeCertificate)
+      : [];
+    if (isPopupFormMode) {
+      preparePopupForm(certificates);
+    }
+    renderPortal();
+  } catch (error) {
+    certificates = [];
+    if (isPopupFormMode) {
+      preparePopupForm(certificates);
+    }
+    renderPortal();
+    setWorkspaceStatus(error.message || "Unable to load certificates from Oracle.", "error");
+  }
+}
+
+async function persistCertificate(record, { isEditing = false } = {}) {
+  const hasApi = await ensureApiReady();
+
+  if (!hasApi) {
+    throw new Error("Oracle workspace is not reachable right now.");
+  }
+
+  const payload = await requestApi(
+    isEditing ? `/certificates/${encodeURIComponent(record.id)}` : "/certificates",
+    {
+      method: isEditing ? "PUT" : "POST",
+      body: JSON.stringify(record),
+    }
+  );
+
+  const savedRecord = normalizeCertificate(payload.record);
+  const existingIndex = certificates.findIndex((item) => item.id === savedRecord.id);
+
+  if (existingIndex >= 0) {
+    certificates[existingIndex] = savedRecord;
+  } else {
+    certificates.push(savedRecord);
+  }
+}
+
+async function removeCertificate(recordId) {
+  const hasApi = await ensureApiReady();
+
+  if (!hasApi) {
+    throw new Error("Oracle workspace is not reachable right now.");
+  }
+
+  await requestApi(`/certificates/${encodeURIComponent(recordId)}`, {
+    method: "DELETE",
+  });
+
+  certificates = certificates.filter((record) => record.id !== recordId);
+}
+
+async function persistBulkCertificates(records) {
+  const hasApi = await ensureApiReady();
+
+  if (!hasApi) {
+    throw new Error("Oracle workspace is not reachable right now.");
+  }
+
+  const payload = await requestApi("/certificates/bulk", {
+    method: "PUT",
+    body: JSON.stringify({ records }),
+  });
+
+  certificates = Array.isArray(payload.records)
+    ? payload.records.map(normalizeCertificate)
+    : [];
+}
+
+async function importExcelFile(file) {
+  if (!file) {
+    return;
+  }
+
+  ensureXlsxLibrary();
+
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: "array" });
+  const firstSheetName = workbook.SheetNames[0];
+
+  if (!firstSheetName) {
+    setWorkspaceStatus("The imported Excel file is empty.", "error");
+    return;
+  }
+
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+  if (!rows.length) {
+    setWorkspaceStatus("The imported Excel file is empty.", "error");
+    return;
+  }
+
+  const importedCertificates = rows.map(normalizeImportedCertificate);
+  const mergeResult = mergeImportedCertificates(certificates, importedCertificates);
+
+  if (mergeResult.added === 0 && mergeResult.updated === 0) {
+    setWorkspaceStatus(
+      mergeResult.skipped > 0
+        ? "No valid certificate rows were found in the Excel file."
+        : "The imported Excel file does not contain any certificate rows.",
+      "error"
+    );
+    return;
+  }
+
+  await persistBulkCertificates(mergeResult.records);
+  selectedFilter = "all";
+  searchTerm = "";
+  searchInput.value = "";
+  openDetailsPanel();
+  renderPortal();
+  setWorkspaceStatus(
+    `Bulk import completed: ${mergeResult.added} added, ${mergeResult.updated} updated${
+      mergeResult.skipped ? `, ${mergeResult.skipped} skipped` : ""
+    }.`,
+    "success"
+  );
+}
+
+async function addCertificate(event) {
   event.preventDefault();
 
   const formData = new FormData(certificateForm);
+  const certificateId = String(formData.get("certificateId") || "").trim();
+  const isEditing = Boolean(certificateId);
   const partnerName = String(formData.get("partnerName") || "").trim();
   const certificateType = String(formData.get("certificateType") || "").trim();
   const contactTeam = String(formData.get("contactTeam") || "").trim();
-  const issuedDate = String(formData.get("issuedDate") || "");
-  const expiryDate = String(formData.get("expiryDate") || "");
+  const issuedDate = String(formData.get("issuedDate") || "").trim();
+  const expiryDate = String(formData.get("expiryDate") || "").trim();
   const notes = String(formData.get("notes") || "").trim();
-  const selectedFile = uploadInput.files && uploadInput.files[0];
 
   if (!partnerName || !certificateType || !contactTeam || !issuedDate || !expiryDate) {
     setFormStatus("Please complete all required certificate fields.", "error");
@@ -438,68 +957,45 @@ function addCertificate(event) {
     return;
   }
 
-  certificates = [
-    ...certificates,
-    {
-      id: `cert-${Date.now()}`,
+  try {
+    const savedRecordId = certificateId || createCertificateId();
+
+    await persistCertificate({
+      id: savedRecordId,
       partnerName,
       certificateType,
       contactTeam,
       issuedDate,
       expiryDate,
-      uploadName: selectedFile ? selectedFile.name : "Upload pending",
-      notes
-    }
-  ];
+      uploadName: pendingUpload?.name || "",
+      uploadType: pendingUpload?.type || "",
+      uploadDataUrl: pendingUpload?.dataUrl || "",
+      notes,
+    }, { isEditing });
 
-  saveCertificates(certificates);
-  selectedFilter = "all";
-  searchTerm = "";
-  searchInput.value = "";
-  clearForm();
-  openDetailsPanel();
-  renderPortal();
-  setFormStatus("Certificate saved successfully.", "success");
-}
+    selectedFilter = "all";
+    searchTerm = "";
+    searchInput.value = "";
+    clearForm();
+    renderPortal();
+    const successMessage = isEditing
+      ? "Certificate updated successfully."
+      : "Certificate saved successfully.";
 
-async function hydrateWorkspaceStatus() {
-  if (!workspaceStatusEl) {
-    try {
-      const response = await fetch("./api/health");
-      if (!response.ok) {
-        throw new Error("Health check failed");
-      }
-
-      const payload = await response.json();
-      if (payload.apfHomeUrl && homeButton) {
-        homeButton.href = payload.apfHomeUrl;
-      }
-    } catch (error) {
+    if (isPopupFormMode) {
+      publishCertificateSync(successMessage);
+      window.close();
+      window.setTimeout(() => {
+        window.location.assign(buildHomeUrl());
+      }, 180);
       return;
     }
 
-    return;
-  }
-
-  try {
-    const response = await fetch("./api/health");
-    if (!response.ok) {
-      throw new Error("Health check failed");
-    }
-
-    const payload = await response.json();
-    workspaceStatusEl.textContent =
-      payload.mode === "open-workspace"
-        ? "Certificate portal is ready."
-        : "Workspace ready.";
-    workspaceStatusEl.classList.add("success");
-
-    if (payload.apfHomeUrl && homeButton) {
-      homeButton.href = payload.apfHomeUrl;
-    }
+    closeDetailsPanel();
+    setWorkspaceStatus(successMessage, "success");
+    setFormStatus(successMessage, "success");
   } catch (error) {
-    workspaceStatusEl.textContent = "Certificate portal is available.";
-    workspaceStatusEl.classList.add("warning");
+    setFormStatus(error.message || "Unable to save certificate right now.", "error");
   }
 }
 
@@ -546,6 +1042,30 @@ manageButton.addEventListener("click", () => {
   renderPortal();
 });
 closeDetailsButton.addEventListener("click", closeDetailsPanel);
+downloadTemplateButton.addEventListener("click", () => {
+  try {
+    downloadTemplate();
+  } catch (error) {
+    setWorkspaceStatus(
+      error.message || "Unable to download the certificate Excel template.",
+      "error"
+    );
+  }
+});
+importFileInput.addEventListener("change", () => {
+  const selectedFile = importFileInput.files && importFileInput.files[0];
+
+  importExcelFile(selectedFile)
+    .catch((error) => {
+      setWorkspaceStatus(
+        error.message || "Unable to import the certificate Excel file right now.",
+        "error"
+      );
+    })
+    .finally(() => {
+      importFileInput.value = "";
+    });
+});
 detailsShell.addEventListener("click", (event) => {
   if (event.target === detailsShell) {
     closeDetailsPanel();
@@ -556,26 +1076,112 @@ toggleFormButton.addEventListener("click", () => {
     return;
   }
 
-  if (formPanel.classList.contains("hidden")) {
-    openFormPanel();
-  } else {
-    closeFormPanel();
-  }
+  openCertificatePopup("add");
 });
 closeFormButton.addEventListener("click", closeFormPanel);
 certificateForm.addEventListener("submit", addCertificate);
 resetFormButton.addEventListener("click", clearForm);
-uploadInput.addEventListener("change", updateUploadLabel);
+tableBodyEl.addEventListener("click", (event) => {
+  const target = event.target;
+
+  if (!(target instanceof HTMLElement)) {
+    return;
+  }
+
+  const action = target.dataset.action;
+  const recordId = target.dataset.id;
+
+  if (!action || !recordId) {
+    return;
+  }
+
+  if (action === "edit") {
+    openCertificatePopup("edit", recordId);
+    return;
+  }
+
+  if (action === "delete") {
+    if (!window.confirm("Delete this certificate from tracking?")) {
+      return;
+    }
+
+    removeCertificate(recordId)
+      .then(() => {
+        selectedFilter = "all";
+        searchTerm = "";
+        searchInput.value = "";
+        closeDetailsPanel();
+        renderPortal();
+        setWorkspaceStatus("Certificate deleted successfully.", "success");
+      })
+      .catch((error) => {
+        setWorkspaceStatus(
+          error.message || "Unable to delete certificate right now.",
+          "error"
+        );
+      });
+  }
+});
+uploadInput.addEventListener("change", () => {
+  updateUploadSelection().catch(() => {
+    setFormStatus("Unable to read the uploaded certificate file.", "error");
+    resetPendingUpload();
+  });
+});
 searchInput.addEventListener("input", () => {
   searchTerm = searchInput.value.trim();
   renderPortal();
 });
+window.addEventListener("message", (event) => {
+  if (event.origin !== window.location.origin) {
+    return;
+  }
 
-hydrateWorkspaceStatus();
+  if (event.data?.type !== "certificate-sync") {
+    return;
+  }
+
+  refreshPortalAfterPopup(event.data.message).catch(() => {
+    setWorkspaceStatus("Certificate list refreshed.", "success");
+  });
+});
+window.addEventListener("storage", (event) => {
+  if (event.key !== POPUP_SYNC_KEY || !event.newValue) {
+    return;
+  }
+
+  try {
+    const payload = JSON.parse(event.newValue);
+
+    if (payload?.type !== "certificate-sync") {
+      return;
+    }
+
+    refreshPortalAfterPopup(payload.message).catch(() => {
+      setWorkspaceStatus("Certificate list refreshed.", "success");
+    });
+  } catch {
+    // Ignore malformed sync payloads.
+  }
+});
+
+setWorkspaceStatus("Connecting to Oracle workspace...");
 renderPortal();
-updateUploadLabel();
+resetPendingUpload();
 reopenPortalSession();
+
+if (isPopupFormMode) {
+  document.body.classList.add("popup-mode");
+  setFormMode(popupMode === "edit" ? "edit" : "add");
+  openFormPanel();
+}
 
 if (homeButton) {
   homeButton.href = MYROTA_HOME_URL;
 }
+
+loadCertificatesFromApi().catch(() => {
+  certificates = [];
+  renderPortal();
+  setWorkspaceStatus("Unable to initialize the certificate workspace.", "error");
+});

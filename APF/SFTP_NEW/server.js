@@ -1,4 +1,6 @@
-require("dotenv").config();
+try {
+  require("dotenv").config();
+} catch {}
 
 const path = require("path");
 const { randomUUID } = require("crypto");
@@ -73,7 +75,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     dbReady,
-    storage: "postgres",
+    storage: "oracle",
     apfHomeUrl: APF_HOME_URL
   });
 });

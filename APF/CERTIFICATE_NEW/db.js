@@ -15,18 +15,19 @@ const {
   withTransaction,
 } = require("../shared/oracle-db");
 
-const TABLE_NAME = "MYROTA_SFTP";
+const TABLE_NAME = "MYROTA_CERTIFICATE";
 
-function mapRecord(row) {
+function mapCertificate(row) {
   return {
     id: row.ID,
     partnerName: row.PARTNER_NAME,
-    connectionType: row.CONNECTION_TYPE,
-    host: row.HOST,
-    port: Number(row.PORT || 22),
-    username: row.USERNAME,
-    password: row.PASSWORD_VALUE,
-    contactPerson: row.CONTACT_PERSON,
+    certificateType: row.CERTIFICATE_TYPE,
+    contactTeam: row.CONTACT_TEAM,
+    issuedDate: row.ISSUED_DATE,
+    expiryDate: row.EXPIRY_DATE,
+    uploadName: row.UPLOAD_NAME || "",
+    uploadType: row.UPLOAD_TYPE || "",
+    uploadDataUrl: row.UPLOAD_DATA || "",
     notes: row.NOTES || "",
     createdAt: row.CREATED_AT,
     updatedAt: row.UPDATED_AT,
@@ -41,12 +42,13 @@ async function ensureSchema() {
         CREATE TABLE ${TABLE_NAME} (
           ID VARCHAR2(120) PRIMARY KEY,
           PARTNER_NAME VARCHAR2(300) NOT NULL,
-          CONNECTION_TYPE VARCHAR2(20) NOT NULL,
-          HOST VARCHAR2(500) NOT NULL,
-          PORT NUMBER(5) DEFAULT 22 NOT NULL,
-          USERNAME VARCHAR2(300) NOT NULL,
-          PASSWORD_VALUE VARCHAR2(300) NOT NULL,
-          CONTACT_PERSON VARCHAR2(300) NOT NULL,
+          CERTIFICATE_TYPE VARCHAR2(120) NOT NULL,
+          CONTACT_TEAM VARCHAR2(300) NOT NULL,
+          ISSUED_DATE VARCHAR2(20) NOT NULL,
+          EXPIRY_DATE VARCHAR2(20) NOT NULL,
+          UPLOAD_NAME VARCHAR2(500),
+          UPLOAD_TYPE VARCHAR2(200),
+          UPLOAD_DATA CLOB,
           NOTES CLOB,
           CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
           UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
@@ -64,29 +66,40 @@ async function ensureSchema() {
     await addColumnIfMissing(
       connection,
       TABLE_NAME,
-      "CONNECTION_TYPE",
-      "CONNECTION_TYPE VARCHAR2(20)"
-    );
-    await addColumnIfMissing(connection, TABLE_NAME, "HOST", "HOST VARCHAR2(500)");
-    await addColumnIfMissing(connection, TABLE_NAME, "PORT", "PORT NUMBER(5) DEFAULT 22");
-    await addColumnIfMissing(
-      connection,
-      TABLE_NAME,
-      "USERNAME",
-      "USERNAME VARCHAR2(300)"
+      "CERTIFICATE_TYPE",
+      "CERTIFICATE_TYPE VARCHAR2(120)"
     );
     await addColumnIfMissing(
       connection,
       TABLE_NAME,
-      "PASSWORD_VALUE",
-      "PASSWORD_VALUE VARCHAR2(300)"
+      "CONTACT_TEAM",
+      "CONTACT_TEAM VARCHAR2(300)"
     );
     await addColumnIfMissing(
       connection,
       TABLE_NAME,
-      "CONTACT_PERSON",
-      "CONTACT_PERSON VARCHAR2(300)"
+      "ISSUED_DATE",
+      "ISSUED_DATE VARCHAR2(20)"
     );
+    await addColumnIfMissing(
+      connection,
+      TABLE_NAME,
+      "EXPIRY_DATE",
+      "EXPIRY_DATE VARCHAR2(20)"
+    );
+    await addColumnIfMissing(
+      connection,
+      TABLE_NAME,
+      "UPLOAD_NAME",
+      "UPLOAD_NAME VARCHAR2(500)"
+    );
+    await addColumnIfMissing(
+      connection,
+      TABLE_NAME,
+      "UPLOAD_TYPE",
+      "UPLOAD_TYPE VARCHAR2(200)"
+    );
+    await addColumnIfMissing(connection, TABLE_NAME, "UPLOAD_DATA", "UPLOAD_DATA CLOB");
     await addColumnIfMissing(connection, TABLE_NAME, "NOTES", "NOTES CLOB");
     await addColumnIfMissing(
       connection,
@@ -106,46 +119,46 @@ async function ensureSchema() {
     if (!hasPrimaryKey) {
       await executeIgnoreAlreadyExists(
         connection,
-        `ALTER TABLE ${TABLE_NAME} ADD CONSTRAINT MYR_SFTP_PK PRIMARY KEY (ID)`
+        `ALTER TABLE ${TABLE_NAME} ADD CONSTRAINT MYR_CERT_PK PRIMARY KEY (ID)`
       );
     }
 
     const columnNames = await getTableColumnNames(connection, TABLE_NAME);
 
-    if (columnNames.has("UPDATED_AT")) {
+    if (columnNames.has("EXPIRY_DATE")) {
       await executeIgnoreAlreadyExists(
         connection,
-        `CREATE INDEX MYR_SFTP_UPD_IDX ON ${TABLE_NAME} (UPDATED_AT)`
+        `CREATE INDEX MYR_CERT_EXP_IDX ON ${TABLE_NAME} (EXPIRY_DATE)`
       );
     }
-
   });
 }
 
-async function listSftpRecords() {
+async function listCertificates() {
   const result = await execute(
     `
       SELECT
         ID,
         PARTNER_NAME,
-        CONNECTION_TYPE,
-        HOST,
-        PORT,
-        USERNAME,
-        PASSWORD_VALUE,
-        CONTACT_PERSON,
+        CERTIFICATE_TYPE,
+        CONTACT_TEAM,
+        ISSUED_DATE,
+        EXPIRY_DATE,
+        UPLOAD_NAME,
+        UPLOAD_TYPE,
+        UPLOAD_DATA,
         NOTES,
         CREATED_AT,
         UPDATED_AT
       FROM ${TABLE_NAME}
-      ORDER BY UPDATED_AT DESC, PARTNER_NAME ASC
+      ORDER BY EXPIRY_DATE ASC, PARTNER_NAME ASC
     `
   );
 
-  return result.rows.map(mapRecord);
+  return result.rows.map(mapCertificate);
 }
 
-async function upsertSftpRecord(record, connection = null) {
+async function upsertCertificate(record, connection = null) {
   const runner = async (activeConnection) => {
     await activeConnection.execute(
       `
@@ -154,47 +167,51 @@ async function upsertSftpRecord(record, connection = null) {
           SELECT
             :id AS ID,
             :partnerName AS PARTNER_NAME,
-            :connectionType AS CONNECTION_TYPE,
-            :host AS HOST,
-            :port AS PORT,
-            :username AS USERNAME,
-            :password AS PASSWORD_VALUE,
-            :contactPerson AS CONTACT_PERSON,
+            :certificateType AS CERTIFICATE_TYPE,
+            :contactTeam AS CONTACT_TEAM,
+            :issuedDate AS ISSUED_DATE,
+            :expiryDate AS EXPIRY_DATE,
+            :uploadName AS UPLOAD_NAME,
+            :uploadType AS UPLOAD_TYPE,
+            :uploadDataUrl AS UPLOAD_DATA,
             :notes AS NOTES
           FROM dual
         ) source
         ON (target.ID = source.ID)
         WHEN MATCHED THEN UPDATE SET
           target.PARTNER_NAME = source.PARTNER_NAME,
-          target.CONNECTION_TYPE = source.CONNECTION_TYPE,
-          target.HOST = source.HOST,
-          target.PORT = source.PORT,
-          target.USERNAME = source.USERNAME,
-          target.PASSWORD_VALUE = source.PASSWORD_VALUE,
-          target.CONTACT_PERSON = source.CONTACT_PERSON,
+          target.CERTIFICATE_TYPE = source.CERTIFICATE_TYPE,
+          target.CONTACT_TEAM = source.CONTACT_TEAM,
+          target.ISSUED_DATE = source.ISSUED_DATE,
+          target.EXPIRY_DATE = source.EXPIRY_DATE,
+          target.UPLOAD_NAME = source.UPLOAD_NAME,
+          target.UPLOAD_TYPE = source.UPLOAD_TYPE,
+          target.UPLOAD_DATA = source.UPLOAD_DATA,
           target.NOTES = source.NOTES,
           target.UPDATED_AT = SYSTIMESTAMP
         WHEN NOT MATCHED THEN INSERT (
           ID,
           PARTNER_NAME,
-          CONNECTION_TYPE,
-          HOST,
-          PORT,
-          USERNAME,
-          PASSWORD_VALUE,
-          CONTACT_PERSON,
+          CERTIFICATE_TYPE,
+          CONTACT_TEAM,
+          ISSUED_DATE,
+          EXPIRY_DATE,
+          UPLOAD_NAME,
+          UPLOAD_TYPE,
+          UPLOAD_DATA,
           NOTES,
           CREATED_AT,
           UPDATED_AT
         ) VALUES (
           source.ID,
           source.PARTNER_NAME,
-          source.CONNECTION_TYPE,
-          source.HOST,
-          source.PORT,
-          source.USERNAME,
-          source.PASSWORD_VALUE,
-          source.CONTACT_PERSON,
+          source.CERTIFICATE_TYPE,
+          source.CONTACT_TEAM,
+          source.ISSUED_DATE,
+          source.EXPIRY_DATE,
+          source.UPLOAD_NAME,
+          source.UPLOAD_TYPE,
+          source.UPLOAD_DATA,
           source.NOTES,
           SYSTIMESTAMP,
           SYSTIMESTAMP
@@ -203,12 +220,13 @@ async function upsertSftpRecord(record, connection = null) {
       {
         id: record.id,
         partnerName: record.partnerName,
-        connectionType: record.connectionType,
-        host: record.host,
-        port: Number(record.port || 22),
-        username: record.username,
-        password: record.password,
-        contactPerson: record.contactPerson,
+        certificateType: record.certificateType,
+        contactTeam: record.contactTeam,
+        issuedDate: record.issuedDate,
+        expiryDate: record.expiryDate,
+        uploadName: record.uploadName || "",
+        uploadType: record.uploadType || "",
+        uploadDataUrl: record.uploadDataUrl || "",
         notes: record.notes || "",
       }
     );
@@ -218,12 +236,13 @@ async function upsertSftpRecord(record, connection = null) {
         SELECT
           ID,
           PARTNER_NAME,
-          CONNECTION_TYPE,
-          HOST,
-          PORT,
-          USERNAME,
-          PASSWORD_VALUE,
-          CONTACT_PERSON,
+          CERTIFICATE_TYPE,
+          CONTACT_TEAM,
+          ISSUED_DATE,
+          EXPIRY_DATE,
+          UPLOAD_NAME,
+          UPLOAD_TYPE,
+          UPLOAD_DATA,
           NOTES,
           CREATED_AT,
           UPDATED_AT
@@ -234,7 +253,7 @@ async function upsertSftpRecord(record, connection = null) {
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    return mapRecord(savedResult.rows[0]);
+    return mapCertificate(savedResult.rows[0]);
   };
 
   if (connection) {
@@ -244,7 +263,7 @@ async function upsertSftpRecord(record, connection = null) {
   return withTransaction((activeConnection) => runner(activeConnection));
 }
 
-async function bulkUpsertSftpRecords(records) {
+async function bulkUpsertCertificates(records) {
   return withTransaction(async (connection) => {
     await connection.execute(`DELETE FROM ${TABLE_NAME}`);
 
@@ -254,24 +273,26 @@ async function bulkUpsertSftpRecords(records) {
           INSERT INTO ${TABLE_NAME} (
             ID,
             PARTNER_NAME,
-            CONNECTION_TYPE,
-            HOST,
-            PORT,
-            USERNAME,
-            PASSWORD_VALUE,
-            CONTACT_PERSON,
+            CERTIFICATE_TYPE,
+            CONTACT_TEAM,
+            ISSUED_DATE,
+            EXPIRY_DATE,
+            UPLOAD_NAME,
+            UPLOAD_TYPE,
+            UPLOAD_DATA,
             NOTES,
             CREATED_AT,
             UPDATED_AT
           ) VALUES (
             :id,
             :partnerName,
-            :connectionType,
-            :host,
-            :port,
-            :username,
-            :password,
-            :contactPerson,
+            :certificateType,
+            :contactTeam,
+            :issuedDate,
+            :expiryDate,
+            :uploadName,
+            :uploadType,
+            :uploadDataUrl,
             :notes,
             SYSTIMESTAMP,
             SYSTIMESTAMP
@@ -280,12 +301,13 @@ async function bulkUpsertSftpRecords(records) {
         records.map((record) => ({
           id: record.id,
           partnerName: record.partnerName,
-          connectionType: record.connectionType,
-          host: record.host,
-          port: Number(record.port || 22),
-          username: record.username,
-          password: record.password,
-          contactPerson: record.contactPerson,
+          certificateType: record.certificateType,
+          contactTeam: record.contactTeam,
+          issuedDate: record.issuedDate,
+          expiryDate: record.expiryDate,
+          uploadName: record.uploadName || "",
+          uploadType: record.uploadType || "",
+          uploadDataUrl: record.uploadDataUrl || "",
           notes: record.notes || "",
         }))
       );
@@ -296,27 +318,28 @@ async function bulkUpsertSftpRecords(records) {
         SELECT
           ID,
           PARTNER_NAME,
-          CONNECTION_TYPE,
-          HOST,
-          PORT,
-          USERNAME,
-          PASSWORD_VALUE,
-          CONTACT_PERSON,
+          CERTIFICATE_TYPE,
+          CONTACT_TEAM,
+          ISSUED_DATE,
+          EXPIRY_DATE,
+          UPLOAD_NAME,
+          UPLOAD_TYPE,
+          UPLOAD_DATA,
           NOTES,
           CREATED_AT,
           UPDATED_AT
         FROM ${TABLE_NAME}
-        ORDER BY UPDATED_AT DESC, PARTNER_NAME ASC
+        ORDER BY EXPIRY_DATE ASC, PARTNER_NAME ASC
       `,
       {},
       { outFormat: oracledb.OUT_FORMAT_OBJECT }
     );
 
-    return result.rows.map(mapRecord);
+    return result.rows.map(mapCertificate);
   });
 }
 
-async function deleteSftpRecord(id) {
+async function deleteCertificate(id) {
   await withTransaction((connection) =>
     connection.execute(`DELETE FROM ${TABLE_NAME} WHERE ID = :id`, { id })
   );
@@ -336,11 +359,11 @@ async function closeDatabase() {
 }
 
 module.exports = {
-  bulkUpsertSftpRecords,
+  bulkUpsertCertificates,
   closeDatabase,
-  deleteSftpRecord,
+  deleteCertificate,
   initializeDatabase,
-  listSftpRecords,
+  listCertificates,
   testConnection,
-  upsertSftpRecord,
+  upsertCertificate,
 };

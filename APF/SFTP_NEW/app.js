@@ -1,6 +1,5 @@
-const STORAGE_KEY = "sftp_workspace_records_v1";
 const TEMPLATE_FILE_NAME = "sftp-partner-template.xlsx";
-const API_CANDIDATES = ["./api", "/api"];
+const API_CANDIDATES = ["/api", "./api"];
 
 const openFormButton = document.getElementById("open-form-button");
 const closeFormButton = document.getElementById("close-form-button");
@@ -27,25 +26,6 @@ const notesInput = document.getElementById("notes");
 let records = [];
 let searchTerm = "";
 let apiBaseUrl = "";
-let apiMode = false;
-
-function loadLocalRecords() {
-  try {
-    const rawValue = window.localStorage.getItem(STORAGE_KEY);
-    if (!rawValue) {
-      return [];
-    }
-
-    const parsed = JSON.parse(rawValue);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    return [];
-  }
-}
-
-function cacheRecords(nextRecords) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextRecords));
-}
 
 function setStatus(message, type = "") {
   workspaceStatus.textContent = message || "";
@@ -86,19 +66,23 @@ function parsePort(value) {
 
 function normalizeRecord(record, { preserveId = true } = {}) {
   const nextId = String(record.id || "").trim();
-  const updatedAt = String(record.updatedAt || record.updated_at || "").trim() || new Date().toISOString();
+  const updatedAt =
+    String(record.updatedAt || record.updated_at || "").trim() ||
+    new Date().toISOString();
 
   return {
     id: preserveId && nextId ? nextId : createId(),
     partnerName: String(record.partnerName || record.partner_name || "").trim(),
-    connectionType: normalizeConnectionType(record.connectionType || record.connection_type),
+    connectionType: normalizeConnectionType(
+      record.connectionType || record.connection_type
+    ),
     host: String(record.host || "").trim(),
     port: parsePort(record.port),
     username: String(record.username || "").trim(),
     password: String(record.password || record.password_value || "").trim(),
     contactPerson: String(record.contactPerson || record.contact_person || "").trim(),
     notes: String(record.notes || "").trim(),
-    updatedAt
+    updatedAt,
   };
 }
 
@@ -108,13 +92,15 @@ function formatDateTime(dateValue) {
     month: "short",
     year: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
 }
 
 function sortRecords(nextRecords) {
   return [...nextRecords].sort((left, right) => {
-    const updatedDelta = new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+    const updatedDelta =
+      new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime();
+
     if (updatedDelta !== 0) {
       return updatedDelta;
     }
@@ -140,7 +126,7 @@ function getVisibleRecords() {
       record.username,
       record.password,
       record.contactPerson,
-      record.notes
+      record.notes,
     ].some((value) => String(value || "").toLowerCase().includes(normalizedSearch))
   );
 }
@@ -169,6 +155,7 @@ function beginCreateRecord() {
 
 function editRecord(recordId) {
   const selectedRecord = records.find((record) => record.id === recordId);
+
   if (!selectedRecord) {
     return;
   }
@@ -196,7 +183,7 @@ function renderRecords() {
       <tr>
         <td colspan="10">
           <div class="empty-state">
-            No SFTP details found. Add a new record or import an Excel file to get started.
+            No SFTP details found in Oracle yet. Add a new record or import an Excel file to get started.
           </div>
         </td>
       </tr>
@@ -205,8 +192,8 @@ function renderRecords() {
   }
 
   recordsBody.innerHTML = visibleRecords
-    .map((record) => {
-      return `
+    .map(
+      (record) => `
         <tr>
           <td>${escapeHtml(record.partnerName)}</td>
           <td><span class="chip">${escapeHtml(record.connectionType)}</span></td>
@@ -219,38 +206,42 @@ function renderRecords() {
           <td>${escapeHtml(formatDateTime(record.updatedAt))}</td>
           <td>
             <div class="row-actions">
-              <button class="row-action" type="button" data-action="edit" data-id="${escapeHtml(record.id)}">
+              <button class="row-action" type="button" data-action="edit" data-id="${escapeHtml(
+                record.id
+              )}">
                 Edit
               </button>
-              <button class="row-action danger" type="button" data-action="delete" data-id="${escapeHtml(record.id)}">
+              <button class="row-action danger" type="button" data-action="delete" data-id="${escapeHtml(
+                record.id
+              )}">
                 Delete
               </button>
             </div>
           </td>
         </tr>
-      `;
-    })
+      `
+    )
     .join("");
 }
 
 async function requestApi(path, options = {}) {
   if (!apiBaseUrl) {
-    throw new Error("SFTP API is not available");
+    throw new Error("Oracle workspace is not available.");
   }
 
   const response = await fetch(`${apiBaseUrl}${path}`, {
     headers: {
       "Content-Type": "application/json",
-      ...(options.headers || {})
+      ...(options.headers || {}),
     },
-    ...options
+    ...options,
   });
 
   const contentType = response.headers.get("content-type") || "";
   const payload = contentType.includes("application/json") ? await response.json() : null;
 
   if (!response.ok) {
-    throw new Error(payload?.message || "SFTP API request failed");
+    throw new Error(payload?.message || payload?.error || "Oracle API request failed.");
   }
 
   return payload;
@@ -260,108 +251,115 @@ async function detectApi() {
   for (const candidate of API_CANDIDATES) {
     try {
       const response = await fetch(`${candidate}/health`, { cache: "no-store" });
+
       if (!response.ok) {
         continue;
       }
 
       const payload = await response.json();
+
+      if (payload.storage !== "oracle" && payload.dbReady !== true) {
+        continue;
+      }
+
       apiBaseUrl = candidate;
-      apiMode = payload.storage === "postgres" || payload.dbReady === true;
-      setStatus("Connected to PostgreSQL workspace.", "success");
+      setStatus("Connected to Oracle workspace.", "success");
       return true;
-    } catch (error) {
+    } catch {
       // Try the next candidate path.
     }
   }
 
   apiBaseUrl = "";
-  apiMode = false;
-  setStatus("Records are stored in this browser until a database is connected.");
+  setStatus("Oracle workspace is not reachable right now.", "error");
   return false;
 }
 
-async function loadRecordsFromActiveStorage() {
-  const hasApi = await detectApi();
-
-  if (hasApi) {
-    try {
-      const payload = await requestApi("/sftp-records");
-      records = Array.isArray(payload.records) ? payload.records.map(normalizeRecord) : [];
-      cacheRecords(records);
-      renderRecords();
-      return;
-    } catch (error) {
-      apiBaseUrl = "";
-      apiMode = false;
-      setStatus(
-        "The PostgreSQL workspace is not reachable right now. Showing local browser records instead.",
-        "error"
-      );
-    }
+async function ensureApiReady() {
+  if (apiBaseUrl) {
+    return true;
   }
 
-  records = loadLocalRecords().map((record) => normalizeRecord(record));
-  renderRecords();
+  return detectApi();
+}
+
+async function loadRecordsFromApi() {
+  const hasApi = await detectApi();
+
+  if (!hasApi) {
+    records = [];
+    renderRecords();
+    return;
+  }
+
+  try {
+    const payload = await requestApi("/sftp-records");
+    records = Array.isArray(payload.records) ? payload.records.map(normalizeRecord) : [];
+    renderRecords();
+  } catch (error) {
+    records = [];
+    renderRecords();
+    setStatus(error.message || "Unable to load SFTP records from Oracle.", "error");
+  }
 }
 
 async function persistRecord(nextRecord) {
-  if (apiMode) {
-    const method = recordIdInput.value ? "PUT" : "POST";
-    const path = recordIdInput.value
-      ? `/sftp-records/${encodeURIComponent(nextRecord.id)}`
-      : "/sftp-records";
-    const payload = await requestApi(path, {
-      method,
-      body: JSON.stringify(nextRecord)
-    });
+  const hasApi = await ensureApiReady();
 
-    const savedRecord = normalizeRecord(payload.record);
-    const existingIndex = records.findIndex((record) => record.id === savedRecord.id);
-
-    if (existingIndex >= 0) {
-      records[existingIndex] = savedRecord;
-    } else {
-      records.unshift(savedRecord);
-    }
-
-    records = sortRecords(records);
-    cacheRecords(records);
-    return;
+  if (!hasApi) {
+    throw new Error("Oracle workspace is not reachable right now.");
   }
 
-  if (recordIdInput.value) {
-    records = records.map((record) => (record.id === recordIdInput.value ? nextRecord : record));
+  const isEditing = Boolean(recordIdInput.value);
+  const method = isEditing ? "PUT" : "POST";
+  const path = isEditing
+    ? `/sftp-records/${encodeURIComponent(nextRecord.id)}`
+    : "/sftp-records";
+
+  const payload = await requestApi(path, {
+    method,
+    body: JSON.stringify(nextRecord),
+  });
+
+  const savedRecord = normalizeRecord(payload.record);
+  const existingIndex = records.findIndex((record) => record.id === savedRecord.id);
+
+  if (existingIndex >= 0) {
+    records[existingIndex] = savedRecord;
   } else {
-    records = [nextRecord, ...records];
+    records.unshift(savedRecord);
   }
 
-  cacheRecords(records);
+  records = sortRecords(records);
 }
 
 async function removeRecord(recordId) {
-  if (apiMode) {
-    await requestApi(`/sftp-records/${encodeURIComponent(recordId)}`, {
-      method: "DELETE"
-    });
+  const hasApi = await ensureApiReady();
+
+  if (!hasApi) {
+    throw new Error("Oracle workspace is not reachable right now.");
   }
 
+  await requestApi(`/sftp-records/${encodeURIComponent(recordId)}`, {
+    method: "DELETE",
+  });
+
   records = records.filter((record) => record.id !== recordId);
-  cacheRecords(records);
 }
 
 async function persistBulkRecords(nextRecords) {
-  if (apiMode) {
-    const payload = await requestApi("/sftp-records/bulk", {
-      method: "PUT",
-      body: JSON.stringify({ records: nextRecords })
-    });
-    records = Array.isArray(payload.records) ? payload.records.map(normalizeRecord) : [];
-    cacheRecords(records);
-    return;
+  const hasApi = await ensureApiReady();
+
+  if (!hasApi) {
+    throw new Error("Oracle workspace is not reachable right now.");
   }
 
-  records = nextRecords;
-  cacheRecords(records);
+  const payload = await requestApi("/sftp-records/bulk", {
+    method: "PUT",
+    body: JSON.stringify({ records: nextRecords }),
+  });
+
+  records = Array.isArray(payload.records) ? payload.records.map(normalizeRecord) : [];
 }
 
 function buildTemplateRows() {
@@ -375,8 +373,8 @@ function buildTemplateRows() {
       username: "partner_alpha",
       password: "replace-me",
       contactPerson: "EDI Support",
-      notes: "Daily inbound file exchange"
-    }
+      notes: "Daily inbound file exchange",
+    },
   ];
 }
 
@@ -391,8 +389,8 @@ function downloadTemplate() {
       "username",
       "password",
       "contactPerson",
-      "notes"
-    ]
+      "notes",
+    ],
   });
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "SFTP Details");
@@ -420,7 +418,7 @@ function normalizeImportedRecord(row) {
       password: getImportCell(row, "password"),
       contactPerson: getImportCell(row, "contactPerson"),
       notes: getImportCell(row, "notes"),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     },
     { preserveId: true }
   );
@@ -442,7 +440,8 @@ function mergeImportedRecords(existingRecords, importedRecords) {
 
     const fallbackMatchIndex = nextRecords.findIndex(
       (item) =>
-        item.partnerName.trim().toLowerCase() === record.partnerName.trim().toLowerCase() &&
+        item.partnerName.trim().toLowerCase() ===
+          record.partnerName.trim().toLowerCase() &&
         item.connectionType === record.connectionType &&
         item.host.trim().toLowerCase() === record.host.trim().toLowerCase()
     );
@@ -454,7 +453,7 @@ function mergeImportedRecords(existingRecords, importedRecords) {
         ...nextRecords[targetIndex],
         ...record,
         id: nextRecords[targetIndex].id,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
       updated += 1;
       return;
@@ -463,7 +462,7 @@ function mergeImportedRecords(existingRecords, importedRecords) {
     nextRecords.unshift({
       ...record,
       id: record.id || createId(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
     });
     added += 1;
   });
@@ -471,7 +470,7 @@ function mergeImportedRecords(existingRecords, importedRecords) {
   return {
     records: nextRecords,
     added,
-    updated
+    updated,
   };
 }
 
@@ -521,7 +520,7 @@ async function submitForm(event) {
     password: passwordInput.value,
     contactPerson: contactPersonInput.value,
     notes: notesInput.value,
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   });
 
   if (
@@ -541,10 +540,7 @@ async function submitForm(event) {
     renderRecords();
     resetForm();
     closeEditor();
-    setStatus(
-      isEditing ? "SFTP details updated." : "SFTP details added.",
-      "success"
-    );
+    setStatus(isEditing ? "SFTP details updated." : "SFTP details added.", "success");
   } catch (error) {
     setStatus(error.message || "Unable to save SFTP details right now.", "error");
   }
@@ -566,6 +562,7 @@ searchInput.addEventListener("input", () => {
 
 importFileInput.addEventListener("change", () => {
   const selectedFile = importFileInput.files && importFileInput.files[0];
+
   importExcelFile(selectedFile)
     .catch((error) => {
       setStatus(
@@ -580,6 +577,7 @@ importFileInput.addEventListener("change", () => {
 
 recordsBody.addEventListener("click", (event) => {
   const target = event.target;
+
   if (!(target instanceof HTMLElement)) {
     return;
   }
@@ -608,8 +606,9 @@ recordsBody.addEventListener("click", (event) => {
   }
 });
 
-loadRecordsFromActiveStorage().catch(() => {
-  records = loadLocalRecords().map((record) => normalizeRecord(record));
+setStatus("Connecting to Oracle workspace...");
+loadRecordsFromApi().catch(() => {
+  records = [];
   renderRecords();
-  setStatus("Unable to initialize the SFTP workspace. Showing local browser data.", "error");
+  setStatus("Unable to initialize the SFTP workspace.", "error");
 });

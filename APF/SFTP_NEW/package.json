@@ -1,7 +1,7 @@
 {
   "name": "sftp_workspace",
   "version": "1.0.0",
-  "description": "SFTP workspace backed by PostgreSQL through an SSH tunnel",
+  "description": "SFTP workspace backed by Oracle",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -10,8 +10,8 @@
   },
   "keywords": [
     "sftp",
-    "postgresql",
-    "ssh-tunnel",
+    "oracle",
+    "database",
     "express"
   ],
   "license": "MIT",

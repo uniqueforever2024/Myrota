@@ -239,6 +239,25 @@ h4 {
   appearance: none;
 }
 
+.header-file-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.header-file-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.header-file-button.is-disabled,
+.header-icon-button:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .admin-shortcut-link {
   text-decoration: none;
 }
@@ -356,6 +375,23 @@ h4 {
     0 12px 24px rgba(12, 25, 44, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.14);
 }
+
+.page-status {
+  margin-top: 16px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .role-chip,
 .welcome-chip {
   display: inline-flex;
@@ -1103,19 +1139,41 @@ h4 {
   margin: 0 0 10px;
 }
 
+.sidebar-copy {
+  margin-bottom: 18px;
+}
+
+.sidebar-description,
+.content-subtitle {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
 .sidebar-subgroup + .sidebar-subgroup {
   margin-top: 12px;
+}
+
+.sidebar-bu-list {
+  display: grid;
+  gap: 10px;
 }
 
 .sidebar-link {
   width: 100%;
   text-align: left;
   display: flex;
+  align-items: center;
   justify-content: space-between;
   gap: 12px;
   padding: 11px 13px;
   background: transparent;
   color: var(--ink);
+}
+
+.sidebar-link.active .count-badge {
+  background: rgba(255, 255, 255, 0.18);
+  color: inherit;
 }
 
 .count-badge {
@@ -1131,6 +1189,12 @@ h4 {
 }
 
 .search-box {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.content-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
@@ -1152,6 +1216,26 @@ h4 {
 .search-box input {
   flex: 1 1 260px;
   max-width: 100%;
+}
+
+.toolbar-import-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toolbar-import-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.toolbar-import-button.is-disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
 }
 
 .welcome-card,

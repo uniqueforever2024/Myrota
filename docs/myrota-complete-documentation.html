@@ -244,8 +244,8 @@
         <h1>MyRota Complete Application Documentation</h1>
         <p>
           This document explains the MyRota application end to end: business purpose, runtime
-          architecture, repository structure, Firestore data model, Jira integration, deployment
-          pipeline, admin access logic, and maintenance guidance.
+          architecture, repository structure, Firestore rota data, Oracle-backed microsites, Jira
+          integration, deployment pipeline, admin access logic, and maintenance guidance.
         </p>
         <div class="meta-grid">
           <div class="meta-card">
@@ -273,7 +273,7 @@
             <li><a href="#overview">1. Product Overview</a></li>
             <li><a href="#architecture">2. Runtime Architecture</a></li>
             <li><a href="#modules">3. Module And Folder Breakdown</a></li>
-            <li><a href="#data-model">4. Firestore Data Model</a></li>
+            <li><a href="#data-model">4. Data Model And Microsite Storage</a></li>
             <li><a href="#flows">5. End-To-End Flows</a></li>
             <li><a href="#deployment">6. Build And Deployment</a></li>
             <li><a href="#operations">7. Security, Operations, And Maintenance</a></li>
@@ -309,11 +309,11 @@
             </div>
             <div class="card">
               <h3>Data Layer</h3>
-              <p>Firestore for users, rota data, admin credentials, and audit logs.</p>
+              <p>Firestore for rota data plus Oracle tables for APF, SFTP, Documentation, and Certificate microsites.</p>
             </div>
             <div class="card">
               <h3>Integration Layer</h3>
-              <p>Netlify Functions proxy Jira API access using server-side environment variables.</p>
+              <p>Netlify Functions proxy Jira, while Oracle-backed Node services persist the linked microsites.</p>
             </div>
           </div>
 
@@ -328,8 +328,9 @@
           <h2>2. Runtime Architecture</h2>
           <p>
             The main application is a client-rendered React single-page app. Firestore handles
-            real-time operational data. Jira data is fetched through a Netlify serverless function
-            so Jira credentials remain off the client.
+            real-time rota data. Jira data is fetched through a Netlify serverless function so Jira
+            credentials remain off the client, while the linked APF microsites use Oracle-backed
+            Node APIs for their own operational records.
           </p>
 
           <div class="diagram">
@@ -352,6 +353,10 @@
               <text x="745" y="232" fill="#10213b" text-anchor="middle" font-size="24" font-weight="700">Netlify Function</text>
               <text x="745" y="260" fill="#42536d" text-anchor="middle" font-size="15">jiraDashboard</text>
 
+              <rect x="894" y="56" width="174" height="98" rx="22" fill="#ecfdf5" stroke="#15803d" />
+              <text x="981" y="92" fill="#10213b" text-anchor="middle" font-size="24" font-weight="700">Oracle API</text>
+              <text x="981" y="120" fill="#42536d" text-anchor="middle" font-size="15">APF microsite runtime</text>
+
               <rect x="894" y="196" width="174" height="98" rx="22" fill="#fff1f5" stroke="#be123c" />
               <text x="981" y="232" fill="#10213b" text-anchor="middle" font-size="24" font-weight="700">Jira API</text>
               <text x="981" y="260" fill="#42536d" text-anchor="middle" font-size="15">search + issue details</text>
@@ -365,6 +370,9 @@
               <line x1="588" y1="224" x2="654" y2="245" stroke="#c2410c" stroke-width="4" />
               <polygon points="654,245 639,236 637,252" fill="#c2410c" />
 
+              <line x1="588" y1="150" x2="894" y2="105" stroke="#15803d" stroke-width="4" />
+              <polygon points="894,105 879,99 882,114" fill="#15803d" />
+
               <line x1="836" y1="245" x2="894" y2="245" stroke="#be123c" stroke-width="4" />
               <polygon points="894,245 880,237 880,253" fill="#be123c" />
             </svg>
@@ -373,6 +381,11 @@
           <div class="callout warn" style="margin-top: 18px;">
             Jira is intentionally not called directly from the browser. The Netlify function protects
             Jira credentials and standardizes request and response handling.
+          </div>
+
+          <div class="callout" style="margin-top: 18px;">
+            ROTA and admin data remain in Firestore. The linked APF, SFTP, Documentation, and
+            Certificate microsites now persist to Oracle instead of browser-local temporary storage.
           </div>
         </section>
 
@@ -430,14 +443,14 @@
               <tr>
                 <td>APF/</td>
                 <td>Microsites and legacy site assets</td>
-                <td>Published selectively but not part of the main React runtime path</td>
+                <td>Contains the Oracle-backed APF, SFTP, Documentation, and Certificate workspaces</td>
               </tr>
             </tbody>
           </table>
         </section>
 
         <section class="section" id="data-model">
-          <h2>4. Firestore Data Model</h2>
+          <h2>4. Data Model And Microsite Storage</h2>
           <table class="table">
             <thead>
               <tr>
@@ -478,6 +491,27 @@
           <div class="callout" style="margin-top: 18px;">
             The current admin login path for Edit ROTA is designed to read the password from
             `users/admin` first, which aligns with the live Firestore document structure.
+          </div>
+
+          <div class="two-col" style="margin-top: 18px;">
+            <div class="card">
+              <h3>Oracle Microsite Tables</h3>
+              <ul>
+                <li><code>MYROTA_APF</code> stores BU inbound / outbound directory links.</li>
+                <li><code>MYROTA_SFTP</code> stores partner connection details and supports bulk Excel publish.</li>
+                <li><code>MYROTA_DOCUMENTATION</code> stores notes and media in Oracle without bulk import.</li>
+                <li><code>MYROTA_CERTIFICATE</code> stores tracked certificate records, uploads, and renewal notes.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Microsite UX Notes</h3>
+              <ul>
+                <li>APF now exposes only Inbound and Outbound sections with BU selection in the side column.</li>
+                <li>APF, SFTP, and Certificate can download an Excel template and bulk publish multiple rows.</li>
+                <li>Certificate supports popup add / edit windows, row-level delete, and a tracked-count card.</li>
+                <li>ROTA was intentionally left on Firestore and was not moved to Oracle.</li>
+              </ul>
+            </div>
           </div>
         </section>
 
@@ -572,7 +606,7 @@
             </div>
             <div class="card">
               <h3>Step 3</h3>
-              <p>Netlify serves `dist/` and hosts the Jira serverless endpoint from `netlify/functions`.</p>
+              <p>Netlify serves `dist/` and hosts the Jira serverless endpoint from `netlify/functions`. Oracle-backed microsites also run through their APF Node service for local / internal deployment.</p>
             </div>
           </div>
 
@@ -613,7 +647,7 @@
                 <li>Portal login is browser-side and separate from Edit ROTA admin mode.</li>
                 <li>Admin edit access depends on the `users/admin` Firestore document.</li>
                 <li>Rota edits are logged into `logs/*` for traceability.</li>
-                <li>Certificate reminders are stored locally in browser storage, not Firestore.</li>
+                <li>APF, SFTP, Documentation, and Certificate records now persist in Oracle.</li>
               </ul>
             </div>
             <div class="card">
@@ -642,6 +676,8 @@
             <li>Simplified the fixed dark-mode flag in `src/App.jsx`.</li>
             <li>Replaced the placeholder README with project-specific repository guidance.</li>
             <li>Added a presentation deck and a complete documentation document under `docs/`.</li>
+            <li>Integrated Oracle-backed persistence for APF, SFTP, Documentation, and Certificate microsites.</li>
+            <li>Added Excel bulk publish flows for APF, SFTP, and Certificate.</li>
           </ul>
 
           <div class="callout danger" style="margin-top: 18px;">

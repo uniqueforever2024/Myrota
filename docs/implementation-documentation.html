@@ -319,18 +319,18 @@
         <h1>MyRota Web Application</h1>
         <p>
           Technical handover and implementation record for the rota management,
-          live home dashboard, ONCALL reporting, Firestore-backed team data,
-          and Netlify-hosted Jira dashboard integration.
+          live home dashboard, ONCALL reporting, Firestore-backed rota data,
+          Oracle-backed APF microsites, and Netlify-hosted Jira dashboard integration.
         </p>
 
         <div class="meta-grid">
           <div class="meta-card">
             <div class="label">Prepared On</div>
-            <div class="value">April 4, 2026</div>
+            <div class="value">April 6, 2026</div>
           </div>
           <div class="meta-card">
             <div class="label">Code Revision</div>
-            <div class="value mono">76148ee</div>
+            <div class="value mono">main / bbbec66+</div>
           </div>
           <div class="meta-card">
             <div class="label">Primary URL</div>
@@ -349,14 +349,18 @@
           MyRota is a React and Vite based rota management application that now opens directly into a
           live operational dashboard instead of a login landing page. The application supports
           user-facing rota visibility, admin-controlled rota editing, live team status and leave
-          planning, ONCALL reporting with Excel export, and a Jira dashboard backed by a Netlify
-          Function.
+          planning, ONCALL reporting with Excel export, a Jira dashboard backed by a Netlify
+          Function, and linked Oracle-backed microsites for APF, SFTP, Documentation, and
+          Certificate operations.
         </p>
         <p>
           Firestore remains the source of truth for users, rota assignments, admin configuration,
-          and audit logs. The Jira integration was intentionally moved away from Firebase Functions
-          because production Firebase Functions required a paid plan. The current production Jira
-          proxy runs on Netlify Functions and supports a mock mode for preview and branch deploys.
+          and audit logs. The non-rota microsites now persist to Oracle tables
+          <code>MYROTA_APF</code>, <code>MYROTA_SFTP</code>, <code>MYROTA_DOCUMENTATION</code>,
+          and <code>MYROTA_CERTIFICATE</code>. Jira integration was intentionally moved away from
+          Firebase Functions because production Firebase Functions required a paid plan. The current
+          production Jira proxy runs on Netlify Functions and supports a mock mode for preview and
+          branch deploys.
         </p>
 
         <div class="summary-grid">
@@ -367,6 +371,7 @@
               <li>Users can view rota data but only admin can modify shifts or leave.</li>
               <li>Jira issue counts and details are visible directly inside the app.</li>
               <li>ONCALL / night / weekend shift reporting can be exported to Excel.</li>
+              <li>APF, SFTP, and Certificate microsites support Excel template download and bulk publish.</li>
             </ul>
           </article>
           <article class="summary-card">
@@ -376,6 +381,7 @@
               <li>Firestore user ordering follows the numeric <code>position</code> field.</li>
               <li>Browser Firestore reliability was improved with long-polling configuration.</li>
               <li>Preview environments can show mock Jira data without using live credentials.</li>
+              <li>Oracle-backed Node APIs now serve APF, SFTP, Documentation, and Certificate data.</li>
             </ul>
           </article>
         </div>
@@ -410,6 +416,11 @@
               <td>Primary data store</td>
               <td>Firebase Firestore</td>
               <td>Users, rota assignments, logs, and admin configuration.</td>
+            </tr>
+            <tr>
+              <td>Microsite data store</td>
+              <td>Oracle Database</td>
+              <td>APF directory links, SFTP partner records, documentation notes, and certificate tracking.</td>
             </tr>
             <tr>
               <td>Authentication gate</td>
@@ -452,6 +463,13 @@
   |     +-- config/admin document
   |     +-- logs collection
   |
+  +-- Oracle microsite API (APF/APF_NEW/directory-data-server.js)
+  |     |
+  |     +-- MYROTA_APF
+  |     +-- MYROTA_SFTP
+  |     +-- MYROTA_DOCUMENTATION
+  |     +-- MYROTA_CERTIFICATE
+  |
   +-- Netlify Function: /.netlify/functions/jiraDashboard
         |
         +-- Reads Netlify environment variables
@@ -463,6 +481,12 @@
           <strong>Important architectural change:</strong> Firebase Functions are no longer the intended
           production path for Jira. The active production Jira proxy is the Netlify Function located at
           <span class="mono">netlify/functions/jiraDashboard.js</span>.
+        </div>
+
+        <div class="callout info">
+          <strong>Storage split:</strong> ROTA remains on Firestore. APF, SFTP, Documentation, and
+          Certificate microsites now use Oracle-backed APIs and no longer depend on browser-local
+          temporary storage for active records.
         </div>
 
         <h2>4. Delivered Functional Scope</h2>
@@ -518,6 +542,15 @@
           <li>The details page links out to the underlying Jira issue.</li>
           <li>Refresh actions are available on both summary and detail views.</li>
           <li>Preview environments can run with mock Jira data instead of live credentials.</li>
+        </ul>
+
+        <h3>4.7 Oracle-Backed Microsites</h3>
+        <ul>
+          <li>APF now shows only <strong>Inbound</strong> and <strong>Outbound</strong> sections with BU selection moved into the side column.</li>
+          <li>APF supports add, edit, Excel template download, and bulk upload for Oracle-backed link publishing.</li>
+          <li>SFTP supports add, edit, delete, Excel template download, and bulk Oracle publish.</li>
+          <li>Documentation stores notes in Oracle but does not expose bulk Excel import.</li>
+          <li>Certificate supports add, edit, delete, Excel template download, bulk import, tracked count, and popup add/edit windows.</li>
         </ul>
 
         <div class="page-break"></div>
@@ -630,6 +663,39 @@
           <code>src/firebase.js</code> to reduce connection issues in deployed browsers.
         </div>
 
+        <h3>7.1 Oracle Microsite Tables</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Oracle Table</th>
+              <th>Purpose</th>
+              <th>Active UI Behavior</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>MYROTA_APF</code></td>
+              <td>Inbound / outbound partner links by BU</td>
+              <td>Add, edit, Excel template download, and bulk import from the APF UI.</td>
+            </tr>
+            <tr>
+              <td><code>MYROTA_SFTP</code></td>
+              <td>SFTP partner connection records</td>
+              <td>Add, edit, delete, Excel template download, and bulk import.</td>
+            </tr>
+            <tr>
+              <td><code>MYROTA_DOCUMENTATION</code></td>
+              <td>Documentation notes and media attachments</td>
+              <td>Oracle-backed note editing without bulk import.</td>
+            </tr>
+            <tr>
+              <td><code>MYROTA_CERTIFICATE</code></td>
+              <td>Certificate tracking, uploads, and renewal notes</td>
+              <td>Add, edit, delete, popup form flow, tracked-count panel, and Excel bulk import.</td>
+            </tr>
+          </tbody>
+        </table>
+
         <h2>8. Jira Integration</h2>
 
         <h3>8.1 Current Runtime Model</h3>
@@ -732,6 +798,10 @@
               <td><code>npm run netlify:dev</code></td>
               <td>Runs Netlify local dev so the frontend and Jira function share one origin.</td>
             </tr>
+            <tr>
+              <td><code>cd APF/APF_NEW &amp;&amp; npm start</code></td>
+              <td>Runs the APF React UI, Oracle-backed directory API, and certificate workspace together.</td>
+            </tr>
           </tbody>
         </table>
 
@@ -743,12 +813,14 @@
 
         <h2>10. Validation Snapshot</h2>
         <p>
-          The following checkpoints were validated while preparing this document on April 4, 2026:
+          The following checkpoints were validated while preparing this document on April 6, 2026:
         </p>
         <ul>
           <li><code>npm run build</code> completed successfully on the current machine.</li>
           <li>The live Jira summary endpoint returned status 200 from Netlify.</li>
           <li>The frontend bundle on production updated after the Netlify migration and heading cleanup.</li>
+          <li>The Oracle-backed APF API returned <code>ok: true</code> and <code>dbReady: true</code> on <code>http://localhost:3001/api/health</code>.</li>
+          <li>The certificate bulk API was smoke-tested for create / update / delete restore behavior.</li>
         </ul>
 
         <table>
@@ -837,11 +909,27 @@
               <td><code>netlify.toml</code></td>
               <td>Netlify build, functions, dev, and deploy-context environment configuration.</td>
             </tr>
+            <tr>
+              <td><code>APF/APF_NEW/directory-data-server.js</code></td>
+              <td>Oracle-backed API and static app host for APF, SFTP, Documentation, and Certificate routes.</td>
+            </tr>
+            <tr>
+              <td><code>APF/shared/oracle-db.js</code></td>
+              <td>Shared Oracle connection and schema helper layer for the microsites.</td>
+            </tr>
+            <tr>
+              <td><code>APF/SFTP_NEW/db.js</code></td>
+              <td>Oracle schema and record persistence for SFTP data, including bulk upsert.</td>
+            </tr>
+            <tr>
+              <td><code>APF/CERTIFICATE_NEW/public/app.js</code></td>
+              <td>Certificate UI, popup add/edit flow, row actions, tracked-count card, and Excel bulk import.</td>
+            </tr>
           </tbody>
         </table>
 
         <div class="footer-note">
-          Document generated from the current codebase and validated production behavior as of April 4, 2026.
+          Document generated from the current codebase and validated production behavior as of April 6, 2026.
           This file is intended for handover, maintenance planning, and deployment reference.
         </div>
       </section>

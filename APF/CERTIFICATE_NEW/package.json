@@ -1,7 +1,7 @@
 {
   "name": "edi_certificate",
   "version": "1.0.0",
-  "description": "Open certificate workspace for portal development",
+  "description": "Certificate workspace backed by Oracle",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -9,6 +9,7 @@
   },
   "keywords": [
     "certificate",
+    "oracle",
     "workspace",
     "express"
   ],

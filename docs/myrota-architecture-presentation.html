@@ -240,8 +240,10 @@
         <h1>MyRota<br />Application Overview</h1>
         <p class="lead">
           A central operations dashboard for rota planning, team visibility, Jira tracking,
-          and linked LC EDI microsites. This deck explains how the application is assembled,
-          how data moves through it, and how it is deployed.
+          and linked LC EDI microsites. ROTA remains on Firestore, while APF, SFTP,
+          Documentation, and Certificate now run through Oracle-backed services. This deck
+          explains how the application is assembled, how data moves through it, and how it
+          is deployed.
         </p>
 
         <div class="hero-grid">
@@ -249,9 +251,9 @@
             <h3>Presentation Scope</h3>
             <ul>
               <li>Product purpose and user journeys</li>
-              <li>Frontend, Firestore, and Netlify architecture</li>
-              <li>Admin login and Jira integration flows</li>
-              <li>Data model, deployment, and support handoff</li>
+              <li>Frontend, Firestore, Oracle, and Netlify architecture</li>
+              <li>Admin login, Jira integration, and microsite data flows</li>
+              <li>Data model, bulk publish workflows, deployment, and support handoff</li>
             </ul>
           </div>
           <div class="card">
@@ -261,11 +263,11 @@
             </div>
             <div class="metric" style="margin-top: 18px;">
               <div class="label">Primary Data Store</div>
-              <div class="value">Firestore</div>
+              <div class="value">Firestore + Oracle</div>
             </div>
             <div class="metric" style="margin-top: 18px;">
               <div class="label">Backend Integration</div>
-              <div class="value">Netlify Functions + Jira REST</div>
+              <div class="value">Netlify + Oracle Node APIs</div>
             </div>
             <div class="metric" style="margin-top: 18px;">
               <div class="label">Prepared On</div>
@@ -296,6 +298,10 @@
             <text x="769" y="72" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">Firestore</text>
             <text x="769" y="102" fill="#dce8fb" text-anchor="middle" font-size="15">users, rota, logs, config</text>
 
+            <rect x="922" y="36" width="160" height="102" rx="22" fill="#143328" stroke="#34d399" />
+            <text x="1002" y="72" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">Oracle APIs</text>
+            <text x="1002" y="102" fill="#d8faee" text-anchor="middle" font-size="15">APF, SFTP, DOC, CERT</text>
+
             <rect x="670" y="168" width="198" height="102" rx="22" fill="#142c41" stroke="#22c55e" />
             <text x="769" y="204" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">Netlify Function</text>
             <text x="769" y="234" fill="#dce8fb" text-anchor="middle" font-size="15">jiraDashboard endpoint</text>
@@ -309,6 +315,9 @@
 
             <line x1="560" y1="115" x2="670" y2="88" stroke="#7dd3fc" stroke-width="4" />
             <polygon points="670,88 656,82 659,97" fill="#7dd3fc" />
+
+            <line x1="560" y1="145" x2="922" y2="87" stroke="#34d399" stroke-width="4" />
+            <polygon points="922,87 907,82 910,96" fill="#34d399" />
 
             <line x1="560" y1="200" x2="670" y2="219" stroke="#86efac" stroke-width="4" />
             <polygon points="670,219 656,210 654,226" fill="#86efac" />
@@ -387,8 +396,8 @@
         <h2>Runtime Architecture</h2>
         <p class="lead">
           The application is primarily a browser-side React app. It reads and writes rota data
-          directly with Firestore, while Jira data is proxied through a Netlify Function so
-          browser clients never need direct Jira credentials.
+          directly with Firestore, routes Jira queries through a Netlify Function, and reaches
+          APF, SFTP, Documentation, and Certificate records through Oracle-backed microsite APIs.
         </p>
 
         <div class="diagram">
@@ -396,13 +405,13 @@
             <rect x="36" y="66" width="205" height="120" rx="24" fill="#152945" stroke="#7dd3fc" />
             <text x="138" y="111" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Browser Client</text>
             <text x="138" y="144" fill="#d9e6fa" text-anchor="middle" font-size="16">Portal login session</text>
-            <text x="138" y="170" fill="#d9e6fa" text-anchor="middle" font-size="16">Certificate alerts in localStorage</text>
+            <text x="138" y="170" fill="#d9e6fa" text-anchor="middle" font-size="16">Session state and popup sync</text>
 
             <rect x="318" y="36" width="300" height="190" rx="28" fill="#12213a" stroke="#60a5fa" stroke-width="3" />
             <text x="468" y="81" fill="#fff" text-anchor="middle" font-size="28" font-weight="800">React Frontend</text>
             <text x="468" y="118" fill="#d8e7ff" text-anchor="middle" font-size="16">App shell, dashboard, report, notifications</text>
             <text x="468" y="145" fill="#d8e7ff" text-anchor="middle" font-size="16">Admin modal, logs, Jira summary, Jira detail</text>
-            <text x="468" y="172" fill="#d8e7ff" text-anchor="middle" font-size="16">Quick links to APF microsites</text>
+            <text x="468" y="172" fill="#d8e7ff" text-anchor="middle" font-size="16">Microsite links, APF bulk upload, certificate popup flows</text>
 
             <rect x="318" y="270" width="300" height="180" rx="28" fill="#12253a" stroke="#22c55e" stroke-width="3" />
             <text x="468" y="314" fill="#fff" text-anchor="middle" font-size="28" font-weight="800">Firestore</text>
@@ -418,9 +427,15 @@
             <text x="1013" y="116" fill="#fff" text-anchor="middle" font-size="23" font-weight="700">Jira API</text>
             <text x="1013" y="146" fill="#ffd8e1" text-anchor="middle" font-size="16">Issue search + details</text>
 
-            <rect x="706" y="260" width="382" height="120" rx="26" fill="#142742" stroke="#93c5fd" />
-            <text x="897" y="302" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Microsites Published With Main App</text>
-            <text x="897" y="334" fill="#dce8fb" text-anchor="middle" font-size="16">APF_NEW, DOCUMENTATION_NEW, CERTIFICATE_NEW/public, SFTP_NEW files</text>
+            <rect x="706" y="260" width="190" height="120" rx="26" fill="#143328" stroke="#34d399" />
+            <text x="801" y="300" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Oracle API Host</text>
+            <text x="801" y="330" fill="#d8faee" text-anchor="middle" font-size="16">directory-data-server.js</text>
+            <text x="801" y="354" fill="#d8faee" text-anchor="middle" font-size="16">APF, SFTP, DOC, CERT routes</text>
+
+            <rect x="922" y="260" width="166" height="120" rx="26" fill="#132944" stroke="#93c5fd" />
+            <text x="1005" y="300" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Oracle DB</text>
+            <text x="1005" y="330" fill="#dce8fb" text-anchor="middle" font-size="14">MYROTA_APF</text>
+            <text x="1005" y="352" fill="#dce8fb" text-anchor="middle" font-size="14">MYROTA_SFTP / DOC / CERT</text>
 
             <line x1="241" y1="126" x2="318" y2="126" stroke="#c5d8ff" stroke-width="4" />
             <polygon points="318,126 303,118 303,134" fill="#c5d8ff" />
@@ -436,6 +451,9 @@
 
             <line x1="618" y1="328" x2="706" y2="320" stroke="#93c5fd" stroke-width="4" />
             <polygon points="706,320 691,313 692,329" fill="#93c5fd" />
+
+            <line x1="896" y1="320" x2="922" y2="320" stroke="#93c5fd" stroke-width="4" />
+            <polygon points="922,320 908,312 908,328" fill="#93c5fd" />
           </svg>
         </div>
 
@@ -448,10 +466,10 @@
             </p>
           </div>
           <div class="card">
-            <h3>Why Jira is proxied</h3>
+            <h3>Why Jira and Oracle stay server-side</h3>
             <p>
-              Jira credentials stay on the server side in Netlify environment variables, keeping
-              the browser free of direct secrets.
+              Jira credentials and Oracle database access stay on the server side through Netlify
+              functions and APF Node services, keeping the browser free of direct secrets.
             </p>
           </div>
         </div>
@@ -461,7 +479,7 @@
 
       <section class="slide">
         <div class="eyebrow">Data Model</div>
-        <h2>Firestore Collections And Responsibilities</h2>
+        <h2>Storage Model And Responsibilities</h2>
         <table class="table">
           <thead>
             <tr>
@@ -493,6 +511,24 @@
             </tr>
           </tbody>
         </table>
+
+        <div class="two-col" style="margin-top: 22px;">
+          <div class="card">
+            <h3>Firestore Scope</h3>
+            <p>
+              Firestore remains the live source of truth for the rota application itself,
+              including employee ordering, rota assignments, admin access, and audit logging.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Oracle Microsite Scope</h3>
+            <p>
+              Oracle now stores APF links, SFTP partner rows, Documentation records, and
+              tracked Certificate entries. APF, SFTP, and Certificate also support Excel
+              template download plus bulk publish flows.
+            </p>
+          </div>
+        </div>
 
         <div class="diagram">
           <svg viewBox="0 0 1120 360" aria-label="Firestore data model diagram">
@@ -679,7 +715,7 @@
 
             <rect x="524" y="126" width="226" height="102" rx="22" fill="#2a2313" stroke="#f59e0b" />
             <text x="637" y="164" fill="#fff" text-anchor="middle" font-size="22" font-weight="700">copy-microsites.mjs</text>
-            <text x="637" y="194" fill="#ffe8bc" text-anchor="middle" font-size="15">Publishes APF and SFTP assets into dist</text>
+            <text x="637" y="194" fill="#ffe8bc" text-anchor="middle" font-size="15">Publishes APF, SFTP, Cert, and Doc assets into dist</text>
 
             <rect x="810" y="126" width="132" height="102" rx="22" fill="#331424" stroke="#fb7185" />
             <text x="876" y="164" fill="#fff" text-anchor="middle" font-size="22" font-weight="700">dist/</text>
@@ -707,7 +743,8 @@
           <div class="card">
             <h3>Publish folder</h3>
             <p>
-              Netlify serves `dist/` and exposes the Jira function from `netlify/functions`.
+              Netlify serves `dist/` and exposes the Jira function from `netlify/functions`,
+              while the Oracle-backed APF microsites can also run through their Node host.
             </p>
           </div>
           <div class="card">
@@ -719,7 +756,8 @@
           <div class="card">
             <h3>Operational dependency</h3>
             <p>
-              Live Jira dashboards require correctly configured Netlify environment variables.
+              Live Jira dashboards require correctly configured Netlify environment variables,
+              and the linked microsites require Oracle connectivity when run from APF services.
             </p>
           </div>
         </div>
@@ -766,8 +804,8 @@
             </tr>
             <tr>
               <td>APF/</td>
-              <td>Linked microsites and legacy assets</td>
-              <td>Kept outside the main app code path and published selectively</td>
+              <td>Linked microsites and Oracle services</td>
+              <td>Contains APF, SFTP, Documentation, and Certificate workspaces plus shared Oracle helpers</td>
             </tr>
             <tr>
               <td>docs/</td>
@@ -780,9 +818,9 @@
         <div class="card" style="margin-top: 22px;">
           <h3>Recommended maintenance boundary</h3>
           <p>
-            Treat `src/`, `src/jira/`, `netlify/`, `scripts/`, and `docs/` as the primary MyRota
-            ownership zone. The large APF folders and generated assets should be changed only when
-            those microsites or generated outputs are intentionally updated.
+            Treat `src/`, `src/jira/`, `netlify/`, `scripts/`, `docs/`, and the APF Oracle entry
+            points as the primary MyRota ownership zone. The larger generated assets should be
+            refreshed only when the portal build or linked microsites are intentionally updated.
           </p>
         </div>
 

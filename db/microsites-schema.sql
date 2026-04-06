@@ -1,83 +1,69 @@
-CREATE TABLE IF NOT EXISTS apf_directory_entries (
-  id TEXT PRIMARY KEY,
-  bu VARCHAR(16) NOT NULL,
-  section_type VARCHAR(100) NOT NULL,
-  label TEXT NOT NULL,
-  url TEXT NOT NULL,
-  backup_contact TEXT NOT NULL DEFAULT '',
-  is_active BOOLEAN NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+-- Oracle schema reference for the MyRota linked microsites.
+-- ROTA stays on Firestore. These tables back the Oracle-powered microsites.
+
+CREATE TABLE MYROTA_APF (
+  ID VARCHAR2(120) PRIMARY KEY,
+  BU VARCHAR2(16) NOT NULL,
+  ENTRY_TYPE VARCHAR2(100) NOT NULL,
+  LABEL VARCHAR2(300) NOT NULL,
+  URL VARCHAR2(2000) NOT NULL,
+  BACKUP_CONTACT VARCHAR2(300),
+  CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS apf_directory_entries_bu_section_idx
-  ON apf_directory_entries (bu, section_type);
-
-CREATE UNIQUE INDEX IF NOT EXISTS apf_directory_entries_bu_section_label_uniq
-  ON apf_directory_entries (bu, section_type, lower(label));
+CREATE INDEX MYR_APF_BU_TYPE_IDX
+  ON MYROTA_APF (BU, ENTRY_TYPE);
 
 
-CREATE TABLE IF NOT EXISTS documentation_notes (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  tag TEXT NOT NULL,
-  body TEXT NOT NULL,
-  media_name TEXT NOT NULL DEFAULT '',
-  media_type TEXT NOT NULL DEFAULT '',
-  media_data_url TEXT,
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+CREATE TABLE MYROTA_DOCUMENTATION (
+  ID VARCHAR2(120) PRIMARY KEY,
+  TITLE VARCHAR2(300) NOT NULL,
+  NOTE_TAG VARCHAR2(120) NOT NULL,
+  BODY_TEXT CLOB NOT NULL,
+  MEDIA_NAME VARCHAR2(500),
+  MEDIA_TYPE VARCHAR2(200),
+  MEDIA_DATA CLOB,
+  CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS documentation_notes_updated_at_idx
-  ON documentation_notes (updated_at DESC);
-
-CREATE INDEX IF NOT EXISTS documentation_notes_tag_idx
-  ON documentation_notes (tag);
+CREATE INDEX MYR_DOC_UPD_IDX
+  ON MYROTA_DOCUMENTATION (UPDATED_AT);
 
 
-CREATE TABLE IF NOT EXISTS certificate_records (
-  id TEXT PRIMARY KEY,
-  partner_name TEXT NOT NULL,
-  certificate_type TEXT NOT NULL,
-  contact_team TEXT NOT NULL,
-  issued_date DATE NOT NULL,
-  expiry_date DATE NOT NULL,
-  upload_name TEXT NOT NULL DEFAULT '',
-  upload_url TEXT,
-  notes TEXT NOT NULL DEFAULT '',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT certificate_records_dates_chk CHECK (expiry_date >= issued_date)
+CREATE TABLE MYROTA_SFTP (
+  ID VARCHAR2(120) PRIMARY KEY,
+  PARTNER_NAME VARCHAR2(300) NOT NULL,
+  CONNECTION_TYPE VARCHAR2(20) NOT NULL,
+  HOST VARCHAR2(500) NOT NULL,
+  PORT NUMBER(5) DEFAULT 22 NOT NULL,
+  USERNAME VARCHAR2(300) NOT NULL,
+  PASSWORD_VALUE VARCHAR2(300) NOT NULL,
+  CONTACT_PERSON VARCHAR2(300) NOT NULL,
+  NOTES CLOB,
+  CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS certificate_records_expiry_date_idx
-  ON certificate_records (expiry_date);
-
-CREATE INDEX IF NOT EXISTS certificate_records_partner_name_idx
-  ON certificate_records (partner_name);
+CREATE INDEX MYR_SFTP_UPD_IDX
+  ON MYROTA_SFTP (UPDATED_AT);
 
 
-CREATE TABLE IF NOT EXISTS sftp_partner_records (
-  id TEXT PRIMARY KEY,
-  partner_name TEXT NOT NULL,
-  connection_type VARCHAR(20) NOT NULL,
-  host TEXT NOT NULL,
-  port INTEGER NOT NULL DEFAULT 22,
-  username TEXT NOT NULL,
-  password_value TEXT NOT NULL,
-  contact_person TEXT NOT NULL,
-  notes TEXT NOT NULL DEFAULT '',
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT sftp_partner_records_port_chk CHECK (port BETWEEN 1 AND 65535)
+CREATE TABLE MYROTA_CERTIFICATE (
+  ID VARCHAR2(120) PRIMARY KEY,
+  PARTNER_NAME VARCHAR2(300) NOT NULL,
+  CERTIFICATE_TYPE VARCHAR2(120) NOT NULL,
+  CONTACT_TEAM VARCHAR2(300) NOT NULL,
+  ISSUED_DATE VARCHAR2(20) NOT NULL,
+  EXPIRY_DATE VARCHAR2(20) NOT NULL,
+  UPLOAD_NAME VARCHAR2(500),
+  UPLOAD_TYPE VARCHAR2(200),
+  UPLOAD_DATA CLOB,
+  NOTES CLOB,
+  CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+  UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS sftp_partner_records_partner_name_idx
-  ON sftp_partner_records (partner_name);
-
-CREATE INDEX IF NOT EXISTS sftp_partner_records_connection_type_idx
-  ON sftp_partner_records (connection_type);
-
-CREATE UNIQUE INDEX IF NOT EXISTS sftp_partner_records_partner_type_host_uniq
-  ON sftp_partner_records (lower(partner_name), upper(connection_type), lower(host));
+CREATE INDEX MYR_CERT_EXP_IDX
+  ON MYROTA_CERTIFICATE (EXPIRY_DATE);

@@ -218,6 +218,7 @@ a {
 .reopen-button,
 .manage-button,
 .add-button,
+.import-button,
 .save-button,
 .reset-button,
 .close-form-button {
@@ -267,6 +268,21 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.36);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+}
+
+.import-button {
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.import-button input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
 }
 
 .add-button,
@@ -448,6 +464,11 @@ a {
   color: var(--white);
 }
 
+.window-card.tracked {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(226, 241, 255, 0.72));
+  color: var(--navy);
+}
+
 .window-card.active {
   border-color: rgba(255, 255, 255, 0.76);
   box-shadow:
@@ -614,6 +635,27 @@ th {
   color: var(--muted);
 }
 
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.row-action {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  background: rgba(11, 79, 146, 0.1);
+  color: var(--navy);
+}
+
+.row-action.danger {
+  background: rgba(179, 61, 61, 0.12);
+  color: var(--danger);
+}
+
 .status-chip {
   display: inline-flex;
   align-items: center;
@@ -688,6 +730,21 @@ th {
   display: none;
 }
 
+body.popup-mode .portal-actions,
+body.popup-mode .window-grid,
+body.popup-mode .details-shell,
+body.popup-mode .logout-note {
+  display: none !important;
+}
+
+body.popup-mode .portal-shell {
+  width: min(860px, calc(100% - 24px));
+}
+
+body.popup-mode .form-panel {
+  display: block;
+}
+
 @media (max-width: 900px) {
   .details-shell {
     padding: 12px;
@@ -719,7 +776,8 @@ th {
   }
 
   .manage-button,
-  .add-button {
+  .add-button,
+  .import-button {
     width: 100%;
   }
 
@@ -793,7 +851,8 @@ th {
   }
 
   .manage-button,
-  .add-button {
+  .add-button,
+  .import-button {
     width: 100%;
   }
 

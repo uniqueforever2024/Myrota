@@ -402,6 +402,14 @@ h1 {
   color: var(--navy);
 }
 
+.form-status.success {
+  color: #1f6c46;
+}
+
+.form-status.error {
+  color: #9e2f2f;
+}
+
 .notes-grid {
   margin-top: 22px;
   display: grid;

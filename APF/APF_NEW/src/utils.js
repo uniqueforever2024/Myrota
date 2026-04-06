@@ -1,4 +1,5 @@
-import { LEGACY_TYPE_MAP, SECTION_ORDER } from "./config";
+import * as XLSX from "xlsx";
+import { DEFAULT_SECTION, LEGACY_TYPE_MAP, SECTION_ORDER } from "./config";
 
 const DIRECTORY_TARGET_PROTOCOL =
   process.env.REACT_APP_DIRECTORY_TARGET_PROTOCOL || "http";
@@ -71,7 +72,10 @@ export function createHashRoute(route) {
     return `#/home/${route.lang || "en"}`;
   }
 
-  const sectionPart = route.section ? `/${route.section}` : "";
+  const section = SECTION_ORDER.includes(route.section)
+    ? route.section
+    : DEFAULT_SECTION;
+  const sectionPart = `/${section}`;
   return `#/${route.bu}/${route.lang || "en"}${sectionPart}`;
 }
 
@@ -88,11 +92,16 @@ export function parseHashRoute(hash) {
     };
   }
 
+  const parsedSection = parts[2] || "";
+  const section = SECTION_ORDER.includes(parsedSection)
+    ? parsedSection
+    : DEFAULT_SECTION;
+
   return {
     page: "directory",
     bu: parts[0] || "fr",
     lang: parts[1] || "en",
-    section: parts[2] || ""
+    section
   };
 }
 
@@ -131,6 +140,29 @@ export function downloadFile(filename, content, type) {
   window.URL.revokeObjectURL(url);
 }
 
+const BULK_TEMPLATE_HEADERS = ["id", "bu", "type", "label", "url", "backup"];
+
+function getImportCell(row, key) {
+  const matchingKey = Object.keys(row).find(
+    (item) => item.trim().toLowerCase() === key.toLowerCase()
+  );
+
+  return matchingKey ? row[matchingKey] : "";
+}
+
+function buildBulkTemplateRows(defaults = {}) {
+  return [
+    {
+      id: "",
+      bu: defaults.bu || "fr",
+      type: defaults.type || DEFAULT_SECTION,
+      label: "Partner link label",
+      url: "/B2BI_archives/example-path",
+      backup: "support@example.com"
+    }
+  ];
+}
+
 function escapeCsvCell(value, delimiter) {
   const normalizedValue = String(value ?? "");
 
@@ -148,20 +180,24 @@ function escapeCsvCell(value, delimiter) {
 
 export function buildBulkTemplateCsv(defaults = {}) {
   const delimiter = ";";
-  const headers = ["id", "bu", "type", "label", "url", "backup"];
-  const sampleRow = [
-    "",
-    defaults.bu || "fr",
-    defaults.type || "annonces",
-    "",
-    "",
-    ""
-  ];
+  const headers = BULK_TEMPLATE_HEADERS;
+  const sampleRow = Object.values(buildBulkTemplateRows(defaults)[0]);
 
   return [
     headers.join(delimiter),
     sampleRow.map((value) => escapeCsvCell(value, delimiter)).join(delimiter)
   ].join("\r\n");
+}
+
+export function buildBulkTemplateWorkbook(defaults = {}) {
+  const worksheet = XLSX.utils.json_to_sheet(buildBulkTemplateRows(defaults), {
+    header: BULK_TEMPLATE_HEADERS
+  });
+  const workbook = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "APF Links");
+
+  return XLSX.write(workbook, { bookType: "xlsx", type: "array" });
 }
 
 function detectDelimiter(text) {
@@ -263,6 +299,28 @@ export function parseBulkImportCsv(text) {
     label: pickValue(cells, "label"),
     url: pickValue(cells, "url"),
     backup: pickValue(cells, "backup")
+  }));
+}
+
+export async function parseBulkImportFile(file) {
+  const arrayBuffer = await file.arrayBuffer();
+  const workbook = XLSX.read(arrayBuffer, { type: "array" });
+  const firstSheetName = workbook.SheetNames[0];
+
+  if (!firstSheetName) {
+    return [];
+  }
+
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+
+  return rows.map((row) => ({
+    id: String(getImportCell(row, "id") || "").trim(),
+    bu: String(getImportCell(row, "bu") || "").trim(),
+    type: String(getImportCell(row, "type") || "").trim(),
+    label: String(getImportCell(row, "label") || "").trim(),
+    url: String(getImportCell(row, "url") || "").trim(),
+    backup: String(getImportCell(row, "backup") || "").trim()
   }));
 }
 

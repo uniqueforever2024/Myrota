@@ -3,8 +3,7 @@ import {
   LANGUAGES,
   MAP_LINKS,
   SECTION_META,
-  SECTION_ORDER,
-  SIDEBAR_GROUPS
+  SECTION_ORDER
 } from "../config";
 import { buildDirectoryUrl, isEmailContact } from "../utils";
 
@@ -14,41 +13,30 @@ function DashboardShell({
   navigate,
   canManage,
   entries,
-  sectionCounts,
   visibleEntries,
   searchValue,
   setSearchValue,
   currentBu,
   currentSection,
   openManagerForCurrentContext,
+  downloadBulkTemplate,
+  importBulkFile,
+  managerNotice,
+  managerError,
+  managerSaving,
   editEntry,
-  managerOpen,
-  setManagerOpen,
   goToMyRotaHome,
   logout
 }) {
   const t = (key, fallback) => text[key] || fallback;
   const currentBuMeta = BU_OPTIONS.find((bu) => bu.id === currentBu);
-  const projectBase = process.env.REACT_APP_DIRECTORY_API || "http://localhost:3001";
-  const certificateAppUrl =
-    process.env.REACT_APP_CERTIFICATE_APP_URL || "http://localhost:3003";
-  const adminProjectLinks = [
-    {
-      id: "documentation",
-      label: t("documentation", "Documentation"),
-      href: `${projectBase}/apps/documentation/`
-    },
-    {
-      id: "sftp",
-      label: t("sftp", "SFTP"),
-      href: `${projectBase}/apps/sftp/`
-    },
-    {
-      id: "certificate",
-      label: t("certificate", "Certificate"),
-      href: certificateAppUrl
-    }
-  ];
+  const currentSectionMeta = SECTION_META[currentSection] || SECTION_META[SECTION_ORDER[0]];
+  const buSectionCounts = BU_OPTIONS.reduce((accumulator, bu) => {
+    accumulator[bu.id] = entries.filter(
+      (entry) => entry.bu === bu.id && entry.type === currentSection
+    ).length;
+    return accumulator;
+  }, {});
 
   return (
     <div className="app-shell authenticated-shell">
@@ -69,21 +57,50 @@ function DashboardShell({
           </button>
           {canManage ? (
             <div className="admin-shortcuts">
-              {adminProjectLinks.map((link) => (
-                <a
-                  key={link.id}
-                  className="admin-shortcut-link"
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={link.label}
-                  title={link.label}
-                >
-                  <span className="admin-shortcut-icon">
-                    <HeaderActionIcon type={link.id} />
-                  </span>
-                </a>
-              ))}
+              <button
+                className="header-icon-button"
+                type="button"
+                onClick={openManagerForCurrentContext}
+                disabled={managerSaving}
+                aria-label={t("openManager", "Add New Partner")}
+                title={t("openManager", "Add New Partner")}
+              >
+                <HeaderActionIcon type="add" />
+              </button>
+              <button
+                className="header-icon-button"
+                type="button"
+                onClick={downloadBulkTemplate}
+                disabled={managerSaving}
+                aria-label={t("downloadTemplate", "Download Excel template")}
+                title={t("downloadTemplate", "Download Excel template")}
+              >
+                <HeaderActionIcon type="download" />
+              </button>
+              <label
+                className={`header-icon-button header-file-button ${
+                  managerSaving ? "is-disabled" : ""
+                }`}
+                aria-label={t("importBulk", "Import bulk")}
+                title={t("importBulk", "Import bulk")}
+              >
+                <HeaderActionIcon type="upload" />
+                <span className="sr-only">{t("importBulk", "Import bulk")}</span>
+                <input
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  disabled={managerSaving}
+                  onChange={(event) => {
+                    const [file] = Array.from(event.target.files || []);
+
+                    if (file) {
+                      importBulkFile(file);
+                    }
+
+                    event.target.value = "";
+                  }}
+                />
+              </label>
             </div>
           ) : null}
           <button
@@ -100,27 +117,25 @@ function DashboardShell({
 
       <nav className="top-nav">
         <div className="top-nav-links">
-          <button
-            className={`tab ${route.page === "home" ? "active" : ""}`}
-            onClick={() => navigate({ page: "home", lang: route.lang })}
-          >
-            {t("home", "Home")}
-          </button>
-
-          {BU_OPTIONS.map((bu) => (
+          {SECTION_ORDER.map((sectionId) => (
             <button
-              key={bu.id}
-              className={`tab ${route.bu === bu.id ? "active" : ""}`}
+              key={sectionId}
+              className={`tab ${
+                route.page === "directory" && currentSection === sectionId ? "active" : ""
+              }`}
               onClick={() =>
                 navigate({
                   page: "directory",
-                  bu: bu.id,
+                  bu: currentBu,
                   lang: route.lang,
-                  section: route.section
+                  section: sectionId
                 })
               }
             >
-              {bu.label}
+              {t(
+                SECTION_META[sectionId].navLabelKey,
+                SECTION_META[sectionId].navFallback
+              )}
             </button>
           ))}
         </div>
@@ -145,6 +160,9 @@ function DashboardShell({
         </div>
       </nav>
 
+      {managerNotice ? <div className="page-status manager-notice">{managerNotice}</div> : null}
+      {managerError ? <div className="page-status manager-error">{managerError}</div> : null}
+
       {route.page === "home" ? (
         <main className={`home-view ${canManage ? "home-view-admin" : "home-view-client"}`}>
           <section className="home-map-panel">
@@ -163,7 +181,12 @@ function DashboardShell({
                       className="map-point"
                       style={{ top: point.top, left: point.left }}
                       onClick={() =>
-                        navigate({ page: "directory", bu: point.id, lang: route.lang })
+                        navigate({
+                          page: "directory",
+                          bu: point.id,
+                          lang: route.lang,
+                          section: currentSection || SECTION_ORDER[0]
+                        })
                       }
                     >
                       {bu ? bu.label : point.id.toUpperCase()}
@@ -189,7 +212,12 @@ function DashboardShell({
                       key={bu.id}
                       className="launcher-card"
                       onClick={() =>
-                        navigate({ page: "directory", bu: bu.id, lang: route.lang })
+                        navigate({
+                          page: "directory",
+                          bu: bu.id,
+                          lang: route.lang,
+                          section: currentSection || SECTION_ORDER[0]
+                        })
                       }
                     >
                       <span className="launcher-tag">{bu.label}</span>
@@ -225,130 +253,102 @@ function DashboardShell({
       ) : (
         <main className="directory-layout">
           <aside className="sidebar">
-            {SIDEBAR_GROUPS.map((group) => (
-              <div className="sidebar-block" key={group.titleKey}>
-                {group.type === "single" ? (
+            <div className="sidebar-block">
+              <div className="sidebar-copy">
+                <div className="eyebrow">
+                  {t(currentSectionMeta.navLabelKey, currentSectionMeta.navFallback)}
+                </div>
+                <h3>{t("businessUnits", "Business units")}</h3>
+                <p className="sidebar-description">
+                  {t(currentSectionMeta.labelKey, currentSectionMeta.labelKey)}
+                </p>
+              </div>
+
+              <div className="sidebar-bu-list">
+                {BU_OPTIONS.map((bu) => (
                   <button
-                    className={`sidebar-link ${currentSection === group.item ? "active" : ""}`}
+                    key={bu.id}
+                    className={`sidebar-link ${currentBu === bu.id ? "active" : ""}`}
                     onClick={() =>
                       navigate({
                         page: "directory",
-                        bu: currentBu,
+                        bu: bu.id,
                         lang: route.lang,
-                        section: group.item
+                        section: currentSection
                       })
                     }
                   >
-                    <span>{t(group.titleKey, group.titleKey)}</span>
-                    <span className="count-badge">{sectionCounts[group.item] || 0}</span>
+                    <span>{bu.label}</span>
+                    <span className="count-badge">{buSectionCounts[bu.id] || 0}</span>
                   </button>
-                ) : (
-                  <>
-                    <h3>{t(group.titleKey, group.titleKey)}</h3>
-                    {(group.sections || []).map((sectionGroup) => (
-                      <div className="sidebar-subgroup" key={sectionGroup.headingKey}>
-                        <h4>{t(sectionGroup.headingKey, sectionGroup.headingKey)}</h4>
-                        {sectionGroup.items.map((item) => (
-                          <button
-                            key={item}
-                            className={`sidebar-link ${currentSection === item ? "active" : ""}`}
-                            onClick={() =>
-                              navigate({
-                                page: "directory",
-                                bu: currentBu,
-                                lang: route.lang,
-                                section: item
-                              })
-                            }
-                          >
-                            <span>{t(SECTION_META[item].labelKey, SECTION_META[item].labelKey)}</span>
-                            <span className="count-badge">{sectionCounts[item] || 0}</span>
-                          </button>
-                        ))}
-                      </div>
-                    ))}
-                    {(group.items || []).map((item) => (
-                      <button
-                        key={item}
-                        className={`sidebar-link ${currentSection === item ? "active" : ""}`}
-                        onClick={() =>
-                          navigate({
-                            page: "directory",
-                            bu: currentBu,
-                            lang: route.lang,
-                            section: item
-                          })
-                        }
-                      >
-                        <span>{t(SECTION_META[item].labelKey, SECTION_META[item].labelKey)}</span>
-                        <span className="count-badge">{sectionCounts[item] || 0}</span>
-                      </button>
-                    ))}
-                  </>
-                )}
+                ))}
               </div>
-            ))}
+            </div>
           </aside>
 
           <section className="content-panel">
             <div className="content-toolbar">
               <div>
                 <div className="eyebrow">{currentBuMeta?.label || currentBu.toUpperCase()}</div>
-                <h2>
-                  {currentSection
-                    ? t(SECTION_META[currentSection].labelKey, SECTION_META[currentSection].labelKey)
-                    : t("welcomeTitle", "Business Unit Overview")}
-                </h2>
+                <h2>{t(currentSectionMeta.navLabelKey, currentSectionMeta.navFallback)}</h2>
+                <p className="content-subtitle">
+                  {t(currentSectionMeta.labelKey, currentSectionMeta.labelKey)}
+                </p>
               </div>
 
-              {currentSection ? (
-                <div className="search-box">
-                  <input
-                    type="search"
-                    value={searchValue}
-                    placeholder={t("searchPlaceholder", "Search current entries")}
-                    onChange={(event) => setSearchValue(event.target.value)}
-                  />
-                  {canManage ? (
+              <div className="search-box">
+                <input
+                  type="search"
+                  value={searchValue}
+                  placeholder={t("searchPlaceholder", "Search current entries")}
+                  onChange={(event) => setSearchValue(event.target.value)}
+                />
+                {canManage ? (
+                  <div className="content-actions">
                     <button className="secondary-button" onClick={openManagerForCurrentContext}>
                       {t("openManager", "Add New Partner")}
                     </button>
-                  ) : null}
-                </div>
-              ) : null}
+                    <button
+                      className="secondary-button"
+                      type="button"
+                      disabled={managerSaving}
+                      onClick={downloadBulkTemplate}
+                    >
+                      {t("downloadTemplate", "Download Excel template")}
+                    </button>
+                    <label
+                      className={`secondary-button import-button toolbar-import-button ${
+                        managerSaving ? "is-disabled" : ""
+                      }`}
+                    >
+                      {t("importBulk", "Import Excel")}
+                      <input
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        disabled={managerSaving}
+                        onChange={(event) => {
+                          const [file] = Array.from(event.target.files || []);
+
+                          if (file) {
+                            importBulkFile(file);
+                          }
+
+                          event.target.value = "";
+                        }}
+                      />
+                    </label>
+                  </div>
+                ) : null}
+              </div>
             </div>
 
-            {!currentSection ? (
-              <div className="welcome-card">
-                <div className="section-list">
-                  {SECTION_ORDER.map((item) => (
-                    <button
-                      key={item}
-                      className="list-row"
-                      onClick={() =>
-                        navigate({
-                          page: "directory",
-                          bu: currentBu,
-                          lang: route.lang,
-                          section: item
-                        })
-                      }
-                    >
-                      <span>{t(SECTION_META[item].labelKey, SECTION_META[item].labelKey)}</span>
-                      <strong className="list-row-meta">{sectionCounts[item] || 0}</strong>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <DirectoryResults
-                canManage={canManage}
-                currentSection={currentSection}
-                visibleEntries={visibleEntries}
-                editEntry={editEntry}
-                t={t}
-              />
-            )}
+            <DirectoryResults
+              canManage={canManage}
+              currentSection={currentSection}
+              visibleEntries={visibleEntries}
+              editEntry={editEntry}
+              t={t}
+            />
           </section>
         </main>
       )}
@@ -441,6 +441,78 @@ function DirectoryResults({ canManage, currentSection, visibleEntries, editEntry
 }
 
 function HeaderActionIcon({ type }) {
+  if (type === "add") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 5.5v13M5.5 12h13"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.9"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
+  if (type === "download") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 5.5v9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M8.5 11.5 12 15l3.5-3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M6 18.5h12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
+  if (type === "upload") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path
+          d="M12 18.5v-9"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M15.5 11.5 12 8l-3.5 3.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M6 18.5h12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
   if (type === "documentation") {
     return (
       <svg viewBox="0 0 24 24" aria-hidden="true">

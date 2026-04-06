@@ -28,89 +28,21 @@ export const MAP_LINKS = [
   { id: "ib", top: "79%", left: "16%" }
 ];
 
-export const SECTION_ORDER = [
-  "annonces",
-  "scans",
-  "annoncesCarrierIod",
-  "extractions",
-  "refclients",
-  "extractionAnnonceCarrier",
-  "integration",
-  "collas",
-  "integrationIodCarrier",
-  "impression",
-  "saisie1SAP2MGlots",
-  "saisie2MGlots2SAP",
-  "crIntgSaisie1SAP2MGlots",
-  "crIntgSaisie2MGlots2SAP"
-];
+export const DEFAULT_SECTION = "annonces";
 
-export const SIDEBAR_GROUPS = [
-  {
-    type: "group",
-    titleKey: "productionFiles",
-    sections: [
-      {
-        headingKey: "reception",
-        items: ["annonces", "scans", "annoncesCarrierIod"]
-      },
-      {
-        headingKey: "emission",
-        items: ["extractions", "refclients", "extractionAnnonceCarrier"]
-      }
-    ]
-  },
-  {
-    type: "list",
-    titleKey: "integrationReports",
-    items: ["integration", "collas", "integrationIodCarrier"]
-  },
-  {
-    type: "single",
-    titleKey: "printDocuments",
-    item: "impression"
-  },
-  {
-    type: "group",
-    titleKey: "mgLotsSap",
-    sections: [
-      {
-        headingKey: "interfaceFiles",
-        items: ["saisie1SAP2MGlots", "saisie2MGlots2SAP"]
-      },
-      {
-        headingKey: "integrationLogs",
-        items: ["crIntgSaisie1SAP2MGlots", "crIntgSaisie2MGlots2SAP"]
-      }
-    ]
-  }
-];
+export const SECTION_ORDER = ["annonces", "extractions"];
 
 export const SECTION_META = {
-  annonces: { labelKey: "annonces", showsBackup: true },
-  scans: { labelKey: "scans", showsBackup: false },
-  annoncesCarrierIod: { labelKey: "annoncesCarrierIod", showsBackup: true },
-  extractions: { labelKey: "extractions", showsBackup: false },
-  refclients: { labelKey: "refclients", showsBackup: false },
-  extractionAnnonceCarrier: {
-    labelKey: "extractionAnnonceCarrier",
-    showsBackup: false
+  annonces: {
+    labelKey: "annonces",
+    navLabelKey: "inbound",
+    navFallback: "Inbound",
+    showsBackup: true
   },
-  integration: { labelKey: "integration", showsBackup: false },
-  collas: { labelKey: "collas", showsBackup: false },
-  integrationIodCarrier: {
-    labelKey: "integrationIodCarrier",
-    showsBackup: false
-  },
-  impression: { labelKey: "impression", showsBackup: false },
-  saisie1SAP2MGlots: { labelKey: "saisie1SAP2MGlots", showsBackup: false },
-  saisie2MGlots2SAP: { labelKey: "saisie2MGlots2SAP", showsBackup: false },
-  crIntgSaisie1SAP2MGlots: {
-    labelKey: "crIntgSaisie1SAP2MGlots",
-    showsBackup: false
-  },
-  crIntgSaisie2MGlots2SAP: {
-    labelKey: "crIntgSaisie2MGlots2SAP",
+  extractions: {
+    labelKey: "extractions",
+    navLabelKey: "outbound",
+    navFallback: "Outbound",
     showsBackup: false
   }
 };

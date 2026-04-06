@@ -1,5 +1,7 @@
-const STORAGE_KEY = "documentation_new_notes_v1";
+const API_CANDIDATES = ["/api", "./api"];
 
+const homeButton = document.getElementById("home-button");
+const workspaceStatusEl = document.getElementById("workspace-status");
 const openEditorButton = document.getElementById("open-editor-button");
 const closeEditorButton = document.getElementById("close-editor-button");
 const editorPanel = document.getElementById("editor-panel");
@@ -20,27 +22,74 @@ const searchInput = document.getElementById("search-input");
 const noteCountEl = document.getElementById("note-count");
 const editorTitleEl = document.getElementById("editor-title");
 
-let notes = loadNotes();
+let notes = [];
 let searchTerm = "";
 let pendingMedia = null;
+let apiBaseUrl = "";
 
-function loadNotes() {
-  try {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
+function setWorkspaceStatus(message, type = "") {
+  if (!workspaceStatusEl) {
+    return;
+  }
 
-    if (!stored) {
-      return [];
-    }
+  workspaceStatusEl.textContent = message || "";
+  workspaceStatusEl.classList.remove("success", "error");
 
-    const parsed = JSON.parse(stored);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch (error) {
-    return [];
+  if (type) {
+    workspaceStatusEl.classList.add(type);
   }
 }
 
-function saveNotes(records) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+function setFormStatus(message, type = "") {
+  formStatusEl.textContent = message || "";
+  formStatusEl.classList.remove("success", "error");
+
+  if (type) {
+    formStatusEl.classList.add(type);
+  }
+}
+
+function createId() {
+  if (window.crypto && typeof window.crypto.randomUUID === "function") {
+    return window.crypto.randomUUID();
+  }
+
+  return `note-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeMedia(media, fallback = {}) {
+  const mediaName = String(media?.name || fallback.mediaName || "").trim();
+  const mediaType = String(media?.type || fallback.mediaType || "").trim();
+  const mediaDataUrl = String(media?.dataUrl || fallback.mediaDataUrl || "").trim();
+
+  if (!mediaName && !mediaType && !mediaDataUrl) {
+    return null;
+  }
+
+  return {
+    name: mediaName,
+    type: mediaType,
+    dataUrl: mediaDataUrl,
+  };
+}
+
+function normalizeNote(note) {
+  const media = normalizeMedia(note.media, {
+    mediaName: note.mediaName,
+    mediaType: note.mediaType,
+    mediaDataUrl: note.mediaDataUrl,
+  });
+
+  return {
+    id: String(note.id || "").trim() || createId(),
+    title: String(note.title || "").trim(),
+    tag: String(note.tag || "").trim(),
+    body: String(note.body || "").trim(),
+    media,
+    mediaName: media?.name || "",
+    createdAt: String(note.createdAt || "").trim() || new Date().toISOString(),
+    updatedAt: String(note.updatedAt || "").trim() || new Date().toISOString(),
+  };
 }
 
 function escapeHtml(value) {
@@ -56,7 +105,7 @@ function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
-    year: "numeric"
+    year: "numeric",
   });
 }
 
@@ -66,7 +115,7 @@ function formatDateTime(dateString) {
     month: "short",
     year: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
 }
 
@@ -82,14 +131,11 @@ function getVisibleNotes() {
   }
 
   const normalized = searchTerm.toLowerCase();
-  return sortNotes(notes).filter((note) => {
-    return [note.title, note.tag, note.body, note.mediaName]
-      .some((value) => String(value || "").toLowerCase().includes(normalized));
-  });
-}
-
-function setFormStatus(message) {
-  formStatusEl.textContent = message || "";
+  return sortNotes(notes).filter((note) =>
+    [note.title, note.tag, note.body, note.mediaName].some((value) =>
+      String(value || "").toLowerCase().includes(normalized)
+    )
+  );
 }
 
 function openEditor() {
@@ -184,7 +230,7 @@ async function handleMediaSelection() {
 
   if (selectedFile.size > 2.5 * 1024 * 1024) {
     noteMediaInput.value = "";
-    setFormStatus("Please upload a file smaller than 2.5 MB.");
+    setFormStatus("Please upload a file smaller than 2.5 MB.", "error");
     resetMediaPreview();
     return;
   }
@@ -193,7 +239,7 @@ async function handleMediaSelection() {
   pendingMedia = {
     name: selectedFile.name,
     type: selectedFile.type || "application/octet-stream",
-    dataUrl
+    dataUrl,
   };
   fillMediaPreview(pendingMedia);
   setFormStatus("");
@@ -202,9 +248,13 @@ async function handleMediaSelection() {
 function buildPdfHtml(note) {
   const mediaMarkup =
     note.media && note.media.type && note.media.type.startsWith("image/") && note.media.dataUrl
-      ? `<img src="${note.media.dataUrl}" alt="${escapeHtml(note.media.name)}" style="width:100%;max-height:380px;object-fit:contain;border-radius:18px;border:1px solid #d5e5f7;margin-top:18px;" />`
+      ? `<img src="${note.media.dataUrl}" alt="${escapeHtml(
+          note.media.name
+        )}" style="width:100%;max-height:380px;object-fit:contain;border-radius:18px;border:1px solid #d5e5f7;margin-top:18px;" />`
       : note.media && note.media.name
-        ? `<p style="margin-top:18px;font-weight:700;color:#0b4f92;">Attachment: ${escapeHtml(note.media.name)}</p>`
+        ? `<p style="margin-top:18px;font-weight:700;color:#0b4f92;">Attachment: ${escapeHtml(
+            note.media.name
+          )}</p>`
         : "";
 
   return `<!DOCTYPE html>
@@ -280,7 +330,7 @@ function downloadPdf(noteId) {
   const exportWindow = window.open("", "_blank", "width=900,height=900");
 
   if (!exportWindow) {
-    setFormStatus("Please allow pop-ups to export the note as PDF.");
+    setFormStatus("Please allow pop-ups to export the note as PDF.", "error");
     return;
   }
 
@@ -297,7 +347,7 @@ function renderNotes() {
     notesGrid.innerHTML = `
       <article class="empty-state">
         <h2>No notes found</h2>
-        <p>Create your first documentation page with the + button, or change the search text.</p>
+        <p>Create your first documentation page from Oracle-backed storage with the + button, or change the search text.</p>
       </article>
     `;
     return;
@@ -336,8 +386,12 @@ function renderNotes() {
           <div class="note-footer">
             <span class="note-date">Updated ${escapeHtml(formatDateTime(note.updatedAt))}</span>
             <div class="note-actions">
-              <button class="note-action" type="button" data-action="edit" data-id="${escapeHtml(note.id)}">Edit</button>
-              <button class="note-action" type="button" data-action="pdf" data-id="${escapeHtml(note.id)}">Download PDF</button>
+              <button class="note-action" type="button" data-action="edit" data-id="${escapeHtml(
+                note.id
+              )}">Edit</button>
+              <button class="note-action" type="button" data-action="pdf" data-id="${escapeHtml(
+                note.id
+              )}">Download PDF</button>
             </div>
           </div>
         </article>
@@ -346,7 +400,121 @@ function renderNotes() {
     .join("");
 }
 
-function saveNote(event) {
+async function requestApi(path, options = {}) {
+  if (!apiBaseUrl) {
+    throw new Error("Oracle workspace is not available.");
+  }
+
+  const response = await fetch(`${apiBaseUrl}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+    ...options,
+  });
+
+  const contentType = response.headers.get("content-type") || "";
+  const payload = contentType.includes("application/json") ? await response.json() : null;
+
+  if (!response.ok) {
+    throw new Error(payload?.message || payload?.error || "Oracle API request failed.");
+  }
+
+  return payload;
+}
+
+async function detectApi() {
+  for (const candidate of API_CANDIDATES) {
+    try {
+      const response = await fetch(`${candidate}/health`, { cache: "no-store" });
+
+      if (!response.ok) {
+        continue;
+      }
+
+      const payload = await response.json();
+
+      if (payload.storage !== "oracle" && payload.dbReady !== true) {
+        continue;
+      }
+
+      apiBaseUrl = candidate;
+
+      if (payload.apfHomeUrl && homeButton) {
+        homeButton.href = payload.apfHomeUrl;
+      }
+
+      setWorkspaceStatus("Connected to Oracle workspace.", "success");
+      return true;
+    } catch {
+      // Try the next candidate path.
+    }
+  }
+
+  apiBaseUrl = "";
+  setWorkspaceStatus("Oracle workspace is not reachable right now.", "error");
+  return false;
+}
+
+async function ensureApiReady() {
+  if (apiBaseUrl) {
+    return true;
+  }
+
+  return detectApi();
+}
+
+async function loadNotesFromApi() {
+  const hasApi = await detectApi();
+
+  if (!hasApi) {
+    notes = [];
+    renderNotes();
+    return;
+  }
+
+  try {
+    const payload = await requestApi("/documentation-notes");
+    notes = Array.isArray(payload.notes) ? payload.notes.map(normalizeNote) : [];
+    renderNotes();
+  } catch (error) {
+    notes = [];
+    renderNotes();
+    setWorkspaceStatus(error.message || "Unable to load documentation notes.", "error");
+  }
+}
+
+async function persistNote(nextRecord) {
+  const hasApi = await ensureApiReady();
+
+  if (!hasApi) {
+    throw new Error("Oracle workspace is not reachable right now.");
+  }
+
+  const isEditing = Boolean(noteIdInput.value);
+  const path = isEditing
+    ? `/documentation-notes/${encodeURIComponent(nextRecord.id)}`
+    : "/documentation-notes";
+  const method = isEditing ? "PUT" : "POST";
+
+  const payload = await requestApi(path, {
+    method,
+    body: JSON.stringify(nextRecord),
+  });
+
+  const savedNote = normalizeNote(payload.note);
+  const existingIndex = notes.findIndex((note) => note.id === savedNote.id);
+
+  if (existingIndex >= 0) {
+    notes[existingIndex] = savedNote;
+  } else {
+    notes.unshift(savedNote);
+  }
+
+  notes = sortNotes(notes);
+}
+
+async function saveNote(event) {
   event.preventDefault();
 
   const title = noteTitleInput.value.trim();
@@ -355,32 +523,34 @@ function saveNote(event) {
   const noteId = noteIdInput.value.trim();
 
   if (!title || !tag || !body) {
-    setFormStatus("Please complete the title, tag, and note content.");
+    setFormStatus("Please complete the title, tag, and note content.", "error");
     return;
   }
 
   const nextRecord = {
-    id: noteId || `note-${Date.now()}`,
+    id: noteId || createId(),
     title,
     tag,
     body,
     media: pendingMedia,
-    mediaName: pendingMedia?.name || "",
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
   };
 
-  if (noteId) {
-    notes = notes.map((note) => (note.id === noteId ? nextRecord : note));
-    setFormStatus("Documentation page updated.");
-  } else {
-    notes = [nextRecord, ...notes];
-    setFormStatus("Documentation page created.");
+  try {
+    await persistNote(nextRecord);
+    renderNotes();
+    resetForm();
+    closeEditor();
+    setFormStatus(
+      noteId ? "Documentation page updated." : "Documentation page created.",
+      "success"
+    );
+  } catch (error) {
+    setFormStatus(
+      error.message || "Unable to save the documentation page right now.",
+      "error"
+    );
   }
-
-  saveNotes(notes);
-  renderNotes();
-  resetForm();
-  closeEditor();
 }
 
 openEditorButton.addEventListener("click", beginCreateNote);
@@ -392,7 +562,7 @@ resetFormButton.addEventListener("click", resetForm);
 noteForm.addEventListener("submit", saveNote);
 noteMediaInput.addEventListener("change", () => {
   handleMediaSelection().catch(() => {
-    setFormStatus("Unable to read the uploaded media file.");
+    setFormStatus("Unable to read the uploaded media file.", "error");
     resetMediaPreview();
   });
 });
@@ -424,4 +594,9 @@ notesGrid.addEventListener("click", (event) => {
   }
 });
 
-renderNotes();
+setWorkspaceStatus("Connecting to Oracle workspace...");
+loadNotesFromApi().catch(() => {
+  notes = [];
+  renderNotes();
+  setWorkspaceStatus("Unable to initialize the documentation workspace.", "error");
+});

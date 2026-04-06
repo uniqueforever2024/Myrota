@@ -25,3 +25,6 @@ APF/EDI_CERTIFICATE/
 *.sln
 *.sw?
 .vercel
+.tmp/
+.env
+**/.env

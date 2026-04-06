@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { DEFAULT_SECTION } from "./config";
 import {
   parseHashRoute,
   createHashRoute,
-  countEntriesBySection,
   getEntriesForSection,
-  buildBulkTemplateCsv,
+  buildBulkTemplateWorkbook,
   downloadFile,
-  parseBulkImportCsv,
+  parseBulkImportFile,
   mergeBulkEntries
 } from "./utils";
 import { getText } from "./text";
@@ -50,12 +50,12 @@ function App() {
   const [searchValue, setSearchValue] = useState("");
   const [managerFilters, setManagerFilters] = useState({
     bu: route.bu || "fr",
-    type: route.section || "annonces"
+    type: route.section || DEFAULT_SECTION
   });
   const [formState, setFormState] = useState({
     id: "",
     bu: route.bu || "fr",
-    type: route.section || "annonces",
+    type: route.section || DEFAULT_SECTION,
     label: "",
     url: "",
     backup: ""
@@ -63,9 +63,9 @@ function App() {
 
   const { entries, loaded, actions } = useDirectoryData();
   const text = getText(route.lang);
-  const canManage = session?.role === "admin";
+  const canManage = Boolean(session);
   const currentBu = route.bu || "fr";
-  const currentSection = route.section || "";
+  const currentSection = route.page === "directory" ? route.section || DEFAULT_SECTION : "";
 
   useEffect(() => {
     const handleHashChange = () => setRoute(parseHashRoute(window.location.hash));
@@ -107,11 +107,6 @@ function App() {
       setManagerOpen(false);
     }
   }, [canManage, managerOpen]);
-
-  const sectionCounts = useMemo(
-    () => countEntriesBySection(entries, currentBu),
-    [entries, currentBu]
-  );
 
   const visibleEntries = useMemo(() => {
     const selectedEntries = currentSection
@@ -218,12 +213,12 @@ function App() {
 
     setManagerFilters({
       bu: route.bu || "fr",
-      type: route.section || "annonces"
+      type: route.section || DEFAULT_SECTION
     });
     setFormState({
       id: "",
       bu: route.bu || "fr",
-      type: route.section || "annonces",
+      type: route.section || DEFAULT_SECTION,
       label: "",
       url: "",
       backup: ""
@@ -263,7 +258,7 @@ function App() {
     } catch (error) {
       setManagerError(
         text.savePartnerError ||
-          "Unable to save the partner right now. Please make sure the local save service is running."
+          "Unable to save the partner right now. Please make sure the Oracle save service is running."
       );
     } finally {
       setManagerSaving(false);
@@ -285,7 +280,7 @@ function App() {
     } catch (error) {
       setManagerError(
         text.removePartnerError ||
-          "Unable to remove the partner right now. Please make sure the local save service is running."
+          "Unable to remove the partner right now. Please make sure the Oracle save service is running."
       );
     } finally {
       setManagerSaving(false);
@@ -305,20 +300,20 @@ function App() {
   };
 
   const downloadBulkTemplate = () => {
-    const csvContent = buildBulkTemplateCsv({
+    const workbookBuffer = buildBulkTemplateWorkbook({
       bu: formState.bu || route.bu || "fr",
-      type: formState.type || route.section || "annonces"
+      type: formState.type || route.section || DEFAULT_SECTION
     });
 
     downloadFile(
-      `partner-bulk-template-${formState.bu || "fr"}-${formState.type || "annonces"}.csv`,
-      csvContent,
-      "text/csv;charset=utf-8"
+      `partner-bulk-template-${formState.bu || "fr"}-${formState.type || DEFAULT_SECTION}.xlsx`,
+      workbookBuffer,
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    setManagerNotice(
+      text.bulkTemplateReady || "Excel template downloaded."
     );
     setManagerError("");
-    setManagerNotice(
-      text.bulkTemplateReady || "Bulk template downloaded."
-    );
   };
 
   const importBulkFile = async (file) => {
@@ -331,8 +326,7 @@ function App() {
     setManagerNotice("");
 
     try {
-      const fileText = await file.text();
-      const importedEntries = parseBulkImportCsv(fileText);
+      const importedEntries = await parseBulkImportFile(file);
       const mergedResult = mergeBulkEntries(entries, importedEntries);
 
       if (mergedResult.added === 0 && mergedResult.updated === 0) {
@@ -364,7 +358,7 @@ function App() {
     } catch (error) {
       setManagerError(
         text.bulkImportError ||
-          "Unable to import the bulk file right now. Please check the template and try again."
+          "Unable to import the bulk file right now. Please check the Excel template and try again."
       );
     } finally {
       setManagerSaving(false);
@@ -400,16 +394,18 @@ function App() {
         navigate={navigate}
         canManage={canManage}
         entries={entries}
-        sectionCounts={sectionCounts}
         visibleEntries={visibleEntries}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
         currentBu={currentBu}
         currentSection={currentSection}
         openManagerForCurrentContext={openManagerForCurrentContext}
+        downloadBulkTemplate={downloadBulkTemplate}
+        importBulkFile={importBulkFile}
+        managerNotice={managerNotice}
+        managerError={managerError}
+        managerSaving={managerSaving}
         editEntry={editEntry}
-        managerOpen={managerOpen}
-        setManagerOpen={setManagerOpen}
         goToMyRotaHome={goToMyRotaHome}
         logout={logout}
       />

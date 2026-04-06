@@ -39,14 +39,14 @@ function DirectoryManagerModal({
               disabled={managerSaving}
               onClick={downloadBulkTemplate}
             >
-              {t("downloadTemplate", "Download template")}
+              {t("downloadTemplate", "Download Excel template")}
             </button>
 
             <label className="secondary-button import-button">
-              {t("importBulk", "Import bulk")}
+              {t("importBulk", "Import Excel")}
               <input
                 type="file"
-                accept=".csv,text/csv"
+                accept=".xlsx,.xls,.csv,text/csv"
                 disabled={managerSaving}
                 onChange={(event) => {
                   const [file] = Array.from(event.target.files || []);
