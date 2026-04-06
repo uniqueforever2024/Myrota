@@ -1490,25 +1490,6 @@ export default function App() {
     }
 
     const dateText = today.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' });
-    const todayShiftDetails = (EMPLOYEES || []).flatMap((emp, empIndex) => {
-      const { leaveApplied, realShift } = getDayAssignment({
-        year,
-        monthName,
-        weekIndex,
-        dayIndex,
-        defaultShift,
-        emp,
-        empIndex,
-      });
-      if (LEAVE_CODES.includes(leaveApplied)) return [];
-      if (!(realShift === 'A' || realShift === 'C')) return [];
-      const friendly = realShift === 'A' ? 'morning shift' : 'night shift';
-      return [{
-        key: emp,
-        message: `${emp} will do the ${friendly} today (Shift ${realShift}).`,
-      }];
-    });
-
     const statusItemClass = "rounded-xl border border-emerald-100/15 bg-white/[0.06] px-4 py-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl";
 
     return (
@@ -1552,16 +1533,6 @@ export default function App() {
             <div className={statusItemClass}>
               {wsAvailable.map((emp) => (
                 <div key={`WS-${emp}`} className="text-sm font-semibold">{emp} is available on weekend</div>
-              ))}
-            </div>
-          )}
-
-          {todayShiftDetails.length > 0 && (
-            <div className={statusItemClass}>
-              {todayShiftDetails.map(({ key, message }) => (
-                <div key={key} className="text-sm font-semibold">
-                  {message}
-                </div>
               ))}
             </div>
           )}
