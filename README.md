@@ -1,16 +1,81 @@
-# React + Vite
+# MyRota
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+MyRota is the internal rota and operations dashboard for the LC EDI support team. The app combines rota planning, live status views, audit logging, Jira dashboards, and quick links to supporting microsites in a single React + Vite frontend deployed on Netlify.
 
-Currently, two official plugins are available:
+## Core Capabilities
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Portal login for the main dashboard entry experience.
+- Firestore-backed rota management with admin editing.
+- Firestore-backed admin password for Edit ROTA using `users/admin`.
+- Audit logs for rota changes.
+- Jira dashboard and issue drill-downs via Netlify Functions.
+- Quick access links to APF, SFTP, Certificate, and Documentation microsites.
+- Local certificate-expiry reminders stored in browser storage.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Frontend: React 19, Vite, Tailwind-style utility classes, custom CSS
+- Data store: Firebase Firestore
+- Server-side integration: Netlify Functions
+- External system: Jira REST API
+- Build pipeline: Vite build plus microsite copy step from `scripts/copy-microsites.mjs`
 
-## Expanding the ESLint configuration
+## Key Paths
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- Main application: `src/App.jsx`
+- Firebase setup: `src/firebase.js`
+- Jira frontend client: `src/jira/`
+- Netlify Jira backend: `netlify/functions/jiraDashboard.js`
+- Netlify Jira helpers: `netlify/jira/`
+- Build copy script: `scripts/copy-microsites.mjs`
+- Presentation deck: `docs/myrota-architecture-presentation.html`
+- Full documentation: `docs/myrota-complete-documentation.html`
+
+## Firestore Data Used By The App
+
+- `users/{username}`: employee master records and admin password in `users/admin`
+- `rota/master`: central rota assignments
+- `logs/{logId}`: audit history of rota changes
+- `config/admin`: optional backup location for admin configuration
+
+## Local Development
+
+```bash
+npm install
+npm run dev
+```
+
+To run the Jira-backed Netlify function locally:
+
+```bash
+npm run netlify:dev
+```
+
+## Production Build
+
+```bash
+npm run build
+```
+
+The build command:
+
+1. Builds the React app into `dist/`
+2. Copies APF-related microsites into the Netlify publish folder
+
+## Jira Environment Variables
+
+Netlify Functions expect:
+
+- `JIRA_BASE_URL`
+- `JIRA_USERNAME`
+- `JIRA_PASSWORD`
+- `JIRA_DASHBOARD_USE_MOCK` for preview-mode mocking
+
+## Documentation Pack
+
+- Presentation deck: `docs/myrota-architecture-presentation.html`
+- Full documentation: `docs/myrota-complete-documentation.html`
+
+Both documents include the watermark:
+
+`Author: Akash Satapathy on behalf of HCL`

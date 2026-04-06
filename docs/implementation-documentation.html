@@ -528,7 +528,7 @@
         <ul>
           <li>Admin mode is entered by clicking the MyRota logo.</li>
           <li>When already in admin mode, clicking the logo returns the user to home.</li>
-          <li>The admin password is read from <code>config/admin</code> first and falls back to <code>users/admin</code>.</li>
+          <li>The admin password is read from <code>users/admin</code> first and falls back to <code>config/admin</code>.</li>
           <li>Only admin users can change rota data or see the change log page.</li>
         </ul>
 
@@ -604,7 +604,7 @@
             <tr>
               <td><code>users/{username}</code></td>
               <td>User master data</td>
-              <td>Document IDs provide employee names. <code>position</code> controls display order. Admin fallback password may also exist in <code>users/admin</code>.</td>
+              <td>Document IDs provide employee names. <code>position</code> controls display order. The <code>users/admin</code> document is the primary source for the Edit ROTA admin password.</td>
             </tr>
             <tr>
               <td><code>rota/master</code></td>
@@ -614,7 +614,7 @@
             <tr>
               <td><code>config/admin</code></td>
               <td>Admin configuration</td>
-              <td>Primary source for admin password and related configuration.</td>
+              <td>Optional backup location for admin configuration if <code>users/admin</code> is unavailable.</td>
             </tr>
             <tr>
               <td><code>logs/{logId}</code></td>

@@ -103,19 +103,6 @@ export const fetchJiraSummary = () => requestJiraDashboard({ mode: "summary" });
 export const fetchJiraIssueDetails = (view) =>
   requestJiraDashboard({ mode: "details", view });
 
-export const formatJiraDate = (value, options = {}) => {
-  if (!value) return "Not scheduled";
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) return String(value);
-
-  return parsed.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    ...options,
-  });
-};
-
 export const formatJiraDateTime = (value) => {
   if (!value) return "Not updated";
   const parsed = new Date(value);

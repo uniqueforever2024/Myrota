@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyRota Complete Documentation</title>
+    <style>
+      :root {
+        --bg: #eff5ff;
+        --paper: #ffffff;
+        --ink: #10213b;
+        --muted: #55657f;
+        --line: #d9e3f3;
+        --brand: #1d4ed8;
+        --accent: #0f766e;
+        --gold: #a16207;
+        --rose: #be123c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(180deg, #eef4ff 0%, #f8fbff 100%);
+        color: var(--ink);
+        font-family: "Segoe UI", Calibri, Arial, sans-serif;
+        line-height: 1.55;
+      }
+
+      body {
+        padding: 28px;
+      }
+
+      .watermark {
+        position: fixed;
+        right: 18px;
+        bottom: 14px;
+        color: rgba(16, 33, 59, 0.28);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        pointer-events: none;
+      }
+
+      .document {
+        max-width: 1100px;
+        margin: 0 auto;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+      }
+
+      .hero {
+        padding: 40px 46px 30px;
+        background:
+          radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 28%),
+          radial-gradient(circle at top right, rgba(34, 197, 94, 0.12), transparent 24%),
+          linear-gradient(135deg, #0f172a 0%, #13346f 58%, #17438d 100%);
+        color: #f8fbff;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.08);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 18px 0 8px;
+        font-size: 38px;
+        line-height: 1.12;
+      }
+
+      .hero p {
+        max-width: 860px;
+        margin: 0;
+        color: rgba(248, 251, 255, 0.88);
+        font-size: 16px;
+      }
+
+      .meta-grid,
+      .two-col,
+      .three-col {
+        display: grid;
+        gap: 16px;
+      }
+
+      .meta-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin-top: 24px;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .three-col {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .meta-card,
+      .card {
+        padding: 16px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.08);
+      }
+
+      .meta-card .label {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: rgba(248, 251, 255, 0.68);
+      }
+
+      .meta-card .value {
+        margin-top: 6px;
+        font-size: 15px;
+        font-weight: 700;
+        color: #ffffff;
+      }
+
+      .content {
+        padding: 34px 46px 46px;
+      }
+
+      h2 {
+        margin: 34px 0 12px;
+        font-size: 28px;
+      }
+
+      h3 {
+        margin: 0 0 10px;
+        font-size: 19px;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        font-size: 15px;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .toc {
+        padding: 20px 22px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: #f8fbff;
+      }
+
+      .toc a {
+        color: var(--brand);
+        text-decoration: none;
+      }
+
+      .callout {
+        padding: 18px 20px;
+        border-left: 4px solid var(--brand);
+        border-radius: 16px;
+        background: #eff6ff;
+      }
+
+      .callout.warn {
+        border-left-color: var(--gold);
+        background: #fff7e8;
+      }
+
+      .callout.danger {
+        border-left-color: var(--rose);
+        background: #fff1f5;
+      }
+
+      .diagram {
+        margin-top: 18px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: #f8fbff;
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 14px;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        background: #edf4ff;
+      }
+
+      .section {
+        margin-top: 28px;
+      }
+
+      @media print {
+        body {
+          padding: 0;
+          background: #eff5ff;
+        }
+
+        .document {
+          border-radius: 0;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+    <article class="document">
+      <header class="hero">
+        <div class="eyebrow">Technical Documentation</div>
+        <h1>MyRota Complete Application Documentation</h1>
+        <p>
+          This document explains the MyRota application end to end: business purpose, runtime
+          architecture, repository structure, Firestore data model, Jira integration, deployment
+          pipeline, admin access logic, and maintenance guidance.
+        </p>
+        <div class="meta-grid">
+          <div class="meta-card">
+            <div class="label">Prepared For</div>
+            <div class="value">HCL / LC EDI</div>
+          </div>
+          <div class="meta-card">
+            <div class="label">Project</div>
+            <div class="value">MyRota</div>
+          </div>
+          <div class="meta-card">
+            <div class="label">Version Date</div>
+            <div class="value">April 6, 2026</div>
+          </div>
+          <div class="meta-card">
+            <div class="label">Primary Author</div>
+            <div class="value">Akash Satapathy</div>
+          </div>
+        </div>
+      </header>
+      <main class="content">
+        <section class="toc section">
+          <h3>Contents</h3>
+          <ul>
+            <li><a href="#overview">1. Product Overview</a></li>
+            <li><a href="#architecture">2. Runtime Architecture</a></li>
+            <li><a href="#modules">3. Module And Folder Breakdown</a></li>
+            <li><a href="#data-model">4. Firestore Data Model</a></li>
+            <li><a href="#flows">5. End-To-End Flows</a></li>
+            <li><a href="#deployment">6. Build And Deployment</a></li>
+            <li><a href="#operations">7. Security, Operations, And Maintenance</a></li>
+            <li><a href="#cleanup">8. Cleanup Completed In This Update</a></li>
+          </ul>
+        </section>
+
+        <section class="section" id="overview">
+          <h2>1. Product Overview</h2>
+          <div class="two-col">
+            <div class="card">
+              <h3>Purpose</h3>
+              <p>
+                MyRota is the central team dashboard for rota management and daily operational
+                visibility. It combines rota views, leave visibility, admin-controlled editing,
+                audit logs, Jira monitoring, and quick navigation to related microsites.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Main User Groups</h3>
+              <ul>
+                <li>Portal users who need view access to operational information</li>
+                <li>Admin users who maintain rota data and review logs</li>
+                <li>Jira consumers who need issue counts and drill-down lists</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="three-col" style="margin-top: 16px;">
+            <div class="card">
+              <h3>Frontend Stack</h3>
+              <p>React 19, Vite, custom CSS, lazy-loaded Jira screens.</p>
+            </div>
+            <div class="card">
+              <h3>Data Layer</h3>
+              <p>Firestore for users, rota data, admin credentials, and audit logs.</p>
+            </div>
+            <div class="card">
+              <h3>Integration Layer</h3>
+              <p>Netlify Functions proxy Jira API access using server-side environment variables.</p>
+            </div>
+          </div>
+
+          <div class="callout" style="margin-top: 18px;">
+            The application has two separate access concepts:
+            the landing-page portal login for entering the app, and the Edit ROTA admin login
+            used from inside the app when the MyRota logo is clicked.
+          </div>
+        </section>
+
+        <section class="section" id="architecture">
+          <h2>2. Runtime Architecture</h2>
+          <p>
+            The main application is a client-rendered React single-page app. Firestore handles
+            real-time operational data. Jira data is fetched through a Netlify serverless function
+            so Jira credentials remain off the client.
+          </p>
+
+          <div class="diagram">
+            <svg viewBox="0 0 1120 420" aria-label="System architecture diagram">
+              <rect x="52" y="130" width="178" height="110" rx="22" fill="#dbeafe" stroke="#1d4ed8" />
+              <text x="141" y="170" fill="#10213b" text-anchor="middle" font-size="24" font-weight="700">Users</text>
+              <text x="141" y="198" fill="#42536d" text-anchor="middle" font-size="15">portal, viewer, admin</text>
+
+              <rect x="302" y="88" width="286" height="192" rx="24" fill="#eff6ff" stroke="#2563eb" stroke-width="3" />
+              <text x="445" y="132" fill="#10213b" text-anchor="middle" font-size="28" font-weight="800">MyRota Frontend</text>
+              <text x="445" y="166" fill="#42536d" text-anchor="middle" font-size="15">src/App.jsx</text>
+              <text x="445" y="192" fill="#42536d" text-anchor="middle" font-size="15">dashboard, report, notifications, logs</text>
+              <text x="445" y="218" fill="#42536d" text-anchor="middle" font-size="15">Jira panels and microsite links</text>
+
+              <rect x="654" y="56" width="182" height="98" rx="22" fill="#ecfeff" stroke="#0f766e" />
+              <text x="745" y="92" fill="#10213b" text-anchor="middle" font-size="24" font-weight="700">Firestore</text>
+              <text x="745" y="120" fill="#42536d" text-anchor="middle" font-size="15">users, rota, logs, config</text>
+
+              <rect x="654" y="196" width="182" height="98" rx="22" fill="#fff7ed" stroke="#c2410c" />
+              <text x="745" y="232" fill="#10213b" text-anchor="middle" font-size="24" font-weight="700">Netlify Function</text>
+              <text x="745" y="260" fill="#42536d" text-anchor="middle" font-size="15">jiraDashboard</text>
+
+              <rect x="894" y="196" width="174" height="98" rx="22" fill="#fff1f5" stroke="#be123c" />
+              <text x="981" y="232" fill="#10213b" text-anchor="middle" font-size="24" font-weight="700">Jira API</text>
+              <text x="981" y="260" fill="#42536d" text-anchor="middle" font-size="15">search + issue details</text>
+
+              <line x1="230" y1="185" x2="302" y2="185" stroke="#1d4ed8" stroke-width="4" />
+              <polygon points="302,185 288,177 288,193" fill="#1d4ed8" />
+
+              <line x1="588" y1="130" x2="654" y2="105" stroke="#0f766e" stroke-width="4" />
+              <polygon points="654,105 639,99 642,115" fill="#0f766e" />
+
+              <line x1="588" y1="224" x2="654" y2="245" stroke="#c2410c" stroke-width="4" />
+              <polygon points="654,245 639,236 637,252" fill="#c2410c" />
+
+              <line x1="836" y1="245" x2="894" y2="245" stroke="#be123c" stroke-width="4" />
+              <polygon points="894,245 880,237 880,253" fill="#be123c" />
+            </svg>
+          </div>
+
+          <div class="callout warn" style="margin-top: 18px;">
+            Jira is intentionally not called directly from the browser. The Netlify function protects
+            Jira credentials and standardizes request and response handling.
+          </div>
+        </section>
+
+        <section class="section" id="modules">
+          <h2>3. Module And Folder Breakdown</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Responsibility</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>src/App.jsx</td>
+                <td>Main application shell and page orchestration</td>
+                <td>Contains landing login, admin mode, dashboard, report, notifications, logs, and home composition</td>
+              </tr>
+              <tr>
+                <td>src/firebase.js</td>
+                <td>Firebase bootstrapping</td>
+                <td>Initializes Firestore with long-polling-friendly settings for browser reliability</td>
+              </tr>
+              <tr>
+                <td>src/jira/api.js</td>
+                <td>Frontend Jira API client</td>
+                <td>Resolves Netlify function endpoint and formats Jira timestamps</td>
+              </tr>
+              <tr>
+                <td>src/jira/JiraDashboardSection.jsx</td>
+                <td>Home-page Jira summary cards</td>
+                <td>Loads summary counters and recent change request cards</td>
+              </tr>
+              <tr>
+                <td>src/jira/JiraIssuesPage.jsx</td>
+                <td>Drill-down page for Jira issue lists</td>
+                <td>Shows selected view data returned by the Netlify function</td>
+              </tr>
+              <tr>
+                <td>netlify/functions/jiraDashboard.js</td>
+                <td>Serverless Jira endpoint</td>
+                <td>Supports summary and detail modes</td>
+              </tr>
+              <tr>
+                <td>netlify/jira/</td>
+                <td>Jira configuration and view definitions</td>
+                <td>Owns JQL strings, response normalization, and environment-variable validation</td>
+              </tr>
+              <tr>
+                <td>scripts/copy-microsites.mjs</td>
+                <td>Build-time microsite publishing</td>
+                <td>Copies APF, SFTP, Certificate, and Documentation site assets into `dist/`</td>
+              </tr>
+              <tr>
+                <td>APF/</td>
+                <td>Microsites and legacy site assets</td>
+                <td>Published selectively but not part of the main React runtime path</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section" id="data-model">
+          <h2>4. Firestore Data Model</h2>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Data Stored</th>
+                <th>Usage In App</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>users/{username}</td>
+                <td>Employee metadata and sort position</td>
+                <td>Used to build and order the employee list shown in the rota views</td>
+              </tr>
+              <tr>
+                <td>users/admin</td>
+                <td>Admin password field</td>
+                <td>Primary source for Edit ROTA admin login verification</td>
+              </tr>
+              <tr>
+                <td>rota/master</td>
+                <td>Central keyed rota map</td>
+                <td>Stores shift and leave assignments for each day and employee slot</td>
+              </tr>
+              <tr>
+                <td>logs/{logId}</td>
+                <td>Audit history</td>
+                <td>Stores admin edits and supports the Logs page</td>
+              </tr>
+              <tr>
+                <td>config/admin</td>
+                <td>Optional backup admin settings</td>
+                <td>Secondary fallback if `users/admin` is not available</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout" style="margin-top: 18px;">
+            The current admin login path for Edit ROTA is designed to read the password from
+            `users/admin` first, which aligns with the live Firestore document structure.
+          </div>
+        </section>
+
+        <section class="section" id="flows">
+          <h2>5. End-To-End Flows</h2>
+          <div class="two-col">
+            <div class="card">
+              <h3>Portal Login Flow</h3>
+              <ul>
+                <li>User lands on the portal login screen.</li>
+                <li>App validates the default portal credentials stored in the frontend constants.</li>
+                <li>Session state is written into browser storage.</li>
+                <li>User is taken to the home page and navigation is unlocked.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Edit ROTA Admin Flow</h3>
+              <ul>
+                <li>User clicks the MyRota logo from inside the app.</li>
+                <li>Admin modal opens and requests the rota edit password.</li>
+                <li>App fetches `users/admin` from Firestore.</li>
+                <li>Password match enables admin state, rota editing, and logs access.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="diagram">
+            <svg viewBox="0 0 1120 360" aria-label="Admin flow diagram">
+              <rect x="58" y="118" width="162" height="92" rx="20" fill="#dbeafe" stroke="#1d4ed8" />
+              <text x="139" y="154" fill="#10213b" text-anchor="middle" font-size="22" font-weight="700">Click Logo</text>
+              <text x="139" y="181" fill="#42536d" text-anchor="middle" font-size="14">inside app</text>
+
+              <rect x="286" y="118" width="190" height="92" rx="20" fill="#ecfeff" stroke="#0f766e" />
+              <text x="381" y="154" fill="#10213b" text-anchor="middle" font-size="22" font-weight="700">Admin Modal</text>
+              <text x="381" y="181" fill="#42536d" text-anchor="middle" font-size="14">enter password</text>
+
+              <rect x="544" y="118" width="190" height="92" rx="20" fill="#fff7ed" stroke="#c2410c" />
+              <text x="639" y="154" fill="#10213b" text-anchor="middle" font-size="22" font-weight="700">Read Firestore</text>
+              <text x="639" y="181" fill="#42536d" text-anchor="middle" font-size="14">users/admin</text>
+
+              <rect x="804" y="78" width="230" height="82" rx="18" fill="#ecfdf5" stroke="#15803d" />
+              <text x="919" y="111" fill="#10213b" text-anchor="middle" font-size="20" font-weight="700">Password Matches</text>
+              <text x="919" y="136" fill="#42536d" text-anchor="middle" font-size="14">admin mode enabled</text>
+
+              <rect x="804" y="190" width="230" height="82" rx="18" fill="#fff1f5" stroke="#be123c" />
+              <text x="919" y="223" fill="#10213b" text-anchor="middle" font-size="20" font-weight="700">Password Fails</text>
+              <text x="919" y="248" fill="#42536d" text-anchor="middle" font-size="14">show error message</text>
+
+              <line x1="220" y1="164" x2="286" y2="164" stroke="#1d4ed8" stroke-width="4" />
+              <polygon points="286,164 272,156 272,172" fill="#1d4ed8" />
+              <line x1="476" y1="164" x2="544" y2="164" stroke="#0f766e" stroke-width="4" />
+              <polygon points="544,164 530,156 530,172" fill="#0f766e" />
+              <line x1="734" y1="150" x2="804" y2="119" stroke="#15803d" stroke-width="4" />
+              <polygon points="804,119 789,116 795,130" fill="#15803d" />
+              <line x1="734" y1="178" x2="804" y2="231" stroke="#be123c" stroke-width="4" />
+              <polygon points="804,231 788,227 797,216" fill="#be123c" />
+            </svg>
+          </div>
+
+          <div class="two-col" style="margin-top: 18px;">
+            <div class="card">
+              <h3>Jira Summary Flow</h3>
+              <ul>
+                <li>Home page reaches the Jira section.</li>
+                <li>Frontend calls the Netlify Jira function in summary mode.</li>
+                <li>Function runs predefined JQL queries and returns normalized counts.</li>
+                <li>User sees counters and recent issues.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Jira Detail Flow</h3>
+              <ul>
+                <li>User clicks a Jira card or queue.</li>
+                <li>Frontend calls the same function in detail mode with `view` id.</li>
+                <li>Function returns full issue rows for that specific JQL view.</li>
+                <li>User can open the issue directly in Jira.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="deployment">
+          <h2>6. Build And Deployment</h2>
+          <div class="three-col">
+            <div class="card">
+              <h3>Step 1</h3>
+              <p>`npm run build` produces the main Vite frontend output in `dist/`.</p>
+            </div>
+            <div class="card">
+              <h3>Step 2</h3>
+              <p>`scripts/copy-microsites.mjs` copies selected APF, SFTP, Certificate, and Documentation assets into `dist/`.</p>
+            </div>
+            <div class="card">
+              <h3>Step 3</h3>
+              <p>Netlify serves `dist/` and hosts the Jira serverless endpoint from `netlify/functions`.</p>
+            </div>
+          </div>
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th>System</th>
+                <th>Configuration</th>
+                <th>Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Netlify</td>
+                <td>`publish = "dist"` and `functions = "netlify/functions"`</td>
+                <td>Hosts frontend and serverless endpoints</td>
+              </tr>
+              <tr>
+                <td>Jira Function</td>
+                <td>`JIRA_BASE_URL`, `JIRA_USERNAME`, `JIRA_PASSWORD`</td>
+                <td>Allows secure server-side Jira access</td>
+              </tr>
+              <tr>
+                <td>Preview behavior</td>
+                <td>`JIRA_DASHBOARD_USE_MOCK`</td>
+                <td>Enables mock Jira data for preview or branch deployments</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="section" id="operations">
+          <h2>7. Security, Operations, And Maintenance</h2>
+          <div class="two-col">
+            <div class="card">
+              <h3>Operational Notes</h3>
+              <ul>
+                <li>Portal login is browser-side and separate from Edit ROTA admin mode.</li>
+                <li>Admin edit access depends on the `users/admin` Firestore document.</li>
+                <li>Rota edits are logged into `logs/*` for traceability.</li>
+                <li>Certificate reminders are stored locally in browser storage, not Firestore.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Recommended Maintenance Boundary</h3>
+              <ul>
+                <li>Main ownership zone: `src/`, `src/jira/`, `netlify/`, `scripts/`, `docs/`</li>
+                <li>Change APF folders only when those microsites are intentionally updated.</li>
+                <li>Keep generated assets and unrelated legacy folders out of routine cleanup work.</li>
+                <li>Validate with a production build after each meaningful change.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="callout warn" style="margin-top: 18px;">
+            The portal login credentials are still defined inside frontend code. For stronger security,
+            the next improvement would be moving that gate to a server-backed or identity-backed model.
+          </div>
+        </section>
+
+        <section class="section" id="cleanup">
+          <h2>8. Cleanup Completed In This Update</h2>
+          <ul>
+            <li>Confirmed the repository is pushed to `origin/main`.</li>
+            <li>Removed the unused Firebase Auth export from `src/firebase.js`.</li>
+            <li>Removed the unused Jira date helper from `src/jira/api.js`.</li>
+            <li>Simplified the fixed dark-mode flag in `src/App.jsx`.</li>
+            <li>Replaced the placeholder README with project-specific repository guidance.</li>
+            <li>Added a presentation deck and a complete documentation document under `docs/`.</li>
+          </ul>
+
+          <div class="callout danger" style="margin-top: 18px;">
+            This cleanup was intentionally limited to the primary MyRota application path.
+            Large APF folders, generated outputs, and unrelated legacy files were not mass-removed
+            because doing so would be high risk without a dedicated microsite-by-microsite validation pass.
+          </div>
+        </section>
+      </main>
+    </article>
+  </body>
+</html>

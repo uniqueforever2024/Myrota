@@ -570,11 +570,10 @@ export default function App() {
 
     return { YEARS, defaultYear, defaultMonth };
   });
-  const prefersDark = true; // default dark
+  const isDarkMode = true;
   const [page, setPage] = useState("home"); // home | dashboard | logs | report | notifications | jira-details
   const [isAuthenticated, setIsAuthenticated] = useState(initialPortalSession.isAuthenticated);
   const [isAdmin, setIsAdmin] = useState(initialPortalSession.isAdmin);
-  const [darkMode] = useState(prefersDark);
   const [loginForm, setLoginForm] = useState({
     username: PORTAL_DEFAULT_USERNAME,
     password: "",
@@ -1925,7 +1924,7 @@ export default function App() {
   );
 
   return (
-    <div className={darkMode ? "dark" : ""}>
+    <div className={isDarkMode ? "dark" : ""}>
       <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
         {!isAuthenticated ? (
           PortalLoginPage

@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyRota Architecture Presentation</title>
+    <style>
+      :root {
+        --bg: #08111f;
+        --panel: #0f1c31;
+        --panel-soft: #132644;
+        --card: rgba(255, 255, 255, 0.06);
+        --line: rgba(148, 163, 184, 0.25);
+        --text: #e8f1ff;
+        --muted: #b9c7df;
+        --brand: #60a5fa;
+        --brand-2: #22c55e;
+        --brand-3: #f59e0b;
+        --rose: #fb7185;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background:
+          radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 30%),
+          radial-gradient(circle at top right, rgba(34, 197, 94, 0.14), transparent 26%),
+          linear-gradient(180deg, #06101d 0%, #08111f 100%);
+        color: var(--text);
+        font-family: "Segoe UI", Calibri, Arial, sans-serif;
+      }
+
+      body {
+        padding: 28px;
+      }
+
+      .deck {
+        display: grid;
+        gap: 28px;
+      }
+
+      .slide {
+        position: relative;
+        min-height: 920px;
+        padding: 42px 46px 70px;
+        border: 1px solid var(--line);
+        border-radius: 28px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+          linear-gradient(135deg, rgba(12, 23, 40, 0.96), rgba(10, 18, 31, 0.98));
+        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+        overflow: hidden;
+      }
+
+      .slide::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(circle at 18% 14%, rgba(96, 165, 250, 0.12), transparent 20%),
+          radial-gradient(circle at 82% 18%, rgba(34, 197, 94, 0.1), transparent 18%),
+          radial-gradient(circle at 80% 84%, rgba(245, 158, 11, 0.12), transparent 20%);
+        pointer-events: none;
+      }
+
+      .slide > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        padding: 7px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--brand);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2 {
+        margin: 16px 0 10px;
+        line-height: 1.08;
+      }
+
+      h1 {
+        font-size: 48px;
+      }
+
+      h2 {
+        font-size: 34px;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.6;
+      }
+
+      ul {
+        margin: 16px 0 0;
+        padding-left: 22px;
+      }
+
+      .lead {
+        max-width: 980px;
+        font-size: 19px;
+      }
+
+      .hero-grid,
+      .two-col,
+      .three-col {
+        display: grid;
+        gap: 18px;
+        margin-top: 26px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1.3fr 0.9fr;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .three-col {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .card {
+        padding: 20px 22px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 22px;
+        background: var(--card);
+        backdrop-filter: blur(12px);
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 20px;
+      }
+
+      .metric {
+        display: grid;
+        gap: 6px;
+      }
+
+      .metric .label {
+        color: #8fb4ef;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .metric .value {
+        font-size: 22px;
+        font-weight: 800;
+        color: #ffffff;
+      }
+
+      .diagram {
+        margin-top: 22px;
+        padding: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        background: rgba(8, 15, 28, 0.72);
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+      }
+
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+        font-size: 15px;
+      }
+
+      .table th,
+      .table td {
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        background: rgba(96, 165, 250, 0.14);
+        color: #f8fbff;
+        letter-spacing: 0.04em;
+      }
+
+      .watermark {
+        position: absolute;
+        right: 26px;
+        bottom: 18px;
+        color: rgba(232, 241, 255, 0.5);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      @media print {
+        body {
+          padding: 0;
+          background: #08111f;
+        }
+
+        .deck {
+          gap: 0;
+        }
+
+        .slide {
+          min-height: auto;
+          border-radius: 0;
+          page-break-after: always;
+          break-after: page;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="deck">
+      <section class="slide">
+        <div class="eyebrow">Architecture Presentation</div>
+        <h1>MyRota<br />Application Overview</h1>
+        <p class="lead">
+          A central operations dashboard for rota planning, team visibility, Jira tracking,
+          and linked LC EDI microsites. This deck explains how the application is assembled,
+          how data moves through it, and how it is deployed.
+        </p>
+
+        <div class="hero-grid">
+          <div class="card">
+            <h3>Presentation Scope</h3>
+            <ul>
+              <li>Product purpose and user journeys</li>
+              <li>Frontend, Firestore, and Netlify architecture</li>
+              <li>Admin login and Jira integration flows</li>
+              <li>Data model, deployment, and support handoff</li>
+            </ul>
+          </div>
+          <div class="card">
+            <div class="metric">
+              <div class="label">Frontend</div>
+              <div class="value">React + Vite</div>
+            </div>
+            <div class="metric" style="margin-top: 18px;">
+              <div class="label">Primary Data Store</div>
+              <div class="value">Firestore</div>
+            </div>
+            <div class="metric" style="margin-top: 18px;">
+              <div class="label">Backend Integration</div>
+              <div class="value">Netlify Functions + Jira REST</div>
+            </div>
+            <div class="metric" style="margin-top: 18px;">
+              <div class="label">Prepared On</div>
+              <div class="value">April 6, 2026</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 1120 360" aria-label="MyRota headline architecture">
+            <defs>
+              <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#60a5fa" />
+                <stop offset="100%" stop-color="#22c55e" />
+              </linearGradient>
+            </defs>
+            <rect x="36" y="110" width="190" height="120" rx="24" fill="#142742" stroke="#7dd3fc" />
+            <text x="131" y="154" fill="#ffffff" text-anchor="middle" font-size="24" font-weight="700">Users</text>
+            <text x="131" y="188" fill="#c9d8ef" text-anchor="middle" font-size="16">Portal, admin, viewers</text>
+
+            <rect x="310" y="80" width="250" height="180" rx="28" fill="#12233b" stroke="url(#g1)" stroke-width="3" />
+            <text x="435" y="125" fill="#ffffff" text-anchor="middle" font-size="28" font-weight="800">MyRota SPA</text>
+            <text x="435" y="160" fill="#c9d8ef" text-anchor="middle" font-size="16">src/App.jsx + Jira modules</text>
+            <text x="435" y="190" fill="#c9d8ef" text-anchor="middle" font-size="16">Dashboard, reports, logs, notifications</text>
+            <text x="435" y="220" fill="#c9d8ef" text-anchor="middle" font-size="16">Microsite quick links</text>
+
+            <rect x="670" y="36" width="198" height="102" rx="22" fill="#132944" stroke="#60a5fa" />
+            <text x="769" y="72" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">Firestore</text>
+            <text x="769" y="102" fill="#dce8fb" text-anchor="middle" font-size="15">users, rota, logs, config</text>
+
+            <rect x="670" y="168" width="198" height="102" rx="22" fill="#142c41" stroke="#22c55e" />
+            <text x="769" y="204" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">Netlify Function</text>
+            <text x="769" y="234" fill="#dce8fb" text-anchor="middle" font-size="15">jiraDashboard endpoint</text>
+
+            <rect x="922" y="168" width="160" height="102" rx="22" fill="#312314" stroke="#f59e0b" />
+            <text x="1002" y="204" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="700">Jira REST</text>
+            <text x="1002" y="234" fill="#fce7b2" text-anchor="middle" font-size="15">Live issue data</text>
+
+            <line x1="226" y1="170" x2="310" y2="170" stroke="#b8cff8" stroke-width="4" />
+            <polygon points="310,170 296,162 296,178" fill="#b8cff8" />
+
+            <line x1="560" y1="115" x2="670" y2="88" stroke="#7dd3fc" stroke-width="4" />
+            <polygon points="670,88 656,82 659,97" fill="#7dd3fc" />
+
+            <line x1="560" y1="200" x2="670" y2="219" stroke="#86efac" stroke-width="4" />
+            <polygon points="670,219 656,210 654,226" fill="#86efac" />
+
+            <line x1="868" y1="219" x2="922" y2="219" stroke="#facc15" stroke-width="4" />
+            <polygon points="922,219 908,211 908,227" fill="#facc15" />
+          </svg>
+        </div>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Business View</div>
+        <h2>What The Application Delivers</h2>
+        <div class="three-col">
+          <div class="card">
+            <h3>Operational Visibility</h3>
+            <p>
+              Gives the team a shared view of rota coverage, leave status, weekly staffing,
+              and current employee availability from one place.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Controlled Editing</h3>
+            <p>
+              Keeps rota editing inside admin mode while regular viewers stay in read-only
+              mode. Admin credentials for Edit ROTA come from Firestore `users/admin`.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Operations Workspace</h3>
+            <p>
+              Pulls supporting tools into the same experience through Jira panels and quick
+              links to APF, SFTP, Certificate, and Documentation microsites.
+            </p>
+          </div>
+        </div>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>User Type</th>
+              <th>Entry Point</th>
+              <th>Main Permissions</th>
+              <th>Primary Screens</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Portal user</td>
+              <td>Landing login</td>
+              <td>View dashboard, reports, notifications, microsites</td>
+              <td>Home, Dashboard, Report, Notifications</td>
+            </tr>
+            <tr>
+              <td>Admin editor</td>
+              <td>MyRota logo - Admin modal</td>
+              <td>Edit rota, preserve leave logic, view logs</td>
+              <td>Dashboard, Logs</td>
+            </tr>
+            <tr>
+              <td>Jira consumer</td>
+              <td>Home dashboard panels</td>
+              <td>Open summaries and drill into issue lists</td>
+              <td>Jira Summary, Jira Detail view</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">System Design</div>
+        <h2>Runtime Architecture</h2>
+        <p class="lead">
+          The application is primarily a browser-side React app. It reads and writes rota data
+          directly with Firestore, while Jira data is proxied through a Netlify Function so
+          browser clients never need direct Jira credentials.
+        </p>
+
+        <div class="diagram">
+          <svg viewBox="0 0 1120 520" aria-label="Runtime architecture diagram">
+            <rect x="36" y="66" width="205" height="120" rx="24" fill="#152945" stroke="#7dd3fc" />
+            <text x="138" y="111" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Browser Client</text>
+            <text x="138" y="144" fill="#d9e6fa" text-anchor="middle" font-size="16">Portal login session</text>
+            <text x="138" y="170" fill="#d9e6fa" text-anchor="middle" font-size="16">Certificate alerts in localStorage</text>
+
+            <rect x="318" y="36" width="300" height="190" rx="28" fill="#12213a" stroke="#60a5fa" stroke-width="3" />
+            <text x="468" y="81" fill="#fff" text-anchor="middle" font-size="28" font-weight="800">React Frontend</text>
+            <text x="468" y="118" fill="#d8e7ff" text-anchor="middle" font-size="16">App shell, dashboard, report, notifications</text>
+            <text x="468" y="145" fill="#d8e7ff" text-anchor="middle" font-size="16">Admin modal, logs, Jira summary, Jira detail</text>
+            <text x="468" y="172" fill="#d8e7ff" text-anchor="middle" font-size="16">Quick links to APF microsites</text>
+
+            <rect x="318" y="270" width="300" height="180" rx="28" fill="#12253a" stroke="#22c55e" stroke-width="3" />
+            <text x="468" y="314" fill="#fff" text-anchor="middle" font-size="28" font-weight="800">Firestore</text>
+            <text x="468" y="348" fill="#ddf9ea" text-anchor="middle" font-size="16">users/* drives employee list and admin password</text>
+            <text x="468" y="374" fill="#ddf9ea" text-anchor="middle" font-size="16">rota/master stores day assignments</text>
+            <text x="468" y="400" fill="#ddf9ea" text-anchor="middle" font-size="16">logs/* stores audit trail</text>
+
+            <rect x="706" y="76" width="202" height="110" rx="24" fill="#2c2113" stroke="#f59e0b" />
+            <text x="807" y="116" fill="#fff" text-anchor="middle" font-size="23" font-weight="700">Netlify Function</text>
+            <text x="807" y="146" fill="#ffe8bc" text-anchor="middle" font-size="16">/.netlify/functions/jiraDashboard</text>
+
+            <rect x="938" y="76" width="150" height="110" rx="24" fill="#3b1324" stroke="#fb7185" />
+            <text x="1013" y="116" fill="#fff" text-anchor="middle" font-size="23" font-weight="700">Jira API</text>
+            <text x="1013" y="146" fill="#ffd8e1" text-anchor="middle" font-size="16">Issue search + details</text>
+
+            <rect x="706" y="260" width="382" height="120" rx="26" fill="#142742" stroke="#93c5fd" />
+            <text x="897" y="302" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Microsites Published With Main App</text>
+            <text x="897" y="334" fill="#dce8fb" text-anchor="middle" font-size="16">APF_NEW, DOCUMENTATION_NEW, CERTIFICATE_NEW/public, SFTP_NEW files</text>
+
+            <line x1="241" y1="126" x2="318" y2="126" stroke="#c5d8ff" stroke-width="4" />
+            <polygon points="318,126 303,118 303,134" fill="#c5d8ff" />
+
+            <line x1="468" y1="226" x2="468" y2="270" stroke="#86efac" stroke-width="4" />
+            <polygon points="468,270 460,255 476,255" fill="#86efac" />
+
+            <line x1="618" y1="132" x2="706" y2="132" stroke="#facc15" stroke-width="4" />
+            <polygon points="706,132 692,124 692,140" fill="#facc15" />
+
+            <line x1="908" y1="132" x2="938" y2="132" stroke="#fda4af" stroke-width="4" />
+            <polygon points="938,132 924,124 924,140" fill="#fda4af" />
+
+            <line x1="618" y1="328" x2="706" y2="320" stroke="#93c5fd" stroke-width="4" />
+            <polygon points="706,320 691,313 692,329" fill="#93c5fd" />
+          </svg>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <h3>Why Firestore is used directly</h3>
+            <p>
+              Rota data, employee order, and audit logs are all small enough to work well with
+              real-time Firestore listeners from the frontend.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Why Jira is proxied</h3>
+            <p>
+              Jira credentials stay on the server side in Netlify environment variables, keeping
+              the browser free of direct secrets.
+            </p>
+          </div>
+        </div>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Data Model</div>
+        <h2>Firestore Collections And Responsibilities</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Collection / Document</th>
+              <th>Purpose</th>
+              <th>How The App Uses It</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>users/{username}</td>
+              <td>Employee master data and ordering metadata</td>
+              <td>Used to build the employee list; `users/admin.password` is used for Edit ROTA admin mode</td>
+            </tr>
+            <tr>
+              <td>rota/master</td>
+              <td>Central rota document</td>
+              <td>Stores keyed assignments like year-month-week-employee-day with shift and leave data</td>
+            </tr>
+            <tr>
+              <td>logs/{logId}</td>
+              <td>Audit trail</td>
+              <td>Written whenever admin updates rota cells; shown on the Logs page</td>
+            </tr>
+            <tr>
+              <td>config/admin</td>
+              <td>Optional backup admin configuration</td>
+              <td>Still supported as a secondary fallback if `users/admin` is unavailable</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="diagram">
+          <svg viewBox="0 0 1120 360" aria-label="Firestore data model diagram">
+            <rect x="42" y="102" width="180" height="126" rx="24" fill="#152945" stroke="#7dd3fc" />
+            <text x="132" y="145" fill="#fff" text-anchor="middle" font-size="26" font-weight="700">users</text>
+            <text x="132" y="176" fill="#dbe8fc" text-anchor="middle" font-size="16">employee documents</text>
+            <text x="132" y="200" fill="#dbe8fc" text-anchor="middle" font-size="16">includes admin</text>
+
+            <rect x="292" y="52" width="250" height="96" rx="20" fill="#132944" stroke="#60a5fa" />
+            <text x="417" y="92" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">users/admin</text>
+            <text x="417" y="120" fill="#dce8fb" text-anchor="middle" font-size="16">password field for edit access</text>
+
+            <rect x="292" y="204" width="250" height="96" rx="20" fill="#12253a" stroke="#22c55e" />
+            <text x="417" y="244" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">users/{employee}</text>
+            <text x="417" y="272" fill="#ddf9ea" text-anchor="middle" font-size="16">position controls display order</text>
+
+            <rect x="620" y="52" width="210" height="96" rx="20" fill="#2a2313" stroke="#f59e0b" />
+            <text x="725" y="92" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">rota/master</text>
+            <text x="725" y="120" fill="#ffe8bc" text-anchor="middle" font-size="16">all day assignments</text>
+
+            <rect x="620" y="204" width="210" height="96" rx="20" fill="#331424" stroke="#fb7185" />
+            <text x="725" y="244" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">logs/*</text>
+            <text x="725" y="272" fill="#ffd8e1" text-anchor="middle" font-size="16">admin audit history</text>
+
+            <rect x="894" y="128" width="184" height="96" rx="20" fill="#152945" stroke="#c4b5fd" />
+            <text x="986" y="168" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">config/admin</text>
+            <text x="986" y="196" fill="#e8ddff" text-anchor="middle" font-size="16">optional fallback</text>
+
+            <line x1="222" y1="165" x2="292" y2="100" stroke="#7dd3fc" stroke-width="4" />
+            <polygon points="292,100 286,116 275,104" fill="#7dd3fc" />
+
+            <line x1="222" y1="165" x2="292" y2="252" stroke="#7dd3fc" stroke-width="4" />
+            <polygon points="292,252 277,245 289,235" fill="#7dd3fc" />
+
+            <line x1="542" y1="100" x2="620" y2="100" stroke="#facc15" stroke-width="4" />
+            <polygon points="620,100 606,92 606,108" fill="#facc15" />
+
+            <line x1="542" y1="252" x2="620" y2="252" stroke="#fb7185" stroke-width="4" />
+            <polygon points="620,252 606,244 606,260" fill="#fb7185" />
+
+            <line x1="830" y1="100" x2="894" y2="160" stroke="#c4b5fd" stroke-width="4" />
+            <polygon points="894,160 878,154 889,143" fill="#c4b5fd" />
+          </svg>
+        </div>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Access Flow</div>
+        <h2>Portal Login And Edit ROTA Admin Flow</h2>
+        <div class="two-col">
+          <div class="card">
+            <h3>Portal Access</h3>
+            <ul>
+              <li>Landing page asks for the default portal credentials.</li>
+              <li>Successful login creates a local browser session.</li>
+              <li>User enters the main app and can view dashboard features.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Edit ROTA Admin Access</h3>
+            <ul>
+              <li>Clicking the MyRota logo opens the admin modal.</li>
+              <li>The app reads `users/admin` from Firestore.</li>
+              <li>If the entered password matches, editing and logs are enabled.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 1120 420" aria-label="Admin login sequence">
+            <text x="100" y="40" fill="#8fb4ef" font-size="18" font-weight="700">User</text>
+            <text x="356" y="40" fill="#8fb4ef" font-size="18" font-weight="700">MyRota UI</text>
+            <text x="650" y="40" fill="#8fb4ef" font-size="18" font-weight="700">Firestore</text>
+            <text x="896" y="40" fill="#8fb4ef" font-size="18" font-weight="700">Result</text>
+
+            <line x1="110" y1="56" x2="110" y2="370" stroke="#4b5f82" stroke-width="3" />
+            <line x1="390" y1="56" x2="390" y2="370" stroke="#4b5f82" stroke-width="3" />
+            <line x1="680" y1="56" x2="680" y2="370" stroke="#4b5f82" stroke-width="3" />
+            <line x1="930" y1="56" x2="930" y2="370" stroke="#4b5f82" stroke-width="3" />
+
+            <rect x="40" y="78" width="140" height="42" rx="12" fill="#132944" stroke="#7dd3fc" />
+            <text x="110" y="104" fill="#fff" text-anchor="middle" font-size="16" font-weight="700">Click logo</text>
+            <line x1="180" y1="99" x2="390" y2="99" stroke="#c5d8ff" stroke-width="4" />
+            <polygon points="390,99 376,91 376,107" fill="#c5d8ff" />
+
+            <rect x="292" y="138" width="196" height="42" rx="12" fill="#12253a" stroke="#22c55e" />
+            <text x="390" y="164" fill="#fff" text-anchor="middle" font-size="16" font-weight="700">Open admin modal</text>
+
+            <rect x="292" y="204" width="196" height="42" rx="12" fill="#2a2313" stroke="#f59e0b" />
+            <text x="390" y="230" fill="#fff" text-anchor="middle" font-size="16" font-weight="700">Read users/admin</text>
+            <line x1="488" y1="225" x2="680" y2="225" stroke="#facc15" stroke-width="4" />
+            <polygon points="680,225 666,217 666,233" fill="#facc15" />
+
+            <rect x="582" y="270" width="196" height="42" rx="12" fill="#331424" stroke="#fb7185" />
+            <text x="680" y="296" fill="#fff" text-anchor="middle" font-size="16" font-weight="700">Return password field</text>
+            <line x1="680" y1="312" x2="390" y2="312" stroke="#fda4af" stroke-width="4" />
+            <polygon points="390,312 404,304 404,320" fill="#fda4af" />
+
+            <rect x="292" y="334" width="196" height="42" rx="12" fill="#132944" stroke="#7dd3fc" />
+            <text x="390" y="360" fill="#fff" text-anchor="middle" font-size="16" font-weight="700">Compare input</text>
+
+            <line x1="488" y1="355" x2="930" y2="355" stroke="#86efac" stroke-width="4" />
+            <polygon points="930,355 916,347 916,363" fill="#86efac" />
+            <text x="794" y="341" fill="#ddf9ea" text-anchor="middle" font-size="15">Match: enable admin mode</text>
+
+            <line x1="488" y1="373" x2="930" y2="373" stroke="#fda4af" stroke-width="4" />
+            <polygon points="930,373 916,365 916,381" fill="#fda4af" />
+            <text x="804" y="403" fill="#ffd8e1" text-anchor="middle" font-size="15">No match: show incorrect password</text>
+          </svg>
+        </div>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Integration Layer</div>
+        <h2>Jira Dashboard Flow</h2>
+        <div class="two-col">
+          <div class="card">
+            <h3>Frontend behavior</h3>
+            <p>
+              Home page lazily loads the Jira dashboard panel. Clicking a metric opens a dedicated
+              issue-detail screen backed by the same Netlify function.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Backend behavior</h3>
+            <p>
+              The Netlify function validates environment variables, runs Jira JQL queries, normalizes
+              issue payloads, and returns summary or detail JSON to the frontend.
+            </p>
+          </div>
+        </div>
+
+        <div class="diagram">
+          <svg viewBox="0 0 1120 350" aria-label="Jira data flow diagram">
+            <rect x="60" y="118" width="210" height="110" rx="22" fill="#152945" stroke="#7dd3fc" />
+            <text x="165" y="160" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Home / Detail UI</text>
+            <text x="165" y="188" fill="#dce8fb" text-anchor="middle" font-size="16">Jira cards and issue list</text>
+
+            <rect x="350" y="118" width="228" height="110" rx="22" fill="#2a2313" stroke="#f59e0b" />
+            <text x="464" y="160" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Netlify Function</text>
+            <text x="464" y="188" fill="#ffe8bc" text-anchor="middle" font-size="16">jiraDashboard handler</text>
+
+            <rect x="662" y="118" width="192" height="110" rx="22" fill="#331424" stroke="#fb7185" />
+            <text x="758" y="160" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Jira Client</text>
+            <text x="758" y="188" fill="#ffd8e1" text-anchor="middle" font-size="16">JQL + auth header</text>
+
+            <rect x="918" y="118" width="142" height="110" rx="22" fill="#12253a" stroke="#22c55e" />
+            <text x="989" y="160" fill="#fff" text-anchor="middle" font-size="24" font-weight="700">Jira API</text>
+            <text x="989" y="188" fill="#ddf9ea" text-anchor="middle" font-size="16">Search results</text>
+
+            <line x1="270" y1="173" x2="350" y2="173" stroke="#c5d8ff" stroke-width="4" />
+            <polygon points="350,173 336,165 336,181" fill="#c5d8ff" />
+
+            <line x1="578" y1="173" x2="662" y2="173" stroke="#facc15" stroke-width="4" />
+            <polygon points="662,173 648,165 648,181" fill="#facc15" />
+
+            <line x1="854" y1="173" x2="918" y2="173" stroke="#fda4af" stroke-width="4" />
+            <polygon points="918,173 904,165 904,181" fill="#fda4af" />
+
+            <text x="458" y="86" fill="#8fb4ef" text-anchor="middle" font-size="16">Summary mode or details mode</text>
+            <text x="760" y="86" fill="#8fb4ef" text-anchor="middle" font-size="16">Uses JIRA_BASE_URL, JIRA_USERNAME, JIRA_PASSWORD</text>
+          </svg>
+        </div>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Delivery Model</div>
+        <h2>Build And Deployment Pipeline</h2>
+        <div class="diagram">
+          <svg viewBox="0 0 1120 360" aria-label="Build and deployment pipeline">
+            <rect x="44" y="126" width="182" height="102" rx="22" fill="#152945" stroke="#7dd3fc" />
+            <text x="135" y="164" fill="#fff" text-anchor="middle" font-size="22" font-weight="700">Local Repo</text>
+            <text x="135" y="194" fill="#dbe8fc" text-anchor="middle" font-size="15">React, Netlify, docs, microsites</text>
+
+            <rect x="284" y="126" width="182" height="102" rx="22" fill="#12253a" stroke="#22c55e" />
+            <text x="375" y="164" fill="#fff" text-anchor="middle" font-size="22" font-weight="700">npm run build</text>
+            <text x="375" y="194" fill="#ddf9ea" text-anchor="middle" font-size="15">Vite production bundle</text>
+
+            <rect x="524" y="126" width="226" height="102" rx="22" fill="#2a2313" stroke="#f59e0b" />
+            <text x="637" y="164" fill="#fff" text-anchor="middle" font-size="22" font-weight="700">copy-microsites.mjs</text>
+            <text x="637" y="194" fill="#ffe8bc" text-anchor="middle" font-size="15">Publishes APF and SFTP assets into dist</text>
+
+            <rect x="810" y="126" width="132" height="102" rx="22" fill="#331424" stroke="#fb7185" />
+            <text x="876" y="164" fill="#fff" text-anchor="middle" font-size="22" font-weight="700">dist/</text>
+            <text x="876" y="194" fill="#ffd8e1" text-anchor="middle" font-size="15">Netlify publish folder</text>
+
+            <rect x="980" y="126" width="100" height="102" rx="22" fill="#132944" stroke="#60a5fa" />
+            <text x="1030" y="164" fill="#fff" text-anchor="middle" font-size="22" font-weight="700">Netlify</text>
+            <text x="1030" y="194" fill="#dce8fb" text-anchor="middle" font-size="15">Live site</text>
+
+            <line x1="226" y1="177" x2="284" y2="177" stroke="#c5d8ff" stroke-width="4" />
+            <polygon points="284,177 270,169 270,185" fill="#c5d8ff" />
+
+            <line x1="466" y1="177" x2="524" y2="177" stroke="#86efac" stroke-width="4" />
+            <polygon points="524,177 510,169 510,185" fill="#86efac" />
+
+            <line x1="750" y1="177" x2="810" y2="177" stroke="#facc15" stroke-width="4" />
+            <polygon points="810,177 796,169 796,185" fill="#facc15" />
+
+            <line x1="942" y1="177" x2="980" y2="177" stroke="#fda4af" stroke-width="4" />
+            <polygon points="980,177 966,169 966,185" fill="#fda4af" />
+          </svg>
+        </div>
+
+        <div class="three-col">
+          <div class="card">
+            <h3>Publish folder</h3>
+            <p>
+              Netlify serves `dist/` and exposes the Jira function from `netlify/functions`.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Branch flow</h3>
+            <p>
+              Source code is committed to `main`, pushed to GitHub, and deployed by Netlify.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Operational dependency</h3>
+            <p>
+              Live Jira dashboards require correctly configured Netlify environment variables.
+            </p>
+          </div>
+        </div>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+
+      <section class="slide">
+        <div class="eyebrow">Repository View</div>
+        <h2>Main Folders And Ownership</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Path</th>
+              <th>Role</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>src/</td>
+              <td>Main MyRota frontend</td>
+              <td>Primary working area for dashboard, admin mode, reports, notifications, and Jira UI</td>
+            </tr>
+            <tr>
+              <td>src/jira/</td>
+              <td>Jira frontend integration</td>
+              <td>API client, summary panel, and issue detail page</td>
+            </tr>
+            <tr>
+              <td>netlify/functions/</td>
+              <td>Serverless endpoints</td>
+              <td>Current production Jira backend entrypoint</td>
+            </tr>
+            <tr>
+              <td>netlify/jira/</td>
+              <td>Jira query helpers</td>
+              <td>JQL definitions, payload shaping, environment handling</td>
+            </tr>
+            <tr>
+              <td>scripts/</td>
+              <td>Build support</td>
+              <td>Copies microsites into the publish folder after the Vite build</td>
+            </tr>
+            <tr>
+              <td>APF/</td>
+              <td>Linked microsites and legacy assets</td>
+              <td>Kept outside the main app code path and published selectively</td>
+            </tr>
+            <tr>
+              <td>docs/</td>
+              <td>Documentation set</td>
+              <td>Contains this presentation and the detailed technical document</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="card" style="margin-top: 22px;">
+          <h3>Recommended maintenance boundary</h3>
+          <p>
+            Treat `src/`, `src/jira/`, `netlify/`, `scripts/`, and `docs/` as the primary MyRota
+            ownership zone. The large APF folders and generated assets should be changed only when
+            those microsites or generated outputs are intentionally updated.
+          </p>
+        </div>
+
+        <div class="watermark">Author: Akash Satapathy on behalf of HCL</div>
+      </section>
+    </main>
+  </body>
+</html>

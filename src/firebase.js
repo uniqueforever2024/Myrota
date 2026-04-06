@@ -2,7 +2,6 @@
 
 import { initializeApp } from "firebase/app";
 import { initializeFirestore } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
 
 // ✅ Your Firebase configuration
 const firebaseConfig = {
@@ -25,4 +24,3 @@ export const db = initializeFirestore(app, {
   experimentalAutoDetectLongPolling: true,
   useFetchStreams: false,
 });
-export const auth = getAuth(app);
