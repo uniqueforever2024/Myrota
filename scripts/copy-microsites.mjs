@@ -12,10 +12,6 @@ const directoryCopies = [
     target: join(distRoot, "APF", "APF_NEW", "build"),
   },
   {
-    source: join(repoRoot, "APF", "DOCUMENTATION_NEW"),
-    target: join(distRoot, "APF", "DOCUMENTATION_NEW"),
-  },
-  {
     source: join(repoRoot, "APF", "CERTIFICATE_NEW", "public"),
     target: join(distRoot, "APF", "CERTIFICATE_NEW", "public"),
   },
@@ -54,4 +50,26 @@ for (const relativePath of sftpFiles) {
   cpSync(source, target, { recursive: true });
 }
 
-console.log(`Copied ${directoryCopies.length + 1} microsites into ${distRoot}`);
+const documentationTarget = join(distRoot, "APF", "DOCUMENTATION_NEW");
+rmSync(documentationTarget, { recursive: true, force: true });
+
+const documentationFiles = [
+  "index.html",
+  "styles.css",
+  "app.js",
+  "favicon.svg",
+];
+
+for (const relativePath of documentationFiles) {
+  const source = join(repoRoot, "APF", "DOCUMENTATION_NEW", relativePath);
+  const target = join(documentationTarget, relativePath);
+
+  if (!existsSync(source)) {
+    throw new Error(`Documentation publish file is missing: ${source}`);
+  }
+
+  mkdirSync(dirname(target), { recursive: true });
+  cpSync(source, target, { recursive: true });
+}
+
+console.log(`Copied ${directoryCopies.length + 2} microsites into ${distRoot}`);

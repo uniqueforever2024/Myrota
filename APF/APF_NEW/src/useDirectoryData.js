@@ -20,7 +20,6 @@ function resolveApiBase() {
 
 const API_BASE = resolveApiBase();
 const API_URL = `${API_BASE}/directory-data`;
-const FALLBACK_DATA_PATH = `${process.env.PUBLIC_URL || ""}/APF_NEW.json`;
 
 export default function useDirectoryData() {
   const [seedEntries, setSeedEntries] = useState([]);
@@ -39,25 +38,10 @@ export default function useDirectoryData() {
       try {
         const response = await fetch(API_URL);
 
-        if (response.ok) {
-          const dataFile = await response.json();
-
-          if (!active) {
-            return;
-          }
-
-          const parsedSeed = parseEntries(dataFile);
-          setSeedEntries(parsedSeed);
-          setEntries(parsedSeed);
-          setLoaded(true);
-          return;
+        if (!response.ok) {
+          throw new Error(`Directory API failed with status ${response.status}`);
         }
-      } catch (error) {
-        // Fall back to the bundled JSON if the local API is unavailable.
-      }
 
-      try {
-        const response = await fetch(FALLBACK_DATA_PATH);
         const dataFile = await response.json();
 
         if (!active) {

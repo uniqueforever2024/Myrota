@@ -4,10 +4,10 @@ React migration of the legacy APF HTML/CSS website.
 
 ## What this includes
 
-- Self-contained connection data owned by `public/APF_NEW.json`
+- Oracle-backed APF directory data loaded through the shared `/api` workspace endpoints
 - React navigation for BU, language, sections, and content views
 - In-app directory manager to add, edit, and remove entries instantly
-- Local file persistence with backup creation
+- Bulk template download/import for partner updates
 - Central target connection defaults for production paths
 
 ## Available scripts
@@ -22,6 +22,6 @@ Builds the app for production.
 
 ## Notes
 
-- The local save API writes updates to `public/APF_NEW.json` and keeps backups in `APF_BACKUPS`.
+- The APF UI reads and writes live data through the Oracle workspace API.
 - Default production-path links resolve to `http://frb2bcdu01.groupecat.com:8000`.
 - Full URLs to other hosts are preserved as-is.
