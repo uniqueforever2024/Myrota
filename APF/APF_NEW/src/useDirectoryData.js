@@ -1,8 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { normalizeEntry } from "./utils";
 
-const API_BASE = process.env.REACT_APP_DIRECTORY_API || "http://localhost:3001";
-const API_URL = `${API_BASE}/api/directory-data`;
+function resolveApiBase() {
+  if (process.env.REACT_APP_DIRECTORY_API) {
+    return process.env.REACT_APP_DIRECTORY_API;
+  }
+
+  if (typeof window !== "undefined") {
+    const hostname = String(window.location.hostname || "").toLowerCase();
+    const isLocalHost = hostname === "localhost" || hostname === "127.0.0.1";
+
+    if (isLocalHost && window.location.port === "3000") {
+      return "http://localhost:3001/api";
+    }
+  }
+
+  return "/api";
+}
+
+const API_BASE = resolveApiBase();
+const API_URL = `${API_BASE}/directory-data`;
 const FALLBACK_DATA_PATH = `${process.env.PUBLIC_URL || ""}/APF_NEW.json`;
 
 export default function useDirectoryData() {
