@@ -10,11 +10,9 @@
 // 6) A shift = Blue, C shift = Yellow. Sticky employee column readable on mobile.
 // -----------------------------------------------------------------------------------
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
 import myrotaLogo from "./myrotalogo.svg";
 import "./App.css";
-import { JiraDashboardSection } from "./jira/JiraDashboardSection";
-import { JiraIssuesPage } from "./jira/JiraIssuesPage";
 
 const BrandLogo = ({ className = "h-10 w-10" }) => (
   <img src={myrotaLogo} alt="MyRota logo" className={className} />
@@ -31,10 +29,6 @@ import {
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
-
-// Excel export
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 
 const PORTAL_LOGIN_STORAGE_KEY = "myrota.portal.login.v1";
 const PORTAL_SHARED_LOGIN_STORAGE_KEY = "myrota.portal.login.shared.v1";
@@ -191,6 +185,37 @@ const AppGridIcon = () => (
     <rect x="4" y="14" width="6" height="6" rx="1.5" />
     <rect x="14" y="14" width="6" height="6" rx="1.5" />
   </svg>
+);
+
+const LazyJiraDashboardSection = lazy(() =>
+  import("./jira/JiraDashboardSection").then((module) => ({
+    default: module.JiraDashboardSection,
+  }))
+);
+
+const LazyJiraIssuesPage = lazy(() =>
+  import("./jira/JiraIssuesPage").then((module) => ({
+    default: module.JiraIssuesPage,
+  }))
+);
+
+const JiraPanelFallback = ({ detail = false }) => (
+  <section className="space-y-6 rounded-[34px] border border-amber-200/20 bg-gradient-to-br from-amber-300/[0.10] via-yellow-200/[0.08] to-orange-300/[0.06] p-6 shadow-[0_30px_90px_rgba(245,158,11,0.16)] backdrop-blur-2xl md:p-7">
+    <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div className="space-y-3">
+        <div className="h-4 w-32 animate-pulse rounded-full bg-white/10" />
+        <div className="h-8 w-56 animate-pulse rounded-full bg-white/10" />
+        <div className="h-4 w-80 max-w-full animate-pulse rounded-full bg-white/10" />
+      </div>
+      <div className="h-10 w-32 animate-pulse rounded-full bg-white/10" />
+    </div>
+
+    <div className={`grid gap-4 ${detail ? "" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
+      <div className="h-36 animate-pulse rounded-3xl bg-white/10" />
+      <div className="h-36 animate-pulse rounded-3xl bg-white/10" />
+      <div className="h-36 animate-pulse rounded-3xl bg-white/10" />
+    </div>
+  </section>
 );
 
 const TransferIcon = () => (
@@ -499,7 +524,20 @@ function generateWeeks(year, month) {
 
 /* ------------------ MAIN APP ------------------ */
 export default function App() {
-  const initialPortalSession = readPortalLoginSession();
+  const [initialPortalSession] = useState(() => readPortalLoginSession());
+  const [initialCalendarContext] = useState(() => {
+    const now = new Date();
+    const istNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    const currentYear = istNow.getFullYear();
+    const currentMonthName = FULL_YEAR_MONTHS[istNow.getMonth()];
+    const YEARS = getAvailableYears(istNow);
+    const defaultYear = YEARS.includes(currentYear) ? currentYear : YEARS[0];
+    const defaultMonth = getMonthsForYear(defaultYear).includes(currentMonthName)
+      ? currentMonthName
+      : getMonthsForYear(defaultYear)[0];
+
+    return { YEARS, defaultYear, defaultMonth };
+  });
   const prefersDark = true; // default dark
   const [page, setPage] = useState("home"); // home | dashboard | logs | report | notifications | jira-details
   const [isAuthenticated, setIsAuthenticated] = useState(initialPortalSession.isAuthenticated);
@@ -513,9 +551,12 @@ export default function App() {
   const [certificateExpiryAlerts, setCertificateExpiryAlerts] = useState(() =>
     readCertificateExpiryAlerts()
   );
+  const [isExportingReport, setIsExportingReport] = useState(false);
+  const [shouldLoadHomeJira, setShouldLoadHomeJira] = useState(false);
 
   // Simple nav history stack to support Back
   const navStackRef = useRef(["home"]);
+  const homeJiraSectionRef = useRef(null);
   useEffect(() => {
     const stack = navStackRef.current;
     if (stack[stack.length - 1] !== page) {
@@ -548,15 +589,7 @@ export default function App() {
   }, []);
 
   // Auto-set dropdown defaults (IST)
-  const now = new Date();
-  const istNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-  const currentYear = istNow.getFullYear();
-  const currentMonthName = FULL_YEAR_MONTHS[istNow.getMonth()];
-  const YEARS = getAvailableYears(istNow);
-  const defaultYear = YEARS.includes(currentYear) ? currentYear : YEARS[0];
-  const defaultMonth = getMonthsForYear(defaultYear).includes(currentMonthName)
-    ? currentMonthName
-    : getMonthsForYear(defaultYear)[0];
+  const { YEARS, defaultYear, defaultMonth } = initialCalendarContext;
 
   const [selectedYear, setSelectedYear] = useState(defaultYear);
   const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
@@ -660,15 +693,44 @@ export default function App() {
       unsubUsers && unsubUsers();
       unsubRota && unsubRota();
     };
-  }, []); // eslint-disable-line
+  }, []);
 
   useEffect(() => {
+    if (!(showAdminModal || isAdmin)) return undefined;
     const adminRef = doc(db, "config", "admin");
     const unsub = onSnapshot(adminRef, (snap) => {
       setAdminSettings(snap.exists() ? snap.data() : null);
     });
     return () => unsub && unsub();
-  }, []);
+  }, [showAdminModal, isAdmin]);
+
+  useEffect(() => {
+    if (!(isAuthenticated && page === "home") || shouldLoadHomeJira) return undefined;
+
+    const node = homeJiraSectionRef.current;
+    if (!node) return undefined;
+
+    if (typeof window !== "undefined" && "IntersectionObserver" in window) {
+      const observer = new window.IntersectionObserver(
+        (entries) => {
+          if (entries.some((entry) => entry.isIntersecting)) {
+            setShouldLoadHomeJira(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin: "320px 0px" }
+      );
+
+      observer.observe(node);
+      return () => observer.disconnect();
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setShouldLoadHomeJira(true);
+    }, 400);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [isAuthenticated, page, shouldLoadHomeJira]);
 
   // When select closes, reconcile latest snapshot
   useEffect(() => {
@@ -798,21 +860,38 @@ export default function App() {
     if (page === "report") rebuildReport();
   }, [page, rota, selectedYear, selectedMonth, EMPLOYEES]); // eslint-disable-line
 
-  const exportReportAsExcel = () => {
-    const reportData = finalReport.map((r, index) => ({
-      "S.No": index + 1,
-      Date: r.date,
-      Day: r.day,
-      Employee: r.employee,
-      Shift: r.shift,
-    }));
+  const exportReportAsExcel = async () => {
+    if (isExportingReport) return;
 
-    const worksheet = XLSX.utils.json_to_sheet(reportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+    setIsExportingReport(true);
 
-  const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-  saveAs(new Blob([excelBuffer]), `Shift_Report_${selectedMonth}_${selectedYear}.xlsx`);
+    try {
+      const reportData = finalReport.map((r, index) => ({
+        "S.No": index + 1,
+        Date: r.date,
+        Day: r.day,
+        Employee: r.employee,
+        Shift: r.shift,
+      }));
+
+      const [XLSX, fileSaverModule] = await Promise.all([
+        import("xlsx"),
+        import("file-saver"),
+      ]);
+
+      const worksheet = XLSX.utils.json_to_sheet(reportData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+      const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const { saveAs } = fileSaverModule;
+      saveAs(new Blob([excelBuffer]), `Shift_Report_${selectedMonth}_${selectedYear}.xlsx`);
+    } catch (error) {
+      console.error("Failed to export report as Excel:", error);
+      alert("Unable to export the report right now. Please try again.");
+    } finally {
+      setIsExportingReport(false);
+    }
   };
 
   const toUpperCode = (value) =>
@@ -1426,8 +1505,13 @@ export default function App() {
         </table>
 
         <div className="flex justify-end mt-4">
-          <button onClick={exportReportAsExcel} className="btn-primary" title="Export as Excel">
-            ⬇ Export as Excel
+          <button
+            onClick={exportReportAsExcel}
+            className={`btn-primary ${isExportingReport ? "cursor-wait opacity-80" : ""}`}
+            title="Export as Excel"
+            disabled={isExportingReport}
+          >
+            {isExportingReport ? "Exporting..." : "⬇ Export as Excel"}
           </button>
         </div>
       </div>
@@ -1668,8 +1752,14 @@ export default function App() {
         </div>
       </section>
 
-      <section>
-        <JiraDashboardSection onOpenView={openJiraDetailView} />
+      <section ref={homeJiraSectionRef}>
+        {shouldLoadHomeJira ? (
+          <Suspense fallback={<JiraPanelFallback />}>
+            <LazyJiraDashboardSection onOpenView={openJiraDetailView} />
+          </Suspense>
+        ) : (
+          <JiraPanelFallback />
+        )}
       </section>
     </div>
   );
@@ -1843,7 +1933,11 @@ export default function App() {
           {page === "report" && ReportPage}
 
           {/* JIRA ISSUE DETAILS */}
-          {page === "jira-details" && <JiraIssuesPage view={jiraDetailView} />}
+          {page === "jira-details" && (
+            <Suspense fallback={<JiraPanelFallback detail />}>
+              <LazyJiraIssuesPage view={jiraDetailView} />
+            </Suspense>
+          )}
 
           {/* ADMIN LOGIN MODAL (landing -> Admin) */}
           {showAdminModal && (
