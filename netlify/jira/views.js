@@ -1,5 +1,89 @@
-const { getJiraConfig, normalizeIssue, searchJira } = require("./client");
+const {
+  fetchLatestIssueComment,
+  getJiraConfig,
+  normalizeIssue,
+  searchJira,
+} = require("./client");
 const { DASHBOARD_VIEWS, DETAIL_FIELDS, getViewDefinition } = require("./viewDefinitions");
+
+const getTimeValue = (value) => {
+  const parsed = new Date(value || 0).getTime();
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const buildStatusCommentPayload = async (view, jiraConfig) => {
+  const results = await searchJira({
+    jql: view.detailJql,
+    maxResults: 100,
+    fields: DETAIL_FIELDS,
+  });
+
+  const normalizedIssues = Array.isArray(results?.issues)
+    ? results.issues.map((issue) => normalizeIssue(issue, jiraConfig.baseUrl))
+    : [];
+
+  const issuesWithComments = await Promise.all(
+    normalizedIssues.map(async (issue) => {
+      try {
+        const lastComment = await fetchLatestIssueComment(issue.key, jiraConfig);
+        return { ...issue, lastComment };
+      } catch {
+        return { ...issue, lastComment: null };
+      }
+    })
+  );
+
+  const groupsByStatus = issuesWithComments.reduce((groupMap, issue) => {
+    const status = issue.status || "Unknown";
+    if (!groupMap.has(status)) {
+      groupMap.set(status, []);
+    }
+    groupMap.get(status).push(issue);
+    return groupMap;
+  }, new Map());
+
+  const statusRank = new Map(
+    (view.statusOrder || []).map((status, index) => [String(status), index])
+  );
+
+  const statusGroups = Array.from(groupsByStatus.entries())
+    .sort(([leftStatus], [rightStatus]) => {
+      const leftRank = statusRank.has(leftStatus)
+        ? statusRank.get(leftStatus)
+        : Number.MAX_SAFE_INTEGER;
+      const rightRank = statusRank.has(rightStatus)
+        ? statusRank.get(rightStatus)
+        : Number.MAX_SAFE_INTEGER;
+
+      if (leftRank !== rightRank) {
+        return leftRank - rightRank;
+      }
+
+      return leftStatus.localeCompare(rightStatus);
+    })
+    .map(([status, issues]) => ({
+      status,
+      count: issues.length,
+      issues: issues.sort((left, right) => {
+        const rightDate = getTimeValue(right.lastComment?.updated || right.updated);
+        const leftDate = getTimeValue(left.lastComment?.updated || left.updated);
+        return rightDate - leftDate;
+      }),
+    }));
+
+  return {
+    generatedAt: new Date().toISOString(),
+    source: "live",
+    view: view.id,
+    title: view.title,
+    subtitle: view.subtitle,
+    emptyState: view.emptyState,
+    totalCount: results?.total || 0,
+    visibleCount: issuesWithComments.length,
+    truncated: Number(results?.total || 0) > issuesWithComments.length,
+    statusGroups,
+  };
+};
 
 const buildSummaryPayload = async () => {
   const jiraConfig = getJiraConfig();
@@ -83,6 +167,10 @@ const buildDetailPayload = async (viewId) => {
     const error = new Error("Unknown Jira dashboard view.");
     error.code = "jira/unknown-view";
     throw error;
+  }
+
+  if (view.mode === "status-comments") {
+    return buildStatusCommentPayload(view, jiraConfig);
   }
 
   const results = await searchJira({

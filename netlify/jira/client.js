@@ -60,18 +60,8 @@ const parseErrorBody = async (response) => {
   }
 };
 
-const searchJira = async ({ jql, maxResults = 0, fields = [] }) => {
-  const config = getJiraConfig();
-  const searchUrl = new URL(`${config.baseUrl}/rest/api/2/search`);
-  searchUrl.searchParams.set("jql", jql);
-  searchUrl.searchParams.set("startAt", "0");
-  searchUrl.searchParams.set("maxResults", String(maxResults));
-
-  if (fields.length > 0) {
-    searchUrl.searchParams.set("fields", fields.join(","));
-  }
-
-  const response = await fetch(searchUrl, {
+const requestJiraJson = async (url, config = getJiraConfig()) => {
+  const response = await fetch(url, {
     method: "GET",
     headers: {
       Accept: "application/json",
@@ -88,6 +78,110 @@ const searchJira = async ({ jql, maxResults = 0, fields = [] }) => {
   }
 
   return response.json();
+};
+
+const searchJira = async ({ jql, maxResults = 0, fields = [] }) => {
+  const config = getJiraConfig();
+  const searchUrl = new URL(`${config.baseUrl}/rest/api/2/search`);
+  searchUrl.searchParams.set("jql", jql);
+  searchUrl.searchParams.set("startAt", "0");
+  searchUrl.searchParams.set("maxResults", String(maxResults));
+
+  if (fields.length > 0) {
+    searchUrl.searchParams.set("fields", fields.join(","));
+  }
+
+  return requestJiraJson(searchUrl, config);
+};
+
+const collectCommentText = (value) => {
+  if (!value) return "";
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    return value.map(collectCommentText).filter(Boolean).join("");
+  }
+
+  if (typeof value !== "object") return "";
+
+  if (typeof value.text === "string") {
+    return value.text;
+  }
+
+  if (value.type === "hardBreak") {
+    return "\n";
+  }
+
+  const nested = Array.isArray(value.content)
+    ? value.content.map(collectCommentText).join("")
+    : "";
+
+  if (["paragraph", "blockquote", "codeBlock", "heading", "listItem"].includes(value.type)) {
+    return nested ? `${nested}\n` : "";
+  }
+
+  return nested;
+};
+
+const normalizeComment = (comment) => {
+  if (!comment) return null;
+
+  const body = collectCommentText(comment.body).trim();
+
+  return {
+    id: comment.id || null,
+    author:
+      comment.updateAuthor?.displayName ||
+      comment.author?.displayName ||
+      "Unknown",
+    body,
+    created: comment.created || null,
+    updated: comment.updated || comment.created || null,
+  };
+};
+
+const readCommentItems = (payload) => {
+  if (Array.isArray(payload?.comments)) return payload.comments;
+  if (Array.isArray(payload?.values)) return payload.values;
+  return [];
+};
+
+const fetchLatestIssueComment = async (issueKey, config = getJiraConfig()) => {
+  const commentsUrl = new URL(
+    `${config.baseUrl}/rest/api/2/issue/${encodeURIComponent(issueKey)}/comment`
+  );
+
+  try {
+    commentsUrl.searchParams.set("maxResults", "1");
+    commentsUrl.searchParams.set("orderBy", "-created");
+    const latestPage = await requestJiraJson(commentsUrl, config);
+    const latestComment = normalizeComment(readCommentItems(latestPage)[0]);
+    if (latestComment || Number(latestPage?.total || 0) <= 1) {
+      return latestComment;
+    }
+  } catch {
+    // Some Jira deployments do not support orderBy here, so fall back to paging below.
+  }
+
+  const firstPageUrl = new URL(
+    `${config.baseUrl}/rest/api/2/issue/${encodeURIComponent(issueKey)}/comment`
+  );
+  firstPageUrl.searchParams.set("maxResults", "1");
+
+  const firstPage = await requestJiraJson(firstPageUrl, config);
+  const firstItems = readCommentItems(firstPage);
+  const totalComments = Number(firstPage?.total || firstItems.length || 0);
+  if (totalComments <= 1) {
+    return normalizeComment(firstItems[0]);
+  }
+
+  const finalPageUrl = new URL(
+    `${config.baseUrl}/rest/api/2/issue/${encodeURIComponent(issueKey)}/comment`
+  );
+  finalPageUrl.searchParams.set("startAt", String(Math.max(totalComments - 1, 0)));
+  finalPageUrl.searchParams.set("maxResults", "1");
+
+  const finalPage = await requestJiraJson(finalPageUrl, config);
+  return normalizeComment(readCommentItems(finalPage)[0]);
 };
 
 const normalizeIssue = (issue, baseUrl) => {
@@ -114,6 +208,7 @@ module.exports = {
   REQUIRED_CONFIG_KEYS,
   getJiraConfig,
   getMissingConfigKeys,
+  fetchLatestIssueComment,
   normalizeIssue,
   searchJira,
   shouldUseMockData,
