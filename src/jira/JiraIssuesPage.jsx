@@ -13,13 +13,23 @@ const DetailSkeleton = () => (
 );
 
 const renderCommentText = (issue) => {
-  if (!issue?.lastComment) return "No comments yet on this epic.";
+  if (!issue?.lastComment) return "No comments yet on this issue.";
   return issue.lastComment.body || "Latest comment body is empty.";
+};
+
+const formatLastCommentAuthor = (issue) => {
+  if (!issue?.lastComment) return "No comments yet";
+  return issue.lastComment.author || "Unknown";
+};
+
+const formatLastCommentTime = (issue) => {
+  if (!issue?.lastComment?.updated) return "No comment timestamp";
+  return formatJiraDateTime(issue.lastComment.updated);
 };
 
 const formatLastCommentMeta = (issue) => {
   if (!issue?.lastComment) return "No comments yet";
-  return `${issue.lastComment.author} | ${formatJiraDateTime(issue.lastComment.updated)}`;
+  return `Added ${formatLastCommentTime(issue)}`;
 };
 
 const STATUS_STYLE_MAP = {
@@ -119,6 +129,7 @@ const getStatusStyles = (status) => STATUS_STYLE_MAP[status] || STATUS_STYLE_MAP
 
 export function JiraIssuesPage({ view }) {
   const [details, setDetails] = useState(null);
+  const [expandedStatus, setExpandedStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -146,6 +157,19 @@ export function JiraIssuesPage({ view }) {
     setLoading(true);
     loadDetails();
   }, [view]);
+
+  useEffect(() => {
+    if (!details?.statusGroups?.length) {
+      setExpandedStatus("");
+      return;
+    }
+
+    setExpandedStatus((currentStatus) =>
+      details.statusGroups.some((group) => group.status === currentStatus)
+        ? currentStatus
+        : details.statusGroups[0].status
+    );
+  }, [details]);
 
   return (
     <div className="space-y-6 pb-20">
@@ -176,18 +200,19 @@ export function JiraIssuesPage({ view }) {
       <section className={detailShellClass}>
         <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="text-xs font-black uppercase tracking-[0.24em] text-sky-100/65">
-              Project EDI Epics
-            </div>
+            <div className="text-xs font-black uppercase tracking-[0.24em] text-sky-100/65">Project EDI Issues</div>
             <div className="mt-3 text-4xl font-black text-white">
               {loading && !details ? "..." : details?.totalCount || 0}
             </div>
             <div className="mt-2 text-sm font-semibold text-slate-300/80">
-              {details?.totalCount === 1 ? "epic found" : "epics found"}
+              {details?.totalCount === 1 ? "issue found" : "issues found"}
             </div>
           </div>
           <div className="space-y-2 text-sm font-medium text-slate-300/70">
             <div>{details?.statusGroups?.length || 0} status groups</div>
+            {details?.statusGroups?.length > 0 && (
+              <div>{expandedStatus ? `Open panel: ${expandedStatus}` : "Select a status panel to view issues"}</div>
+            )}
             {details?.generatedAt && <div>Updated {formatJiraDateTime(details.generatedAt)}</div>}
           </div>
         </div>
@@ -199,106 +224,140 @@ export function JiraIssuesPage({ view }) {
             <div className="space-y-6">
               {details.statusGroups.map((group) => {
                 const statusStyles = getStatusStyles(group.status);
+                const isExpanded = expandedStatus === group.status;
 
                 return (
                   <section
                     key={group.status}
                     className={`overflow-hidden rounded-3xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl ${statusStyles.section}`}
                   >
-                    <div
-                      className={`flex flex-col gap-3 border-b px-5 py-4 md:flex-row md:items-center md:justify-between ${statusStyles.header}`}
+                    <button
+                      type="button"
+                      aria-expanded={isExpanded}
+                      onClick={() => setExpandedStatus(group.status)}
+                      className={`flex w-full flex-col gap-3 border-b px-5 py-4 text-left transition md:flex-row md:items-center md:justify-between ${statusStyles.header} ${
+                        isExpanded ? "" : "hover:bg-white/[0.03]"
+                      }`}
                     >
                       <div>
                         <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/60">
                           Status
                         </div>
                         <h3 className="mt-2 text-2xl font-black text-white">{group.status}</h3>
+                        <div className={`mt-2 text-xs font-bold ${statusStyles.meta}`}>
+                          {isExpanded ? "Showing issues for this status" : "Click to open issues"}
+                        </div>
                       </div>
-                      <span className={`rounded-full border px-4 py-2 text-sm font-bold ${statusStyles.badge}`}>
-                        {group.count} {group.count === 1 ? "epic" : "epics"}
-                      </span>
-                    </div>
+                      <div className="flex items-center gap-3 self-start md:self-auto">
+                        <span className={`rounded-full border px-4 py-2 text-sm font-bold ${statusStyles.badge}`}>
+                          {group.count} {group.count === 1 ? "issue" : "issues"}
+                        </span>
+                        <span
+                          className={`inline-flex h-11 w-11 items-center justify-center rounded-full border ${statusStyles.badge}`}
+                        >
+                          <svg
+                            viewBox="0 0 20 20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className={`h-4 w-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                            aria-hidden="true"
+                          >
+                            <path d="m5 8 5 5 5-5" />
+                          </svg>
+                        </span>
+                      </div>
+                    </button>
 
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[1080px] border-collapse">
-                        <thead className={statusStyles.tableHead}>
-                          <tr>
-                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
-                              Issue
-                            </th>
-                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
-                              Assignee
-                            </th>
-                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
-                              Latest Comment
-                            </th>
-                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
-                              Updated
-                            </th>
-                            <th className="px-4 py-3 text-right text-[11px] font-black uppercase tracking-[0.22em]">
-                              Jira
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {group.issues.map((issue) => (
-                            <tr
-                              key={issue.key}
-                              className={`border-t border-white/10 align-top transition ${statusStyles.row}`}
-                            >
-                              <td className="px-4 py-4">
-                                <div className="min-w-0">
-                                  <div className="flex flex-wrap items-center gap-3">
-                                    <a
-                                      href={issue.url}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                      className={`text-sm font-black tracking-[0.18em] transition ${statusStyles.key}`}
-                                    >
-                                      {issue.key}
-                                    </a>
-                                    <span
-                                      className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] ${statusStyles.badge}`}
-                                    >
-                                      {issue.issueType || "Epic"}
-                                    </span>
-                                  </div>
-                                  <h4 className="mt-3 text-base font-bold leading-6 text-white">
-                                    {issue.summary}
-                                  </h4>
-                                </div>
-                              </td>
-                              <td className="px-4 py-4 text-sm font-semibold text-white/88">
-                                {issue.assignee || "Unassigned"}
-                              </td>
-                              <td className="px-4 py-4">
-                                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
-                                  <div className={`text-xs font-bold ${statusStyles.meta}`}>
-                                    {formatLastCommentMeta(issue)}
-                                  </div>
-                                  <div className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-white/85">
-                                    {renderCommentText(issue)}
-                                  </div>
-                                </div>
-                              </td>
-                              <td className="px-4 py-4 text-sm font-semibold text-white/80">
-                                {formatJiraDateTime(issue.updated)}
-                              </td>
-                              <td className="px-4 py-4 text-right">
-                                <a
-                                  href={issue.url}
-                                  target="_blank"
-                                  rel="noreferrer"
-                                  className={`inline-flex rounded-full border px-4 py-2 text-sm font-bold transition ${statusStyles.action}`}
-                                >
-                                  Open in Jira
-                                </a>
-                              </td>
+                    {isExpanded && (
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[1080px] border-collapse">
+                          <thead className={statusStyles.tableHead}>
+                            <tr>
+                              <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                                Issue
+                              </th>
+                              <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                                Last Comment Added By
+                              </th>
+                              <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                                Latest Comment
+                              </th>
+                              <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                                Updated
+                              </th>
+                              <th className="px-4 py-3 text-right text-[11px] font-black uppercase tracking-[0.22em]">
+                                Jira
+                              </th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody>
+                            {group.issues.map((issue) => (
+                              <tr
+                                key={issue.key}
+                                className={`border-t border-white/10 align-top transition ${statusStyles.row}`}
+                              >
+                                <td className="px-4 py-4">
+                                  <div className="min-w-0">
+                                    <div className="flex flex-wrap items-center gap-3">
+                                      <a
+                                        href={issue.url}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className={`text-sm font-black tracking-[0.18em] transition ${statusStyles.key}`}
+                                      >
+                                        {issue.key}
+                                      </a>
+                                      <span
+                                        className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] ${statusStyles.badge}`}
+                                      >
+                                        {issue.issueType || "Epic"}
+                                      </span>
+                                    </div>
+                                    <h4 className="mt-3 text-base font-bold leading-6 text-white">
+                                      {issue.summary}
+                                    </h4>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                  <div className="text-sm font-semibold text-white/88">
+                                    {formatLastCommentAuthor(issue)}
+                                  </div>
+                                  <div className={`mt-1 text-xs font-bold ${statusStyles.meta}`}>
+                                    {formatLastCommentTime(issue)}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4">
+                                  <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
+                                    <div className={`text-xs font-bold ${statusStyles.meta}`}>
+                                      {formatLastCommentMeta(issue)}
+                                    </div>
+                                    <div className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-white/85">
+                                      {renderCommentText(issue)}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-4 text-sm font-semibold text-white/80">
+                                  {formatJiraDateTime(issue.updated)}
+                                </td>
+                                <td className="px-4 py-4 text-right">
+                                  <a
+                                    href={issue.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className={`inline-flex rounded-full border px-4 py-2 text-sm font-bold transition ${statusStyles.action}`}
+                                  >
+                                    Open in Jira
+                                  </a>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </section>
                 );
               })}
@@ -312,7 +371,7 @@ export function JiraIssuesPage({ view }) {
 
         {details?.truncated && (
           <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-50">
-            Showing the first {details.visibleCount} epics. There are {details.totalCount} epics in total.
+            Showing the first {details.visibleCount} issues. There are {details.totalCount} issues in total.
           </div>
         )}
       </section>
