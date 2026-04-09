@@ -10,6 +10,7 @@ const makeIssue = ({
   updated,
   scheduledStart,
   scheduledEnd,
+  lastComment,
 }) => ({
   id: key,
   key,
@@ -23,8 +24,14 @@ const makeIssue = ({
   updated,
   scheduledStart,
   scheduledEnd,
+  lastComment: lastComment || null,
   url: "#",
 });
+
+const getTimeValue = (value) => {
+  const parsed = new Date(value || 0).getTime();
+  return Number.isFinite(parsed) ? parsed : 0;
+};
 
 const MOCK_ISSUES = {
   mappingInProgress: [
@@ -124,6 +131,109 @@ const MOCK_ISSUES = {
       scheduledEnd: "2026-04-08T07:30:00.000Z",
     }),
   ],
+  ediEpicLastComments: [
+    makeIssue({
+      key: "EDI-431",
+      summary: "Outbound invoice orchestration epic for April deployment",
+      status: "IN PROGRESS",
+      assignee: "MudigoNa",
+      project: "EDI",
+      issueType: "Epic",
+      updated: "2026-04-08T11:20:00.000Z",
+      lastComment: {
+        id: "comment-1",
+        author: "MudigoNa",
+        body: "Mapping validations are complete. Waiting for partner test confirmation before moving to UAT.",
+        created: "2026-04-08T11:15:00.000Z",
+        updated: "2026-04-08T11:15:00.000Z",
+      },
+    }),
+    makeIssue({
+      key: "EDI-429",
+      summary: "Carrier acknowledgement enhancements for EDI onboarding",
+      status: "Open",
+      assignee: "naveen.mudigonda",
+      project: "EDI",
+      issueType: "Epic",
+      updated: "2026-04-07T16:05:00.000Z",
+      lastComment: {
+        id: "comment-2",
+        author: "naveen.mudigonda",
+        body: "Requirements are confirmed. Planning to start the technical split after backlog grooming.",
+        created: "2026-04-07T15:58:00.000Z",
+        updated: "2026-04-07T15:58:00.000Z",
+      },
+    }),
+    makeIssue({
+      key: "EDI-421",
+      summary: "Release readiness epic for partner certificate rollover",
+      status: "Ready for release",
+      assignee: "MudigoNa",
+      project: "EDI",
+      issueType: "Epic",
+      updated: "2026-04-06T09:42:00.000Z",
+      lastComment: {
+        id: "comment-3",
+        author: "Release Manager",
+        body: "All validation points are closed. Epic can move with the next approved production window.",
+        created: "2026-04-06T09:40:00.000Z",
+        updated: "2026-04-06T09:40:00.000Z",
+      },
+    }),
+    makeIssue({
+      key: "EDI-417",
+      summary: "UAT alignment epic for warehouse message normalization",
+      status: "Testing",
+      assignee: "naveen.mudigonda",
+      project: "EDI",
+      issueType: "Epic",
+      updated: "2026-04-05T13:18:00.000Z",
+      lastComment: {
+        id: "comment-4",
+        author: "QA Team",
+        body: "Latest test round found one partner-specific edge case. Retesting after updated mapping package lands.",
+        created: "2026-04-05T13:10:00.000Z",
+        updated: "2026-04-05T13:10:00.000Z",
+      },
+    }),
+  ],
+};
+
+const buildMockStatusGroups = (issues, statusOrder = []) => {
+  const groups = issues.reduce((map, issue) => {
+    if (!map.has(issue.status)) {
+      map.set(issue.status, []);
+    }
+    map.get(issue.status).push(issue);
+    return map;
+  }, new Map());
+
+  const statusRank = new Map(statusOrder.map((status, index) => [String(status), index]));
+
+  return Array.from(groups.entries())
+    .sort(([leftStatus], [rightStatus]) => {
+      const leftRank = statusRank.has(leftStatus)
+        ? statusRank.get(leftStatus)
+        : Number.MAX_SAFE_INTEGER;
+      const rightRank = statusRank.has(rightStatus)
+        ? statusRank.get(rightStatus)
+        : Number.MAX_SAFE_INTEGER;
+
+      if (leftRank !== rightRank) {
+        return leftRank - rightRank;
+      }
+
+      return String(leftStatus).localeCompare(String(rightStatus));
+    })
+    .map(([status, groupedIssues]) => ({
+      status,
+      count: groupedIssues.length,
+      issues: groupedIssues.sort((left, right) => {
+        const rightDate = getTimeValue(right.lastComment?.updated || right.updated);
+        const leftDate = getTimeValue(left.lastComment?.updated || left.updated);
+        return rightDate - leftDate;
+      }),
+    }));
 };
 
 const buildMockSummaryPayload = () => ({
@@ -175,6 +285,21 @@ const buildMockDetailPayload = (viewId) => {
   }
 
   const issues = MOCK_ISSUES[viewId] || [];
+
+  if (view.mode === "status-comments") {
+    return {
+      generatedAt: new Date().toISOString(),
+      source: "mock",
+      view: view.id,
+      title: `${view.title} (Preview)`,
+      subtitle: `${view.subtitle} | Mock data`,
+      emptyState: view.emptyState,
+      totalCount: issues.length,
+      visibleCount: issues.length,
+      truncated: false,
+      statusGroups: buildMockStatusGroups(issues, view.statusOrder || []),
+    };
+  }
 
   return {
     generatedAt: new Date().toISOString(),

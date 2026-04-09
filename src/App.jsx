@@ -43,7 +43,6 @@ const ADMIN_PASSWORD_FIELD_NAMES = [
   "passcode",
   "pin",
 ];
-const CERTIFICATE_STORAGE_KEY = "certificate_new_records_v1";
 
 const clearPortalLoginSession = () => {
   if (typeof window === "undefined") return;
@@ -69,70 +68,6 @@ const persistPortalLoginSession = (session) => {
   try {
     window.localStorage.setItem(PORTAL_SHARED_LOGIN_STORAGE_KEY, serializedSession);
   } catch {}
-};
-
-const startOfLocalDay = (dateInput) => {
-  const date = new Date(dateInput);
-  date.setHours(0, 0, 0, 0);
-  return date;
-};
-
-const getDaysUntilTargetDate = (dateInput) => {
-  if (!dateInput) return Number.POSITIVE_INFINITY;
-  const today = startOfLocalDay(new Date());
-  const targetDate = startOfLocalDay(dateInput);
-  return Math.ceil((targetDate.getTime() - today.getTime()) / (24 * 60 * 60 * 1000));
-};
-
-const readCertificateExpiryAlerts = () => {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const rawValue = window.localStorage.getItem(CERTIFICATE_STORAGE_KEY);
-    if (!rawValue) {
-      return [];
-    }
-
-    const parsedRecords = JSON.parse(rawValue);
-    if (!Array.isArray(parsedRecords)) {
-      return [];
-    }
-
-    return parsedRecords
-      .map((record, index) => {
-        const partnerName = String(record?.partnerName || "").trim();
-        const certificateType = String(record?.certificateType || "").trim();
-        const expiryDate = String(record?.expiryDate || "").trim();
-        const daysUntilExpiry = getDaysUntilTargetDate(expiryDate);
-
-        return {
-          id: String(record?.id || `certificate-${index}`),
-          partnerName,
-          certificateType,
-          expiryDate,
-          daysUntilExpiry,
-        };
-      })
-      .filter(
-        (record) =>
-          record.partnerName &&
-          record.expiryDate &&
-          Number.isFinite(record.daysUntilExpiry) &&
-          record.daysUntilExpiry >= 0 &&
-          record.daysUntilExpiry <= 15
-      )
-      .sort((left, right) => {
-        if (left.daysUntilExpiry !== right.daysUntilExpiry) {
-          return left.daysUntilExpiry - right.daysUntilExpiry;
-        }
-
-        return new Date(left.expiryDate).getTime() - new Date(right.expiryDate).getTime();
-      });
-  } catch {
-    return [];
-  }
 };
 
 const readAdminPasswordFromSource = (source, depth = 0) => {
@@ -201,33 +136,17 @@ const readPortalLoginSession = () => {
   }
 };
 
-const AppGridIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    className="h-7 w-7"
-  >
-    <rect x="4" y="4" width="6" height="6" rx="1.5" />
-    <rect x="14" y="4" width="6" height="6" rx="1.5" />
-    <rect x="4" y="14" width="6" height="6" rx="1.5" />
-    <rect x="14" y="14" width="6" height="6" rx="1.5" />
-  </svg>
+const JIRA_COMMENTS_VIEW_ID = "ediEpicLastComments";
+
+const LazyJiraIssuesPage = lazy(() =>
+  import("./jira/JiraIssuesPage").then((module) => ({
+    default: module.JiraIssuesPage,
+  }))
 );
 
 const LazyJiraDashboardSection = lazy(() =>
   import("./jira/JiraDashboardSection").then((module) => ({
     default: module.JiraDashboardSection,
-  }))
-);
-
-const LazyJiraIssuesPage = lazy(() =>
-  import("./jira/JiraIssuesPage").then((module) => ({
-    default: module.JiraIssuesPage,
   }))
 );
 
@@ -250,58 +169,6 @@ const JiraPanelFallback = ({ detail = false }) => (
   </section>
 );
 
-const TransferIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    className="h-7 w-7"
-  >
-    <path d="M3 7h12l2 2h4" />
-    <path d="M7 17h14" />
-    <path d="m12 11 3-3 3 3" />
-    <path d="m18 13-3 3-3-3" />
-  </svg>
-);
-
-const CertificateIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    className="h-7 w-7"
-  >
-    <path d="M12 3 6.5 5v5.5c0 4 2.3 7.7 5.5 9.5 3.2-1.8 5.5-5.5 5.5-9.5V5L12 3Z" />
-    <path d="m9.5 11.8 1.7 1.7 3.3-3.6" />
-  </svg>
-);
-
-const DocumentationIcon = () => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    aria-hidden="true"
-    className="h-7 w-7"
-  >
-    <path d="M8 3.5h6l4 4V19a1.5 1.5 0 0 1-1.5 1.5h-8A1.5 1.5 0 0 1 7 19V5A1.5 1.5 0 0 1 8.5 3.5Z" />
-    <path d="M14 3.5V8h4" />
-    <path d="M9.5 11.5h5" />
-    <path d="M9.5 15h5" />
-  </svg>
-);
-
 const LogoutIcon = ({ className = "h-5 w-5" }) => (
   <svg
     viewBox="0 0 24 24"
@@ -317,73 +184,6 @@ const LogoutIcon = ({ className = "h-5 w-5" }) => (
     <path d="M14 8.5 18 12l-4 3.5" />
     <path d="M9 12h8.5" />
   </svg>
-);
-
-const QUICK_ACCESS_ITEMS = [
-  {
-    id: "apf",
-    label: "APF",
-    href: "/APF/APF_NEW/build/index.html",
-    Icon: AppGridIcon,
-  },
-  {
-    id: "sftp",
-    label: "SFTP",
-    href: "/APF/SFTP_NEW/index.html",
-    Icon: TransferIcon,
-  },
-  {
-    id: "certificate",
-    label: "CERTIFICATE",
-    href: "/APF/CERTIFICATE_NEW/public/index.html",
-    Icon: CertificateIcon,
-  },
-  {
-    id: "documentation",
-    label: "DOCUMENTATION",
-    href: "/APF/DOCUMENTATION_NEW/index.html",
-    Icon: DocumentationIcon,
-  },
-];
-
-const QuickAccessRibbon = () => (
-  <section className="quick-ribbon-wrap px-4 pb-2 pt-4 sm:px-6 lg:px-10" aria-label="Microsites">
-    <div className="quick-ribbon relative overflow-hidden rounded-[28px] border border-white/12 px-4 py-5 sm:px-6 sm:py-6">
-      <div className="quick-ribbon-glow quick-ribbon-glow-blue" />
-      <div className="quick-ribbon-glow quick-ribbon-glow-green" />
-      <div className="quick-ribbon-glow quick-ribbon-glow-yellow" />
-      <div className="quick-ribbon-glow quick-ribbon-glow-red" />
-
-      <div className="relative flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-        <div className="max-w-xl">
-          <h2 className="text-2xl font-black tracking-[0.12em] text-white sm:text-3xl">
-            LC EDI MICROSITES
-          </h2>
-          <p className="mt-2 text-sm font-semibold tracking-[0.08em] text-sky-100/78 sm:text-base">
-            (Under Testing Phase :) )
-          </p>
-        </div>
-
-        <div className="grid w-full max-w-4xl grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          {QUICK_ACCESS_ITEMS.map(({ id, label, href, Icon }) => (
-            <a
-              key={id}
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-              className={`quick-link-card quick-link-card--${id}`}
-              aria-label={label}
-            >
-              <span className={`quick-link-icon quick-link-icon--${id}`}>
-                <Icon />
-              </span>
-              <span className="quick-link-label">{label}</span>
-            </a>
-          ))}
-        </div>
-      </div>
-    </div>
-  </section>
 );
 
 /* ------------------ CONSTANTS ------------------ */
@@ -579,15 +379,10 @@ export default function App() {
     password: "",
   });
   const [loginError, setLoginError] = useState("");
-  const [certificateExpiryAlerts, setCertificateExpiryAlerts] = useState(() =>
-    readCertificateExpiryAlerts()
-  );
   const [isExportingReport, setIsExportingReport] = useState(false);
-  const [shouldLoadHomeJira, setShouldLoadHomeJira] = useState(false);
 
   // Simple nav history stack to support Back
   const navStackRef = useRef(["home"]);
-  const homeJiraSectionRef = useRef(null);
   useEffect(() => {
     const stack = navStackRef.current;
     if (stack[stack.length - 1] !== page) {
@@ -595,29 +390,6 @@ export default function App() {
       if (stack.length > 100) stack.shift();
     }
   }, [page]);
-
-  useEffect(() => {
-    const refreshCertificateAlerts = () => {
-      setCertificateExpiryAlerts(readCertificateExpiryAlerts());
-    };
-
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        refreshCertificateAlerts();
-      }
-    };
-
-    refreshCertificateAlerts();
-    window.addEventListener("storage", refreshCertificateAlerts);
-    window.addEventListener("focus", refreshCertificateAlerts);
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      window.removeEventListener("storage", refreshCertificateAlerts);
-      window.removeEventListener("focus", refreshCertificateAlerts);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []);
 
   // Auto-set dropdown defaults (IST)
   const { YEARS, defaultYear, defaultMonth } = initialCalendarContext;
@@ -735,34 +507,6 @@ export default function App() {
     return () => unsub && unsub();
   }, [showAdminModal, isAdmin]);
 
-  useEffect(() => {
-    if (!(isAuthenticated && page === "home") || shouldLoadHomeJira) return undefined;
-
-    const node = homeJiraSectionRef.current;
-    if (!node) return undefined;
-
-    if (typeof window !== "undefined" && "IntersectionObserver" in window) {
-      const observer = new window.IntersectionObserver(
-        (entries) => {
-          if (entries.some((entry) => entry.isIntersecting)) {
-            setShouldLoadHomeJira(true);
-            observer.disconnect();
-          }
-        },
-        { rootMargin: "320px 0px" }
-      );
-
-      observer.observe(node);
-      return () => observer.disconnect();
-    }
-
-    const timeoutId = window.setTimeout(() => {
-      setShouldLoadHomeJira(true);
-    }, 400);
-
-    return () => window.clearTimeout(timeoutId);
-  }, [isAuthenticated, page, shouldLoadHomeJira]);
-
   // When select closes, reconcile latest snapshot
   useEffect(() => {
     if (!isPicking) setRota(lastRotaRef.current || {});
@@ -831,8 +575,7 @@ export default function App() {
     setPage("home");
   };
 
-  const openJiraDetailView = (viewId) => {
-    if (!viewId) return;
+  const openJiraDetailView = (viewId = JIRA_COMMENTS_VIEW_ID) => {
     setEmployeeView(null);
     setJiraDetailView(viewId);
     setPage("jira-details");
@@ -1164,6 +907,19 @@ export default function App() {
   /* ------------------ RENDERERS ------------------ */
   const TopNav = (
     <div className="flex items-center gap-3 md:gap-6 top-nav-actions">
+      <button
+        type="button"
+        onClick={() => openJiraDetailView()}
+        title="JIRA"
+        className={`top-nav-text-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
+          page === "jira-details"
+            ? "btn-glass text-white"
+            : "glass-chip hover:scale-105"
+        }`}
+      >
+        JIRA
+      </button>
+
       <div className="nav-featured-item">
         <button
           onClick={() => setPage("dashboard")}
@@ -1178,7 +934,6 @@ export default function App() {
         </button>
       </div>
 
-      {/* REPORT */}
       <button
         onClick={() => setPage("report")}
         title="ONCALL"
@@ -1191,12 +946,24 @@ export default function App() {
         ONCALL
       </button>
 
+      <button
+        onClick={goHome}
+        title="Home"
+        className={`top-nav-text-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
+          page === "home"
+            ? "btn-glass text-white"
+            : "glass-chip hover:scale-105"
+        }`}
+      >
+        HOME
+      </button>
+
       {/* LOGS (admin only) */}
       {isAdmin && (
         <button
           onClick={() => setPage("logs")}
           title="Logs"
-          className="top-nav-icon-button inline-flex items-center justify-center rounded-xl text-2xl transition text-white/90 hover:scale-110"
+          className="hidden top-nav-icon-button inline-flex items-center justify-center rounded-xl text-2xl transition text-white/90 hover:scale-110"
         >
           📄
         </button>
@@ -1206,7 +973,7 @@ export default function App() {
       <button
         onClick={goHome}
         title="Home"
-        className={`top-nav-text-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
+        className={`hidden top-nav-text-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
           page === "home"
             ? "btn-glass text-white"
             : "glass-chip hover:scale-105"
@@ -1679,7 +1446,7 @@ export default function App() {
 
   const LeavePlanPanel = (() => {
     const today = todayIST();
-    const leavePlanItems = [1, 2, 3].flatMap((offset) => {
+    const leavePlanItems = [1, 2, 3, 4, 5].flatMap((offset) => {
       const targetDate = new Date(today);
       targetDate.setDate(today.getDate() + offset);
 
@@ -1687,16 +1454,19 @@ export default function App() {
         ? "tomorrow"
         : offset === 2
           ? "day after tomorrow"
-          : "in 3 days";
+          : `in ${offset} days`;
       const dateLabel = targetDate.toLocaleDateString(undefined, {
         month: "short",
         day: "numeric",
         year: "numeric",
       });
+      const weekdayLabel = targetDate
+        .toLocaleDateString(undefined, { weekday: "long" })
+        .toUpperCase();
 
       return getLeaveEntriesForDate(targetDate).map((employee) => ({
         key: `${offset}-${employee}`,
-        message: `${employee} is on leave ${relativeLabel} (${dateLabel})`,
+        message: `${employee} is on leave ${relativeLabel} (${dateLabel}, ${weekdayLabel})`,
       }));
     });
 
@@ -1705,7 +1475,7 @@ export default function App() {
         <div className="mb-3 flex items-center justify-between gap-3">
           <h3 className="text-2xl font-extrabold text-rose-100">Leave Plan</h3>
           <span className="rounded-full border border-rose-200/20 bg-rose-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-rose-100 backdrop-blur-md">
-            Next 3 Days
+            Next 5 Days
           </span>
         </div>
         <div className="flex-1 space-y-2 text-rose-50">
@@ -1720,55 +1490,7 @@ export default function App() {
             ))
           ) : (
             <div className="rounded-xl border border-rose-100/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
-              No leave planned for the next 3 days.
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  })();
-
-  const CertificateExpiryPanel = (() => {
-    const formatExpiryDate = (expiryDate) =>
-      new Date(`${expiryDate}T00:00:00`).toLocaleDateString(undefined, {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
-
-    return (
-      <div className="flex h-full w-full flex-col rounded-2xl border border-amber-200/15 bg-gradient-to-br from-amber-950/55 via-orange-950/35 to-white/[0.03] p-6 shadow-[0_22px_60px_rgba(146,64,14,0.35)] glass transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_28px_72px_rgba(180,83,9,0.42)]">
-        <div className="mb-3 flex items-center justify-between gap-3">
-          <h3 className="text-2xl font-extrabold text-amber-100">Certificate Alert</h3>
-          <span className="rounded-full border border-amber-200/20 bg-amber-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.24em] text-amber-100 backdrop-blur-md">
-            Next 15 Days
-          </span>
-        </div>
-        <div className="flex-1 space-y-2 text-amber-50">
-          {certificateExpiryAlerts.length > 0 ? (
-            certificateExpiryAlerts.map((record) => {
-              const dayMessage =
-                record.daysUntilExpiry === 0
-                  ? "expires today"
-                  : record.daysUntilExpiry === 1
-                    ? "expires in 1 day"
-                    : `expires in ${record.daysUntilExpiry} days`;
-
-              return (
-                <div
-                  key={record.id}
-                  className="rounded-xl border border-amber-100/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl"
-                >
-                  <div>{record.partnerName} {dayMessage} ({formatExpiryDate(record.expiryDate)})</div>
-                  <div className="mt-1 text-xs font-bold uppercase tracking-[0.18em] text-amber-100/70">
-                    {record.certificateType || "Certificate"}
-                  </div>
-                </div>
-              );
-            })
-          ) : (
-            <div className="rounded-xl border border-amber-100/15 bg-white/[0.06] px-4 py-3 text-sm font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
-              No certificates are expiring in the next 15 days.
+              No leave planned for the next 5 days.
             </div>
           )}
         </div>
@@ -1791,27 +1513,20 @@ export default function App() {
             <h2 className="text-3xl font-extrabold text-sky-200">What about Today?</h2>
           </div>
         </div>
-        <div className="grid gap-6 xl:auto-rows-fr xl:grid-cols-3 xl:items-stretch">
+        <div className="grid gap-6 xl:auto-rows-fr xl:grid-cols-2 xl:items-stretch">
           <div className="flex h-full min-w-0">
             {NotificationsPanel}
           </div>
           <div className="flex h-full min-w-0">
             {LeavePlanPanel}
           </div>
-          <div className="flex h-full min-w-0">
-            {CertificateExpiryPanel}
-          </div>
         </div>
       </section>
 
-      <section ref={homeJiraSectionRef}>
-        {shouldLoadHomeJira ? (
-          <Suspense fallback={<JiraPanelFallback />}>
-            <LazyJiraDashboardSection onOpenView={openJiraDetailView} />
-          </Suspense>
-        ) : (
-          <JiraPanelFallback />
-        )}
+      <section>
+        <Suspense fallback={<JiraPanelFallback />}>
+          <LazyJiraDashboardSection onOpenView={openJiraDetailView} />
+        </Suspense>
       </section>
     </div>
   );
@@ -1948,8 +1663,6 @@ export default function App() {
           {TopNav}
         </header>
 
-        {page === "home" && <QuickAccessRibbon />}
-
         <main className="flex-grow px-4 md:px-6 lg:px-10 py-8">
           {/* Back button below navbar (not on dashboard) */}
           {["dashboard", "report", "logs", "notifications", "jira-details"].includes(page) && (
@@ -1987,7 +1700,7 @@ export default function App() {
           {/* JIRA ISSUE DETAILS */}
           {page === "jira-details" && (
             <Suspense fallback={<JiraPanelFallback detail />}>
-              <LazyJiraIssuesPage view={jiraDetailView} />
+              <LazyJiraIssuesPage view={jiraDetailView || JIRA_COMMENTS_VIEW_ID} />
             </Suspense>
           )}
 

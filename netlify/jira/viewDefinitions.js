@@ -11,7 +11,28 @@ const DETAIL_FIELDS = [
   "customfield_17172",
 ];
 
+const EDI_EPIC_COMMENT_STATUSES = [
+  "Open",
+  "IN PROGRESS",
+  "To Do",
+  "Backlog",
+  "In Review",
+  "Testing",
+  "UAT Testing/Validation",
+  "Ready for release",
+];
+
 const DASHBOARD_VIEWS = {
+  ediEpicLastComments: {
+    id: "ediEpicLastComments",
+    mode: "status-comments",
+    title: "EDI Epic Last Comments",
+    subtitle: "Project EDI | Updated in the last 2 weeks | Assignees naveen.mudigonda and MudigoNa",
+    emptyState: "No EDI epics matched the selected Jira filter.",
+    statusOrder: EDI_EPIC_COMMENT_STATUSES,
+    detailJql:
+      'project = EDI AND issuetype = Epic AND status in (Open, "IN PROGRESS", "To Do", Backlog, "In Review", Testing, "UAT Testing/Validation", "Ready for release") AND updated >= -2w AND assignee in (naveen.mudigonda, MudigoNa) ORDER BY updated DESC',
+  },
   mappingInProgress: {
     id: "mappingInProgress",
     title: "EDI Mapping In Progress",

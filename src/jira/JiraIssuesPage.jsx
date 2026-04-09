@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  fetchJiraIssueDetails,
-  formatJiraDateTime,
-  formatJiraScheduleWindow,
-} from "./api";
+import { fetchJiraIssueDetails, formatJiraDateTime } from "./api";
 
 const detailShellClass =
   "rounded-[30px] border border-sky-200/15 bg-gradient-to-br from-slate-950/75 via-slate-900/65 to-white/[0.04] p-6 shadow-[0_28px_90px_rgba(15,23,42,0.4)] backdrop-blur-2xl";
@@ -15,6 +11,111 @@ const DetailSkeleton = () => (
     <div className="h-28 animate-pulse rounded-3xl bg-white/10" />
   </div>
 );
+
+const renderCommentText = (issue) => {
+  if (!issue?.lastComment) return "No comments yet on this epic.";
+  return issue.lastComment.body || "Latest comment body is empty.";
+};
+
+const formatLastCommentMeta = (issue) => {
+  if (!issue?.lastComment) return "No comments yet";
+  return `${issue.lastComment.author} | ${formatJiraDateTime(issue.lastComment.updated)}`;
+};
+
+const STATUS_STYLE_MAP = {
+  Open: {
+    section: "border-sky-300/25 bg-gradient-to-br from-sky-500/[0.14] via-cyan-400/[0.10] to-slate-950/50",
+    header: "border-sky-200/20 bg-sky-300/[0.10]",
+    badge: "border-sky-200/30 bg-sky-300/[0.16] text-sky-50",
+    tableHead: "bg-sky-300/[0.10] text-sky-50/85",
+    key: "text-sky-100 hover:text-white",
+    meta: "text-sky-100/80",
+    action: "border-sky-200/35 bg-sky-300/[0.14] text-sky-50 hover:border-sky-200/50 hover:bg-sky-300/[0.22]",
+    row: "hover:bg-sky-300/[0.05]",
+  },
+  "IN PROGRESS": {
+    section: "border-amber-300/25 bg-gradient-to-br from-amber-500/[0.15] via-orange-400/[0.10] to-slate-950/50",
+    header: "border-amber-200/20 bg-amber-300/[0.10]",
+    badge: "border-amber-200/30 bg-amber-300/[0.16] text-amber-50",
+    tableHead: "bg-amber-300/[0.10] text-amber-50/85",
+    key: "text-amber-100 hover:text-white",
+    meta: "text-amber-100/80",
+    action: "border-amber-200/35 bg-amber-300/[0.14] text-amber-50 hover:border-amber-200/50 hover:bg-amber-300/[0.22]",
+    row: "hover:bg-amber-300/[0.05]",
+  },
+  "To Do": {
+    section: "border-blue-300/25 bg-gradient-to-br from-blue-500/[0.14] via-indigo-400/[0.10] to-slate-950/50",
+    header: "border-blue-200/20 bg-blue-300/[0.10]",
+    badge: "border-blue-200/30 bg-blue-300/[0.16] text-blue-50",
+    tableHead: "bg-blue-300/[0.10] text-blue-50/85",
+    key: "text-blue-100 hover:text-white",
+    meta: "text-blue-100/80",
+    action: "border-blue-200/35 bg-blue-300/[0.14] text-blue-50 hover:border-blue-200/50 hover:bg-blue-300/[0.22]",
+    row: "hover:bg-blue-300/[0.05]",
+  },
+  Backlog: {
+    section: "border-slate-300/20 bg-gradient-to-br from-slate-400/[0.12] via-slate-300/[0.08] to-slate-950/55",
+    header: "border-slate-200/15 bg-slate-300/[0.08]",
+    badge: "border-slate-200/20 bg-slate-300/[0.12] text-slate-100",
+    tableHead: "bg-slate-300/[0.08] text-slate-100/80",
+    key: "text-slate-100 hover:text-white",
+    meta: "text-slate-200/70",
+    action: "border-slate-200/25 bg-slate-300/[0.10] text-slate-100 hover:border-slate-200/40 hover:bg-slate-300/[0.18]",
+    row: "hover:bg-slate-300/[0.04]",
+  },
+  "In Review": {
+    section: "border-violet-300/25 bg-gradient-to-br from-violet-500/[0.14] via-fuchsia-400/[0.10] to-slate-950/50",
+    header: "border-violet-200/20 bg-violet-300/[0.10]",
+    badge: "border-violet-200/30 bg-violet-300/[0.16] text-violet-50",
+    tableHead: "bg-violet-300/[0.10] text-violet-50/85",
+    key: "text-violet-100 hover:text-white",
+    meta: "text-violet-100/80",
+    action: "border-violet-200/35 bg-violet-300/[0.14] text-violet-50 hover:border-violet-200/50 hover:bg-violet-300/[0.22]",
+    row: "hover:bg-violet-300/[0.05]",
+  },
+  Testing: {
+    section: "border-rose-300/25 bg-gradient-to-br from-rose-500/[0.14] via-pink-400/[0.10] to-slate-950/50",
+    header: "border-rose-200/20 bg-rose-300/[0.10]",
+    badge: "border-rose-200/30 bg-rose-300/[0.16] text-rose-50",
+    tableHead: "bg-rose-300/[0.10] text-rose-50/85",
+    key: "text-rose-100 hover:text-white",
+    meta: "text-rose-100/80",
+    action: "border-rose-200/35 bg-rose-300/[0.14] text-rose-50 hover:border-rose-200/50 hover:bg-rose-300/[0.22]",
+    row: "hover:bg-rose-300/[0.05]",
+  },
+  "UAT Testing/Validation": {
+    section: "border-pink-300/25 bg-gradient-to-br from-pink-500/[0.14] via-fuchsia-400/[0.10] to-slate-950/50",
+    header: "border-pink-200/20 bg-pink-300/[0.10]",
+    badge: "border-pink-200/30 bg-pink-300/[0.16] text-pink-50",
+    tableHead: "bg-pink-300/[0.10] text-pink-50/85",
+    key: "text-pink-100 hover:text-white",
+    meta: "text-pink-100/80",
+    action: "border-pink-200/35 bg-pink-300/[0.14] text-pink-50 hover:border-pink-200/50 hover:bg-pink-300/[0.22]",
+    row: "hover:bg-pink-300/[0.05]",
+  },
+  "Ready for release": {
+    section: "border-emerald-300/30 bg-gradient-to-br from-emerald-400/[0.16] via-lime-300/[0.12] to-emerald-950/45",
+    header: "border-emerald-200/20 bg-emerald-300/[0.12]",
+    badge: "border-emerald-200/35 bg-emerald-300/[0.18] text-emerald-50",
+    tableHead: "bg-emerald-300/[0.12] text-emerald-50/85",
+    key: "text-emerald-100 hover:text-white",
+    meta: "text-emerald-100/80",
+    action: "border-emerald-200/35 bg-emerald-300/[0.16] text-emerald-50 hover:border-emerald-200/55 hover:bg-emerald-300/[0.24]",
+    row: "hover:bg-emerald-300/[0.06]",
+  },
+  default: {
+    section: "border-white/12 bg-white/[0.04]",
+    header: "border-white/10 bg-white/[0.05]",
+    badge: "border-white/15 bg-white/10 text-white/90",
+    tableHead: "bg-white/[0.05] text-white/75",
+    key: "text-sky-100 hover:text-white",
+    meta: "text-slate-200/75",
+    action: "border-sky-300/20 bg-sky-400/10 text-sky-100 hover:border-sky-300/40 hover:bg-sky-400/16",
+    row: "hover:bg-white/[0.04]",
+  },
+};
+
+const getStatusStyles = (status) => STATUS_STYLE_MAP[status] || STATUS_STYLE_MAP.default;
 
 export function JiraIssuesPage({ view }) {
   const [details, setDetails] = useState(null);
@@ -51,10 +152,10 @@ export function JiraIssuesPage({ view }) {
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
           <h2 className="text-3xl font-extrabold text-sky-100">
-            {details?.title || "Jira Issue Details"}
+            {details?.title || "Jira Last Comments"}
           </h2>
           <p className="mt-2 text-sm text-slate-300/85">
-            {details?.subtitle || "Loading the selected Jira issue list."}
+            {details?.subtitle || "Loading the selected Jira epic list."}
           </p>
         </div>
         <button
@@ -62,7 +163,7 @@ export function JiraIssuesPage({ view }) {
           onClick={() => loadDetails({ silent: true })}
           className="self-start rounded-full border border-white/15 bg-white/[0.06] px-4 py-2 text-sm font-bold text-white/85 backdrop-blur-md transition hover:border-sky-300/35 hover:bg-sky-400/10 hover:text-white"
         >
-          {refreshing ? "Refreshing..." : "Refresh List"}
+          {refreshing ? "Refreshing..." : "Refresh Jira"}
         </button>
       </div>
 
@@ -76,91 +177,131 @@ export function JiraIssuesPage({ view }) {
         <div className="flex flex-col gap-4 border-b border-white/10 pb-5 md:flex-row md:items-end md:justify-between">
           <div>
             <div className="text-xs font-black uppercase tracking-[0.24em] text-sky-100/65">
-              Live Jira Feed
+              Project EDI Epics
             </div>
             <div className="mt-3 text-4xl font-black text-white">
               {loading && !details ? "..." : details?.totalCount || 0}
             </div>
             <div className="mt-2 text-sm font-semibold text-slate-300/80">
-              {details?.totalCount === 1 ? "issue found" : "issues found"}
+              {details?.totalCount === 1 ? "epic found" : "epics found"}
             </div>
           </div>
-          {details?.generatedAt && (
-            <div className="text-sm font-medium text-slate-300/70">
-              Updated {formatJiraDateTime(details.generatedAt)}
-            </div>
-          )}
+          <div className="space-y-2 text-sm font-medium text-slate-300/70">
+            <div>{details?.statusGroups?.length || 0} status groups</div>
+            {details?.generatedAt && <div>Updated {formatJiraDateTime(details.generatedAt)}</div>}
+          </div>
         </div>
 
         <div className="mt-6">
           {loading && !details ? (
             <DetailSkeleton />
-          ) : details?.issues?.length ? (
-            <div className="grid gap-4">
-              {details.issues.map((issue) => (
-                <article
-                  key={issue.key}
-                  className="rounded-3xl border border-white/10 bg-white/[0.05] p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl"
-                >
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <a
-                          href={issue.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-sm font-black tracking-[0.18em] text-sky-200 transition hover:text-sky-100"
-                        >
-                          {issue.key}
-                        </a>
-                        <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
-                          {issue.status}
-                        </span>
-                      </div>
-                      <h3 className="mt-3 text-xl font-bold text-white">{issue.summary}</h3>
-                    </div>
-                    <a
-                      href={issue.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-full border border-sky-300/20 bg-sky-400/10 px-4 py-2 text-sm font-bold text-sky-100 transition hover:border-sky-300/40 hover:bg-sky-400/16"
-                    >
-                      Open in Jira
-                    </a>
-                  </div>
+          ) : details?.statusGroups?.length ? (
+            <div className="space-y-6">
+              {details.statusGroups.map((group) => {
+                const statusStyles = getStatusStyles(group.status);
 
-                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                    <div className="rounded-2xl border border-white/8 bg-black/15 px-4 py-3">
-                      <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        Assignee
+                return (
+                  <section
+                    key={group.status}
+                    className={`overflow-hidden rounded-3xl border shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl ${statusStyles.section}`}
+                  >
+                    <div
+                      className={`flex flex-col gap-3 border-b px-5 py-4 md:flex-row md:items-center md:justify-between ${statusStyles.header}`}
+                    >
+                      <div>
+                        <div className="text-[11px] font-black uppercase tracking-[0.22em] text-white/60">
+                          Status
+                        </div>
+                        <h3 className="mt-2 text-2xl font-black text-white">{group.status}</h3>
                       </div>
-                      <div className="mt-2 text-sm font-semibold text-white/90">{issue.assignee}</div>
+                      <span className={`rounded-full border px-4 py-2 text-sm font-bold ${statusStyles.badge}`}>
+                        {group.count} {group.count === 1 ? "epic" : "epics"}
+                      </span>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-black/15 px-4 py-3">
-                      <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        Priority
-                      </div>
-                      <div className="mt-2 text-sm font-semibold text-white/90">{issue.priority}</div>
+
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[1080px] border-collapse">
+                        <thead className={statusStyles.tableHead}>
+                          <tr>
+                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                              Issue
+                            </th>
+                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                              Assignee
+                            </th>
+                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                              Latest Comment
+                            </th>
+                            <th className="px-4 py-3 text-left text-[11px] font-black uppercase tracking-[0.22em]">
+                              Updated
+                            </th>
+                            <th className="px-4 py-3 text-right text-[11px] font-black uppercase tracking-[0.22em]">
+                              Jira
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {group.issues.map((issue) => (
+                            <tr
+                              key={issue.key}
+                              className={`border-t border-white/10 align-top transition ${statusStyles.row}`}
+                            >
+                              <td className="px-4 py-4">
+                                <div className="min-w-0">
+                                  <div className="flex flex-wrap items-center gap-3">
+                                    <a
+                                      href={issue.url}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className={`text-sm font-black tracking-[0.18em] transition ${statusStyles.key}`}
+                                    >
+                                      {issue.key}
+                                    </a>
+                                    <span
+                                      className={`rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-[0.18em] ${statusStyles.badge}`}
+                                    >
+                                      {issue.issueType || "Epic"}
+                                    </span>
+                                  </div>
+                                  <h4 className="mt-3 text-base font-bold leading-6 text-white">
+                                    {issue.summary}
+                                  </h4>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 text-sm font-semibold text-white/88">
+                                {issue.assignee || "Unassigned"}
+                              </td>
+                              <td className="px-4 py-4">
+                                <div className="rounded-2xl border border-white/10 bg-black/15 px-4 py-3">
+                                  <div className={`text-xs font-bold ${statusStyles.meta}`}>
+                                    {formatLastCommentMeta(issue)}
+                                  </div>
+                                  <div className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-white/85">
+                                    {renderCommentText(issue)}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-4 py-4 text-sm font-semibold text-white/80">
+                                {formatJiraDateTime(issue.updated)}
+                              </td>
+                              <td className="px-4 py-4 text-right">
+                                <a
+                                  href={issue.url}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className={`inline-flex rounded-full border px-4 py-2 text-sm font-bold transition ${statusStyles.action}`}
+                                >
+                                  Open in Jira
+                                </a>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
-                    <div className="rounded-2xl border border-white/8 bg-black/15 px-4 py-3">
-                      <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        Updated
-                      </div>
-                      <div className="mt-2 text-sm font-semibold text-white/90">
-                        {formatJiraDateTime(issue.updated)}
-                      </div>
-                    </div>
-                    <div className="rounded-2xl border border-white/8 bg-black/15 px-4 py-3">
-                      <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
-                        Schedule
-                      </div>
-                      <div className="mt-2 text-sm font-semibold text-white/90">
-                        {formatJiraScheduleWindow(issue)}
-                      </div>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                  </section>
+                );
+              })}
             </div>
           ) : (
             <div className="rounded-3xl border border-white/10 bg-white/[0.05] px-5 py-5 text-sm font-semibold text-slate-200 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
@@ -171,7 +312,7 @@ export function JiraIssuesPage({ view }) {
 
         {details?.truncated && (
           <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-400/10 px-4 py-3 text-sm font-semibold text-amber-50">
-            Showing the first {details.visibleCount} issues. There are {details.totalCount} issues in total.
+            Showing the first {details.visibleCount} epics. There are {details.totalCount} epics in total.
           </div>
         )}
       </section>

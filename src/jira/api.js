@@ -1,7 +1,11 @@
 const NETLIFY_FUNCTION_PATH = "/.netlify/functions/jiraDashboard";
-const NETLIFY_DEV_URL = `http://127.0.0.1:8888${NETLIFY_FUNCTION_PATH}`;
+const LOCAL_NETLIFY_DEV_PORTS = ["8890", "8888"];
 
 const unique = (values) => Array.from(new Set(values.filter(Boolean)));
+const isLocalNetlifyDevUrl = (value) =>
+  LOCAL_NETLIFY_DEV_PORTS.some(
+    (port) => String(value || "") === `http://127.0.0.1:${port}${NETLIFY_FUNCTION_PATH}`
+  );
 
 const getApiBaseCandidates = () => {
   const explicitBaseUrl = import.meta.env.VITE_JIRA_DASHBOARD_API_URL?.trim();
@@ -12,12 +16,16 @@ const getApiBaseCandidates = () => {
   const sameOriginFunctionUrl = origin
     ? new URL(NETLIFY_FUNCTION_PATH, origin).toString()
     : NETLIFY_FUNCTION_PATH;
-  const localNetlifyDevUrl = isLocalHost && port !== "8888" ? NETLIFY_DEV_URL : null;
+  const localNetlifyDevUrls = isLocalHost
+    ? LOCAL_NETLIFY_DEV_PORTS
+        .filter((candidatePort) => candidatePort !== port)
+        .map((candidatePort) => `http://127.0.0.1:${candidatePort}${NETLIFY_FUNCTION_PATH}`)
+    : [];
 
   return unique([
     explicitBaseUrl,
-    localNetlifyDevUrl,
     sameOriginFunctionUrl,
+    ...localNetlifyDevUrls,
   ]);
 };
 
@@ -41,7 +49,7 @@ const readResponseBody = async (response) => {
 
 const describeCandidateFailure = (baseUrl, error) => {
   if (error?.responseStatus) {
-    if (error.responseStatus === 404 && baseUrl === NETLIFY_DEV_URL) {
+    if (error.responseStatus === 404 && isLocalNetlifyDevUrl(baseUrl)) {
       return "Local Netlify Jira backend is not running. Start it with `npx netlify dev`.";
     }
 
@@ -52,7 +60,7 @@ const describeCandidateFailure = (baseUrl, error) => {
     return error.message || "Jira backend request failed.";
   }
 
-  if (baseUrl === NETLIFY_DEV_URL) {
+  if (isLocalNetlifyDevUrl(baseUrl)) {
     return "Local Netlify Jira backend is not running. Start it with `npx netlify dev`.";
   }
 
