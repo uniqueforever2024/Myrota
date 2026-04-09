@@ -1,3 +1,4 @@
+const VERCEL_API_PATH = "/api/jiraDashboard";
 const NETLIFY_FUNCTION_PATH = "/.netlify/functions/jiraDashboard";
 const LOCAL_NETLIFY_DEV_PORTS = ["8890", "8888"];
 
@@ -6,6 +7,18 @@ const isLocalNetlifyDevUrl = (value) =>
   LOCAL_NETLIFY_DEV_PORTS.some(
     (port) => String(value || "") === `http://127.0.0.1:${port}${NETLIFY_FUNCTION_PATH}`
   );
+const isNetlifyFunctionUrl = (value) => String(value || "").includes(NETLIFY_FUNCTION_PATH);
+const isVercelApiUrl = (value) => {
+  const raw = String(value || "").trim();
+  if (!raw) return false;
+
+  try {
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost";
+    return new URL(raw, origin).pathname === VERCEL_API_PATH;
+  } catch {
+    return raw === VERCEL_API_PATH;
+  }
+};
 
 const getApiBaseCandidates = () => {
   const explicitBaseUrl = import.meta.env.VITE_JIRA_DASHBOARD_API_URL?.trim();
@@ -13,6 +26,7 @@ const getApiBaseCandidates = () => {
   const port = typeof window !== "undefined" ? window.location.port : "";
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const isLocalHost = /^(localhost|127\.0\.0\.1)$/i.test(host);
+  const sameOriginApiUrl = origin ? new URL(VERCEL_API_PATH, origin).toString() : VERCEL_API_PATH;
   const sameOriginFunctionUrl = origin
     ? new URL(NETLIFY_FUNCTION_PATH, origin).toString()
     : NETLIFY_FUNCTION_PATH;
@@ -24,6 +38,7 @@ const getApiBaseCandidates = () => {
 
   return unique([
     explicitBaseUrl,
+    sameOriginApiUrl,
     sameOriginFunctionUrl,
     ...localNetlifyDevUrls,
   ]);
@@ -47,13 +62,25 @@ const readResponseBody = async (response) => {
   return response.text();
 };
 
+const isDashboardPayload = (payload) =>
+  Boolean(
+    payload &&
+      typeof payload === "object" &&
+      !Array.isArray(payload) &&
+      typeof payload.generatedAt === "string"
+  );
+
 const describeCandidateFailure = (baseUrl, error) => {
   if (error?.responseStatus) {
     if (error.responseStatus === 404 && isLocalNetlifyDevUrl(baseUrl)) {
       return "Local Netlify Jira backend is not running. Start it with `npx netlify dev`.";
     }
 
-    if (error.responseStatus === 404 && String(baseUrl || "").includes(NETLIFY_FUNCTION_PATH)) {
+    if (error.responseStatus === 404 && isVercelApiUrl(baseUrl)) {
+      return "Jira API endpoint is not reachable right now.";
+    }
+
+    if (error.responseStatus === 404 && isNetlifyFunctionUrl(baseUrl)) {
       return "Netlify Jira backend is not reachable right now.";
     }
 
@@ -64,7 +91,15 @@ const describeCandidateFailure = (baseUrl, error) => {
     return "Local Netlify Jira backend is not running. Start it with `npx netlify dev`.";
   }
 
-  if (String(baseUrl || "").includes(NETLIFY_FUNCTION_PATH)) {
+  if (error?.code === "jira/invalid-response" && isVercelApiUrl(baseUrl)) {
+    return "Jira API endpoint returned an unexpected response.";
+  }
+
+  if (isVercelApiUrl(baseUrl)) {
+    return "Jira API endpoint is not reachable right now.";
+  }
+
+  if (isNetlifyFunctionUrl(baseUrl)) {
     return "Netlify Jira backend is not reachable right now.";
   }
 
@@ -89,6 +124,12 @@ const requestJiraDashboard = async (params) => {
           typeof body === "string" ? body : body?.error || `Request failed (${response.status})`
         );
         error.responseStatus = response.status;
+        throw error;
+      }
+
+      if (!isDashboardPayload(body)) {
+        const error = new Error("Jira backend returned an unexpected response.");
+        error.code = "jira/invalid-response";
         throw error;
       }
 
