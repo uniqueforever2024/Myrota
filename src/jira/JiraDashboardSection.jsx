@@ -11,6 +11,9 @@ const countButtonBaseClass =
 const panelShellClass =
   "flex h-full flex-col rounded-[28px] border p-6 shadow-[0_28px_90px_rgba(15,23,42,0.34)] backdrop-blur-2xl transition-transform duration-300 hover:-translate-y-1";
 
+const compactCountButtonBaseClass =
+  "inline-flex items-center gap-3 rounded-full border px-4 py-2.5 text-left transition duration-300 hover:-translate-y-0.5";
+
 const SkeletonBlock = ({ className }) => (
   <div className={`animate-pulse rounded-2xl bg-white/10 ${className}`} />
 );
@@ -25,14 +28,49 @@ const CountButton = ({ label, count, accentClassName, onClick }) => (
   </button>
 );
 
+const CompactCountButton = ({ label, count, accentClassName, onClick }) => (
+  <button
+    type="button"
+    className={`${compactCountButtonBaseClass} ${accentClassName}`}
+    onClick={onClick}
+  >
+    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white/65">{label}</span>
+    <span className="text-lg font-black text-white">{count}</span>
+  </button>
+);
+
+const PanelToggleButton = ({ collapsed, onClick, className = "" }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    aria-expanded={!collapsed}
+    aria-label={collapsed ? "Expand panel" : "Collapse panel"}
+    className={`inline-flex h-11 w-11 items-center justify-center rounded-full border bg-white/[0.06] text-white/90 backdrop-blur-md transition hover:-translate-y-0.5 hover:bg-white/[0.12] ${className}`}
+  >
+    <span aria-hidden="true" className="text-2xl font-black leading-none">
+      {collapsed ? "+" : "-"}
+    </span>
+  </button>
+);
+
 export function JiraDashboardSection({ onOpenView }) {
   const [summary, setSummary] = useState(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [collapsedPanels, setCollapsedPanels] = useState({
+    mapping: false,
+    support: false,
+    changes: false,
+  });
   const sourceLabel = summary?.source === "mock" ? "Preview" : "Live";
 
   const countOrUnavailable = (value) => (value ?? (error ? "--" : 0));
+  const togglePanel = (panelKey) =>
+    setCollapsedPanels((currentPanels) => ({
+      ...currentPanels,
+      [panelKey]: !currentPanels[panelKey],
+    }));
 
   const loadSummary = async ({ silent = false } = {}) => {
     if (silent) setRefreshing(true);
@@ -92,34 +130,58 @@ export function JiraDashboardSection({ onOpenView }) {
               <h3 className="mt-3 text-2xl font-extrabold text-cyan-50">Mapping Queue</h3>
               <p className="mt-2 text-sm text-cyan-100/75">Project EDI | In Progress stories and open epics</p>
             </div>
-            <span className="rounded-full border border-cyan-200/15 bg-cyan-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">
-              {sourceLabel}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="rounded-full border border-cyan-200/15 bg-cyan-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-cyan-100">
+                {sourceLabel}
+              </span>
+              <PanelToggleButton
+                collapsed={collapsedPanels.mapping}
+                onClick={() => togglePanel("mapping")}
+                className="border-cyan-200/15 text-cyan-100 hover:border-cyan-300/35"
+              />
+            </div>
           </div>
 
-          <div className="mt-6 grid flex-1 gap-4 sm:grid-cols-2 sm:items-stretch">
-            {loading && !summary ? (
-              <>
-                <SkeletonBlock className="h-36 w-full" />
-                <SkeletonBlock className="h-36 w-full" />
-              </>
-            ) : (
-              <>
-                <CountButton
-                  label={summary?.mapping?.inProgress?.label || "In Progress"}
-                  count={countOrUnavailable(summary?.mapping?.inProgress?.count)}
-                  accentClassName="border-cyan-200/15 bg-cyan-400/10 hover:border-cyan-300/35 hover:bg-cyan-400/14"
-                  onClick={() => onOpenView(summary?.mapping?.inProgress?.viewId)}
-                />
-                <CountButton
-                  label={summary?.mapping?.openEpic?.label || "Open Epic"}
-                  count={countOrUnavailable(summary?.mapping?.openEpic?.count)}
-                  accentClassName="border-teal-200/15 bg-teal-400/10 hover:border-teal-300/35 hover:bg-teal-400/14"
-                  onClick={() => onOpenView(summary?.mapping?.openEpic?.viewId)}
-                />
-              </>
-            )}
-          </div>
+          {collapsedPanels.mapping ? (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <CompactCountButton
+                label={summary?.mapping?.inProgress?.label || "In Progress"}
+                count={loading && !summary ? "..." : countOrUnavailable(summary?.mapping?.inProgress?.count)}
+                accentClassName="border-cyan-200/15 bg-cyan-400/10 hover:border-cyan-300/35 hover:bg-cyan-400/14"
+                onClick={() => onOpenView(summary?.mapping?.inProgress?.viewId)}
+              />
+              <CompactCountButton
+                label={summary?.mapping?.openEpic?.label || "Open Epic"}
+                count={loading && !summary ? "..." : countOrUnavailable(summary?.mapping?.openEpic?.count)}
+                accentClassName="border-teal-200/15 bg-teal-400/10 hover:border-teal-300/35 hover:bg-teal-400/14"
+                onClick={() => onOpenView(summary?.mapping?.openEpic?.viewId)}
+              />
+            </div>
+          ) : (
+            <div className="mt-6 grid flex-1 gap-4 sm:grid-cols-2 sm:items-stretch">
+              {loading && !summary ? (
+                <>
+                  <SkeletonBlock className="h-36 w-full" />
+                  <SkeletonBlock className="h-36 w-full" />
+                </>
+              ) : (
+                <>
+                  <CountButton
+                    label={summary?.mapping?.inProgress?.label || "In Progress"}
+                    count={countOrUnavailable(summary?.mapping?.inProgress?.count)}
+                    accentClassName="border-cyan-200/15 bg-cyan-400/10 hover:border-cyan-300/35 hover:bg-cyan-400/14"
+                    onClick={() => onOpenView(summary?.mapping?.inProgress?.viewId)}
+                  />
+                  <CountButton
+                    label={summary?.mapping?.openEpic?.label || "Open Epic"}
+                    count={countOrUnavailable(summary?.mapping?.openEpic?.count)}
+                    accentClassName="border-teal-200/15 bg-teal-400/10 hover:border-teal-300/35 hover:bg-teal-400/14"
+                    onClick={() => onOpenView(summary?.mapping?.openEpic?.viewId)}
+                  />
+                </>
+              )}
+            </div>
+          )}
         </article>
 
         <article
@@ -133,34 +195,58 @@ export function JiraDashboardSection({ onOpenView }) {
               <h3 className="mt-3 text-2xl font-extrabold text-violet-50">Support Queue</h3>
               <p className="mt-2 text-sm text-violet-100/75">HCLSM | Team HCL-EDI</p>
             </div>
-            <span className="rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-violet-100">
-              {sourceLabel}
-            </span>
+            <div className="flex items-center gap-3">
+              <span className="rounded-full border border-violet-200/15 bg-violet-400/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.22em] text-violet-100">
+                {sourceLabel}
+              </span>
+              <PanelToggleButton
+                collapsed={collapsedPanels.support}
+                onClick={() => togglePanel("support")}
+                className="border-violet-200/15 text-violet-100 hover:border-violet-300/35"
+              />
+            </div>
           </div>
 
-          <div className="mt-6 grid flex-1 gap-4 sm:grid-cols-2 sm:items-stretch">
-            {loading && !summary ? (
-              <>
-                <SkeletonBlock className="h-36 w-full" />
-                <SkeletonBlock className="h-36 w-full" />
-              </>
-            ) : (
-              <>
-                <CountButton
-                  label={summary?.support?.inProgress?.label || "In Progress"}
-                  count={countOrUnavailable(summary?.support?.inProgress?.count)}
-                  accentClassName="border-violet-200/15 bg-violet-400/10 hover:border-violet-300/35 hover:bg-violet-400/14"
-                  onClick={() => onOpenView(summary?.support?.inProgress?.viewId)}
-                />
-                <CountButton
-                  label={summary?.support?.onHold?.label || "On Hold"}
-                  count={countOrUnavailable(summary?.support?.onHold?.count)}
-                  accentClassName="border-rose-200/15 bg-rose-400/10 hover:border-rose-300/35 hover:bg-rose-400/14"
-                  onClick={() => onOpenView(summary?.support?.onHold?.viewId)}
-                />
-              </>
-            )}
-          </div>
+          {collapsedPanels.support ? (
+            <div className="mt-6 flex flex-wrap gap-3">
+              <CompactCountButton
+                label={summary?.support?.inProgress?.label || "In Progress"}
+                count={loading && !summary ? "..." : countOrUnavailable(summary?.support?.inProgress?.count)}
+                accentClassName="border-violet-200/15 bg-violet-400/10 hover:border-violet-300/35 hover:bg-violet-400/14"
+                onClick={() => onOpenView(summary?.support?.inProgress?.viewId)}
+              />
+              <CompactCountButton
+                label={summary?.support?.onHold?.label || "On Hold"}
+                count={loading && !summary ? "..." : countOrUnavailable(summary?.support?.onHold?.count)}
+                accentClassName="border-rose-200/15 bg-rose-400/10 hover:border-rose-300/35 hover:bg-rose-400/14"
+                onClick={() => onOpenView(summary?.support?.onHold?.viewId)}
+              />
+            </div>
+          ) : (
+            <div className="mt-6 grid flex-1 gap-4 sm:grid-cols-2 sm:items-stretch">
+              {loading && !summary ? (
+                <>
+                  <SkeletonBlock className="h-36 w-full" />
+                  <SkeletonBlock className="h-36 w-full" />
+                </>
+              ) : (
+                <>
+                  <CountButton
+                    label={summary?.support?.inProgress?.label || "In Progress"}
+                    count={countOrUnavailable(summary?.support?.inProgress?.count)}
+                    accentClassName="border-violet-200/15 bg-violet-400/10 hover:border-violet-300/35 hover:bg-violet-400/14"
+                    onClick={() => onOpenView(summary?.support?.inProgress?.viewId)}
+                  />
+                  <CountButton
+                    label={summary?.support?.onHold?.label || "On Hold"}
+                    count={countOrUnavailable(summary?.support?.onHold?.count)}
+                    accentClassName="border-rose-200/15 bg-rose-400/10 hover:border-rose-300/35 hover:bg-rose-400/14"
+                    onClick={() => onOpenView(summary?.support?.onHold?.viewId)}
+                  />
+                </>
+              )}
+            </div>
+          )}
         </article>
       </div>
 
@@ -175,56 +261,78 @@ export function JiraDashboardSection({ onOpenView }) {
             <h3 className="mt-3 text-2xl font-extrabold text-amber-50">Assigned Change Requests</h3>
             <p className="mt-2 text-sm text-amber-100/75">HCLCR | Selected assignees and active statuses</p>
           </div>
-          <button
-            type="button"
-            onClick={() => onOpenView(summary?.changes?.viewId)}
-            className="rounded-2xl border border-amber-200/20 bg-amber-400/10 px-4 py-3 text-left text-white transition hover:-translate-y-1 hover:border-amber-300/35 hover:bg-amber-400/14"
-          >
-            <div className="text-xs font-black uppercase tracking-[0.24em] text-amber-100/70">Tracked Queue</div>
-            <div className="mt-2 text-3xl font-black text-amber-50">
-              {loading && !summary ? "..." : countOrUnavailable(summary?.changes?.totalCount)}
-            </div>
-            <div className="mt-1 text-sm font-semibold text-amber-100/80">Open details</div>
-          </button>
+          <div className="flex items-start gap-3 self-start md:self-auto">
+            <button
+              type="button"
+              onClick={() => onOpenView(summary?.changes?.viewId)}
+              className="rounded-2xl border border-amber-200/20 bg-amber-400/10 px-4 py-3 text-left text-white transition hover:-translate-y-1 hover:border-amber-300/35 hover:bg-amber-400/14"
+            >
+              <div className="text-xs font-black uppercase tracking-[0.24em] text-amber-100/70">Tracked Queue</div>
+              <div className="mt-2 text-3xl font-black text-amber-50">
+                {loading && !summary ? "..." : countOrUnavailable(summary?.changes?.totalCount)}
+              </div>
+              <div className="mt-1 text-sm font-semibold text-amber-100/80">Open details</div>
+            </button>
+            <PanelToggleButton
+              collapsed={collapsedPanels.changes}
+              onClick={() => togglePanel("changes")}
+              className="border-amber-200/20 text-amber-100 hover:border-amber-300/35"
+            />
+          </div>
         </div>
 
-        <div className="mt-6">
-          {loading && !summary ? (
-            <div className="grid gap-3">
-              <SkeletonBlock className="h-24 w-full" />
-              <SkeletonBlock className="h-24 w-full" />
+        {collapsedPanels.changes ? (
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="rounded-full border border-amber-100/15 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
+              {loading && !summary
+                ? "Loading tracked requests..."
+                : `${countOrUnavailable(summary?.changes?.totalCount)} tracked change requests`}
             </div>
-          ) : summary?.changes?.issues?.length ? (
-            <div className="grid gap-3 lg:auto-rows-fr lg:grid-cols-2 lg:items-stretch">
-              {summary.changes.issues.map((issue) => (
-                <button
-                  key={issue.key}
-                  type="button"
-                  onClick={() => onOpenView(summary?.changes?.viewId)}
-                  className="flex h-full flex-col rounded-2xl border border-amber-100/15 bg-white/[0.07] px-4 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-amber-300/30 hover:bg-white/[0.1]"
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-black tracking-[0.18em] text-amber-100">{issue.key}</span>
-                    <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
-                      {issue.status}
-                    </span>
-                  </div>
-                  <div className="mt-3 flex-1 line-clamp-2 text-base font-bold text-white">{issue.summary}</div>
-                  <div className="mt-4 text-sm font-semibold text-amber-50/85">
-                    {formatJiraScheduleWindow(issue)}
-                  </div>
-                  <div className="mt-2 text-xs font-medium text-amber-100/60">
-                    Updated {formatJiraDateTime(issue.updated)}
-                  </div>
-                </button>
-              ))}
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-amber-100/15 bg-white/[0.06] px-4 py-4 text-sm font-semibold text-amber-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
-              No change requests matched the selected Jira filter.
-            </div>
-          )}
-        </div>
+            {summary?.generatedAt && (
+              <div className="text-sm font-semibold text-amber-100/70">
+                Updated {formatJiraDateTime(summary.generatedAt)}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mt-6">
+            {loading && !summary ? (
+              <div className="grid gap-3">
+                <SkeletonBlock className="h-24 w-full" />
+                <SkeletonBlock className="h-24 w-full" />
+              </div>
+            ) : summary?.changes?.issues?.length ? (
+              <div className="grid gap-3 lg:auto-rows-fr lg:grid-cols-2 lg:items-stretch">
+                {summary.changes.issues.map((issue) => (
+                  <button
+                    key={issue.key}
+                    type="button"
+                    onClick={() => onOpenView(summary?.changes?.viewId)}
+                    className="flex h-full flex-col rounded-2xl border border-amber-100/15 bg-white/[0.07] px-4 py-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl transition hover:-translate-y-1 hover:border-amber-300/30 hover:bg-white/[0.1]"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-sm font-black tracking-[0.18em] text-amber-100">{issue.key}</span>
+                      <span className="rounded-full border border-white/10 bg-white/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.18em] text-white/80">
+                        {issue.status}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex-1 line-clamp-2 text-base font-bold text-white">{issue.summary}</div>
+                    <div className="mt-4 text-sm font-semibold text-amber-50/85">
+                      {formatJiraScheduleWindow(issue)}
+                    </div>
+                    <div className="mt-2 text-xs font-medium text-amber-100/60">
+                      Updated {formatJiraDateTime(issue.updated)}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-amber-100/15 bg-white/[0.06] px-4 py-4 text-sm font-semibold text-amber-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] backdrop-blur-xl">
+                No change requests matched the selected Jira filter.
+              </div>
+            )}
+          </div>
+        )}
       </article>
     </section>
   );
