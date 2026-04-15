@@ -10,7 +10,7 @@
 // 6) A shift = Blue, C shift = Yellow. Sticky employee column readable on mobile.
 // -----------------------------------------------------------------------------------
 
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import myrotaLogo from "./myrotalogo.svg";
 import "./App.css";
 
@@ -135,39 +135,6 @@ const readPortalLoginSession = () => {
     return { isAuthenticated: false, isAdmin: false };
   }
 };
-
-const JIRA_COMMENTS_VIEW_ID = "ediEpicLastComments";
-
-const LazyJiraIssuesPage = lazy(() =>
-  import("./jira/JiraIssuesPage").then((module) => ({
-    default: module.JiraIssuesPage,
-  }))
-);
-
-const LazyJiraDashboardSection = lazy(() =>
-  import("./jira/JiraDashboardSection").then((module) => ({
-    default: module.JiraDashboardSection,
-  }))
-);
-
-const JiraPanelFallback = ({ detail = false }) => (
-  <section className="space-y-6 rounded-[34px] border border-amber-200/20 bg-gradient-to-br from-amber-300/[0.10] via-yellow-200/[0.08] to-orange-300/[0.06] p-6 shadow-[0_30px_90px_rgba(245,158,11,0.16)] backdrop-blur-2xl md:p-7">
-    <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-      <div className="space-y-3">
-        <div className="h-4 w-32 animate-pulse rounded-full bg-white/10" />
-        <div className="h-8 w-56 animate-pulse rounded-full bg-white/10" />
-        <div className="h-4 w-80 max-w-full animate-pulse rounded-full bg-white/10" />
-      </div>
-      <div className="h-10 w-32 animate-pulse rounded-full bg-white/10" />
-    </div>
-
-    <div className={`grid gap-4 ${detail ? "" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
-      <div className="h-36 animate-pulse rounded-3xl bg-white/10" />
-      <div className="h-36 animate-pulse rounded-3xl bg-white/10" />
-      <div className="h-36 animate-pulse rounded-3xl bg-white/10" />
-    </div>
-  </section>
-);
 
 const LogoutIcon = ({ className = "h-5 w-5" }) => (
   <svg
@@ -371,7 +338,7 @@ export default function App() {
     return { YEARS, defaultYear, defaultMonth };
   });
   const isDarkMode = true;
-  const [page, setPage] = useState("home"); // home | dashboard | logs | report | notifications | jira-details
+  const [page, setPage] = useState("home"); // home | dashboard | logs | report | notifications
   const [isAuthenticated, setIsAuthenticated] = useState(initialPortalSession.isAuthenticated);
   const [isAdmin, setIsAdmin] = useState(initialPortalSession.isAdmin);
   const [loginForm, setLoginForm] = useState({
@@ -464,7 +431,6 @@ export default function App() {
   const [logs, setLogs] = useState([]);
   const [finalReport, setFinalReport] = useState([]);
   const [adminSettings, setAdminSettings] = useState(null);
-  const [jiraDetailView, setJiraDetailView] = useState(null);
 
   /* ✅ LISTEN: employees + rota */
   useEffect(() => {
@@ -571,14 +537,7 @@ export default function App() {
   /* NAV */
   const goHome = () => {
     setEmployeeView(null);
-    setJiraDetailView(null);
     setPage("home");
-  };
-
-  const openJiraDetailView = (viewId = JIRA_COMMENTS_VIEW_ID) => {
-    setEmployeeView(null);
-    setJiraDetailView(viewId);
-    setPage("jira-details");
   };
 
   const handleLogoClick = () => {
@@ -823,7 +782,6 @@ export default function App() {
 
     navStackRef.current = ["home"];
     setEmployeeView(null);
-    setJiraDetailView(null);
     setShowAdminModal(false);
     setAdminPass("");
     setLoginError("");
@@ -839,7 +797,6 @@ export default function App() {
   const handleAdminLogout = () => {
     navStackRef.current = ["home"];
     setEmployeeView(null);
-    setJiraDetailView(null);
     setShowAdminModal(false);
     setAdminPass("");
     setPage("home");
@@ -907,19 +864,6 @@ export default function App() {
   /* ------------------ RENDERERS ------------------ */
   const TopNav = (
     <div className="flex items-center gap-3 md:gap-6 top-nav-actions">
-      <button
-        type="button"
-        onClick={() => openJiraDetailView()}
-        title="JIRA"
-        className={`top-nav-text-button rounded-xl px-3 py-2 text-xs font-black tracking-[0.24em] transition md:text-sm ${
-          page === "jira-details"
-            ? "btn-glass text-white"
-            : "glass-chip hover:scale-105"
-        }`}
-      >
-        JIRA
-      </button>
-
       <div className="nav-featured-item">
         <button
           onClick={() => setPage("dashboard")}
@@ -1522,12 +1466,6 @@ export default function App() {
           </div>
         </div>
       </section>
-
-      <section>
-        <Suspense fallback={<JiraPanelFallback />}>
-          <LazyJiraDashboardSection onOpenView={openJiraDetailView} />
-        </Suspense>
-      </section>
     </div>
   );
 
@@ -1665,7 +1603,7 @@ export default function App() {
 
         <main className="flex-grow px-4 md:px-6 lg:px-10 py-8">
           {/* Back button below navbar (not on dashboard) */}
-          {["dashboard", "report", "logs", "notifications", "jira-details"].includes(page) && (
+          {["dashboard", "report", "logs", "notifications"].includes(page) && (
             <div className="mb-4 flex justify-end">
               <button
                 onClick={goBack}
@@ -1696,13 +1634,6 @@ export default function App() {
 
           {/* REPORT */}
           {page === "report" && ReportPage}
-
-          {/* JIRA ISSUE DETAILS */}
-          {page === "jira-details" && (
-            <Suspense fallback={<JiraPanelFallback detail />}>
-              <LazyJiraIssuesPage view={jiraDetailView || JIRA_COMMENTS_VIEW_ID} />
-            </Suspense>
-          )}
 
           {/* ADMIN LOGIN MODAL (landing -> Admin) */}
           {showAdminModal && (
