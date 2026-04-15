@@ -1477,92 +1477,82 @@ export default function App() {
         <div className="login-orb login-orb-yellow" />
         <div className="login-orb login-orb-red" />
 
-        <div className="relative grid w-full max-w-6xl gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-center">
-          <section className="login-hero rounded-[30px] border border-white/10 p-7 sm:p-10">
-            <div className="login-hero-content">
-              <div className="login-ribbon">
-                <p className="text-xs font-black uppercase tracking-[0.36em] text-sky-200/80">
-                  Secure Access
+        <div className="login-stage w-full max-w-6xl">
+          <div className="login-stage-grid grid gap-6 p-4 sm:p-5 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.92fr)] lg:items-center">
+            <section className="login-hero p-7 sm:p-10">
+              <div className="login-hero-content">
+                <div className="login-brand-lockup">
+                  <div className="login-brand-mark">
+                    <BrandLogo className="login-brand-logo" />
+                    <h1 className="login-brand-title">
+                      My<span className="logo-blue">R</span>
+                      <span className="logo-green">o</span>
+                      <span className="logo-yellow">t</span>
+                      <span className="logo-red">a</span>+
+                    </h1>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="login-card rounded-[30px] border border-white/12 p-6 sm:p-8">
+              <div className="mb-6">
+                <p className="text-xs font-black uppercase tracking-[0.34em] text-sky-200/80">
+                  Portal Login
+                </p>
+                <h3 className="mt-3 text-3xl font-black text-white">Sign in</h3>
+                <p className="mt-2 text-sm font-medium text-slate-300/85">
+                  Enter the default admin credentials to continue to the MyRota home page.
                 </p>
               </div>
 
-              <div className="login-brand-lockup">
-                <div className="login-brand-mark">
-                  <BrandLogo className="login-brand-logo" />
-                  <h1 className="login-brand-title">
-                    My<span className="logo-blue">R</span>
-                    <span className="logo-green">o</span>
-                    <span className="logo-yellow">t</span>
-                    <span className="logo-red">a</span>+
-                  </h1>
-                </div>
-              </div>
+              <form className="space-y-5" onSubmit={handlePortalLogin}>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-slate-200/80">
+                    User ID
+                  </span>
+                  <input
+                    type="text"
+                    value={loginForm.username}
+                    readOnly
+                    className="login-input"
+                  />
+                </label>
 
-              <div className="login-powered-note">
-                <p className="login-powered-copy">
-                  Created for internal use only <strong>HCL EDI</strong>
-                </p>
-              </div>
-            </div>
-          </section>
+                <label className="block">
+                  <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-slate-200/80">
+                    Password
+                  </span>
+                  <input
+                    type="password"
+                    value={loginForm.password}
+                    autoComplete="current-password"
+                    placeholder="Enter password"
+                    className="login-input"
+                    onChange={(event) =>
+                      setLoginForm((previous) => ({
+                        ...previous,
+                        password: event.target.value,
+                      }))
+                    }
+                  />
+                  <span className="mt-2 block text-xs font-semibold tracking-[0.16em] text-sky-100/70">
+                    LC B2Bi password
+                  </span>
+                </label>
 
-          <section className="login-card rounded-[30px] border border-white/12 p-6 sm:p-8">
-            <div className="mb-6">
-              <p className="text-xs font-black uppercase tracking-[0.34em] text-sky-200/80">
-                Portal Login
-              </p>
-              <h3 className="mt-3 text-3xl font-black text-white">Sign in</h3>
-              <p className="mt-2 text-sm font-medium text-slate-300/85">
-                Enter the default admin credentials to continue to the MyRota home page.
-              </p>
-            </div>
+                {loginError ? (
+                  <div className="rounded-2xl border border-rose-300/20 bg-rose-500/10 px-4 py-3 text-sm font-semibold text-rose-100">
+                    {loginError}
+                  </div>
+                ) : null}
 
-            <form className="space-y-5" onSubmit={handlePortalLogin}>
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-slate-200/80">
-                  User ID
-                </span>
-                <input
-                  type="text"
-                  value={loginForm.username}
-                  readOnly
-                  className="login-input"
-                />
-              </label>
-
-              <label className="block">
-                <span className="mb-2 block text-sm font-bold uppercase tracking-[0.2em] text-slate-200/80">
-                  Password
-                </span>
-                <input
-                  type="password"
-                  value={loginForm.password}
-                  autoComplete="current-password"
-                  placeholder="Enter password"
-                  className="login-input"
-                  onChange={(event) =>
-                    setLoginForm((previous) => ({
-                      ...previous,
-                      password: event.target.value,
-                    }))
-                  }
-                />
-                <span className="mt-2 block text-xs font-semibold tracking-[0.16em] text-sky-100/70">
-                  LC B2Bi password
-                </span>
-              </label>
-
-              {loginError ? (
-                <div className="rounded-2xl border border-rose-300/20 bg-rose-500/10 px-4 py-3 text-sm font-semibold text-rose-100">
-                  {loginError}
-                </div>
-              ) : null}
-
-              <button type="submit" className="btn-primary w-full py-3 text-sm uppercase tracking-[0.26em]">
-                Login
-              </button>
-            </form>
-          </section>
+                <button type="submit" className="btn-primary w-full py-3 text-sm uppercase tracking-[0.26em]">
+                  Login
+                </button>
+              </form>
+            </section>
+          </div>
         </div>
       </main>
 
@@ -1806,7 +1796,43 @@ export default function App() {
             width: 240px;
             background: rgba(248, 113, 113, 0.18);
           }
-          .login-hero,
+          .login-stage {
+            position: relative;
+            overflow: hidden;
+            border-radius: 34px;
+            border: 1px solid rgba(255,255,255,0.13);
+            background:
+              linear-gradient(135deg, rgba(9, 17, 40, 0.5), rgba(15, 23, 42, 0.24)),
+              rgba(255,255,255,0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow:
+              inset 0 1px 0 rgba(255,255,255,0.12),
+              0 28px 80px rgba(2, 6, 23, 0.4);
+          }
+          .login-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+              radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 30%),
+              radial-gradient(circle at 18% 82%, rgba(52, 211, 153, 0.14), transparent 28%),
+              radial-gradient(circle at 84% 18%, rgba(250, 204, 21, 0.12), transparent 26%),
+              radial-gradient(circle at 88% 78%, rgba(248, 113, 113, 0.12), transparent 28%);
+            pointer-events: none;
+          }
+          .login-stage::after {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            border: 1px solid rgba(255,255,255,0.04);
+            pointer-events: none;
+          }
+          .login-stage-grid {
+            position: relative;
+            z-index: 1;
+          }
           .login-card {
             position: relative;
             overflow: hidden;
@@ -1817,10 +1843,8 @@ export default function App() {
               0 24px 60px rgba(2, 6, 23, 0.34);
           }
           .login-hero {
-            background:
-              radial-gradient(circle at top left, rgba(96, 165, 250, 0.14), transparent 34%),
-              radial-gradient(circle at bottom right, rgba(52, 211, 153, 0.12), transparent 38%),
-              rgba(255,255,255,0.05);
+            position: relative;
+            z-index: 1;
           }
           .login-card {
             background:
@@ -1833,29 +1857,17 @@ export default function App() {
             min-height: 100%;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            gap: 1.5rem;
+            justify-content: center;
+            gap: 1rem;
             text-align: center;
             width: 100%;
-          }
-          .login-ribbon {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 999px;
-            border: 1px solid rgba(125, 211, 252, 0.22);
-            background: rgba(56, 189, 248, 0.08);
-            padding: 0.75rem 1.2rem;
-            box-shadow:
-              inset 0 1px 0 rgba(255,255,255,0.12),
-              0 16px 34px rgba(2, 6, 23, 0.2);
           }
           .login-brand-lockup {
             display: flex;
             align-items: center;
             justify-content: center;
             flex: 1;
-            min-height: 260px;
+            min-height: 320px;
             width: 100%;
           }
           .login-brand-mark {
@@ -1882,30 +1894,6 @@ export default function App() {
             color: #f8fbff;
             text-align: center;
             text-shadow: 0 16px 40px rgba(2, 6, 23, 0.34);
-          }
-          .login-powered-note {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            max-width: 360px;
-            border-radius: 22px;
-            border: 1px solid rgba(255,255,255,0.12);
-            background: rgba(255,255,255,0.06);
-            padding: 1.1rem 1.25rem;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
-          }
-          .login-powered-copy {
-            margin: 0;
-            font-size: clamp(0.98rem, 2.2vw, 1.08rem);
-            font-weight: 500;
-            line-height: 1.5;
-            text-align: center;
-            color: rgba(241, 245, 249, 0.92);
-          }
-          .login-powered-copy strong {
-            font-weight: 800;
-            color: #ffffff;
           }
           .login-input {
             width: 100%;
@@ -2186,15 +2174,12 @@ export default function App() {
               padding-top: 2rem;
               padding-bottom: 2rem;
             }
-            .login-hero,
+            .login-stage,
             .login-card {
               border-radius: 24px;
             }
             .login-hero-content {
               gap: 1.5rem;
-            }
-            .login-ribbon {
-              padding: 0.7rem 1rem;
             }
             .login-brand-lockup {
               min-height: 200px;
@@ -2208,10 +2193,6 @@ export default function App() {
             .login-brand-title {
               font-size: clamp(1.9rem, 9vw, 2.7rem);
               letter-spacing: 0.05em;
-            }
-            .login-powered-note {
-              border-radius: 18px;
-              padding: 1rem 1.05rem;
             }
             .login-input {
               border-radius: 16px;

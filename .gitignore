@@ -19,6 +19,7 @@ dist-ssr
 .DS_Store
 .netlify
 APF/EDI_CERTIFICATE/
+LC MICROSITES/APF/EDI_CERTIFICATE/
 *.suo
 *.ntvs*
 *.njsproj
@@ -26,5 +27,6 @@ APF/EDI_CERTIFICATE/
 *.sw?
 .vercel
 .tmp/
+.tools/
 .env
 **/.env
