@@ -1499,11 +1499,9 @@ export default function App() {
               </div>
 
               <div className="login-powered-note">
-                <span className="login-powered-label">Powered and maintained by</span>
-                <span className="login-powered-logo" aria-label="HCLTech">
-                  <span className="login-powered-logo-h">HCL</span>
-                  <span className="login-powered-logo-tech">Tech</span>
-                </span>
+                <p className="login-powered-copy">
+                  Created for internal use only <strong>HCL EDI</strong>
+                </p>
               </div>
             </div>
           </section>
@@ -1887,10 +1885,8 @@ export default function App() {
           }
           .login-powered-note {
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 0.9rem;
             width: 100%;
             max-width: 360px;
             border-radius: 22px;
@@ -1899,31 +1895,17 @@ export default function App() {
             padding: 1.1rem 1.25rem;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
           }
-          .login-powered-label {
-            display: block;
-            font-size: 0.72rem;
-            font-weight: 900;
-            letter-spacing: 0.24em;
-            text-transform: uppercase;
-            color: rgba(186, 230, 253, 0.78);
+          .login-powered-copy {
+            margin: 0;
+            font-size: clamp(0.98rem, 2.2vw, 1.08rem);
+            font-weight: 500;
+            line-height: 1.5;
+            text-align: center;
+            color: rgba(241, 245, 249, 0.92);
           }
-          .login-powered-logo {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.08em;
-            font-size: clamp(1.7rem, 4vw, 2.2rem);
-            font-weight: 900;
-            letter-spacing: -0.04em;
-            line-height: 1;
-          }
-          .login-powered-logo-h {
-            background: linear-gradient(90deg, #2563eb, #10b981, #ef4444);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-          }
-          .login-powered-logo-tech {
-            color: #f8fbff;
+          .login-powered-copy strong {
+            font-weight: 800;
+            color: #ffffff;
           }
           .login-input {
             width: 100%;
