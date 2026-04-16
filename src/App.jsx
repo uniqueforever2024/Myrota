@@ -31,7 +31,7 @@ import {
 } from "firebase/firestore";
 
 const PORTAL_LOGIN_STORAGE_KEY = "myrota.portal.login.v1";
-const PORTAL_SHARED_LOGIN_STORAGE_KEY = "myrota.portal.login.shared.v1";
+const PORTAL_LEGACY_SHARED_LOGIN_STORAGE_KEY = "myrota.portal.login.shared.v1";
 const PORTAL_LOGOUT_QUERY_KEY = "logout";
 const PORTAL_DEFAULT_USERNAME = "admin";
 const PORTAL_ALLOWED_PASSWORDS = new Set(["VeryGood2022", "VeryGood2019"]);
@@ -49,11 +49,17 @@ const clearPortalLoginSession = () => {
 
   try {
     window.sessionStorage.removeItem(PORTAL_LOGIN_STORAGE_KEY);
-  } catch {}
+  } catch {
+    // Ignore storage access errors in restricted browser contexts.
+  }
 
   try {
-    window.localStorage.removeItem(PORTAL_SHARED_LOGIN_STORAGE_KEY);
-  } catch {}
+    // Clean up legacy persistent portal sessions from older builds.
+    window.localStorage.removeItem(PORTAL_LEGACY_SHARED_LOGIN_STORAGE_KEY);
+    window.localStorage.removeItem(`${PORTAL_LOGIN_STORAGE_KEY}.legacy`);
+  } catch {
+    // Ignore storage access errors in restricted browser contexts.
+  }
 };
 
 const persistPortalLoginSession = (session) => {
@@ -63,11 +69,9 @@ const persistPortalLoginSession = (session) => {
 
   try {
     window.sessionStorage.setItem(PORTAL_LOGIN_STORAGE_KEY, serializedSession);
-  } catch {}
-
-  try {
-    window.localStorage.setItem(PORTAL_SHARED_LOGIN_STORAGE_KEY, serializedSession);
-  } catch {}
+  } catch {
+    // Ignore storage access errors in restricted browser contexts.
+  }
 };
 
 const readAdminPasswordFromSource = (source, depth = 0) => {
@@ -109,17 +113,21 @@ const readPortalLoginSession = () => {
       return { isAuthenticated: false, isAdmin: false };
     }
 
-    const rawSession =
-      window.sessionStorage.getItem(PORTAL_LOGIN_STORAGE_KEY) ||
-      window.localStorage.getItem(PORTAL_SHARED_LOGIN_STORAGE_KEY);
+    try {
+      // Older builds wrote the portal session to localStorage, which caused
+      // the app to reopen as already logged in across browser restarts.
+      // Remove that legacy value so login stays scoped to the current tab.
+      window.localStorage.removeItem(PORTAL_LEGACY_SHARED_LOGIN_STORAGE_KEY);
+      window.localStorage.removeItem(`${PORTAL_LOGIN_STORAGE_KEY}.legacy`);
+    } catch {
+      // Ignore storage access errors in restricted browser contexts.
+    }
+
+    const rawSession = window.sessionStorage.getItem(PORTAL_LOGIN_STORAGE_KEY);
 
     if (!rawSession) {
       return { isAuthenticated: false, isAdmin: false };
     }
-
-    try {
-      window.sessionStorage.setItem(PORTAL_LOGIN_STORAGE_KEY, rawSession);
-    } catch {}
 
     const parsedSession = JSON.parse(rawSession);
     const isAuthenticatedSession =
