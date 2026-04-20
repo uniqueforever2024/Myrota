@@ -249,16 +249,21 @@ const getPositionSortValue = (value) => {
   return Number.MAX_SAFE_INTEGER;
 };
 
-const buildEmployeeList = (names) => {
-  const orderedNames = [];
+const buildEmployeeDirectory = (names) => {
+  const orderedEmployees = [];
   names
     .filter(isVisibleEmployeeName)
-    .map(getEmployeeDisplayName)
     .forEach((name) => {
-    if (!orderedNames.includes(name)) orderedNames.push(name);
+      const displayName = getEmployeeDisplayName(name);
+      if (!orderedEmployees.some((employee) => employee.displayName === displayName)) {
+        orderedEmployees.push({
+          id: name,
+          displayName,
+        });
+      }
     });
 
-  return orderedNames;
+  return orderedEmployees;
 };
 
 const MONTH_NAMES = Object.keys(MONTH_INDEX);
@@ -390,6 +395,7 @@ export default function App() {
 
   // Firestore state
   const [EMPLOYEES, setEMPLOYEES] = useState([]);
+  const [EMPLOYEE_KEYS, setEMPLOYEE_KEYS] = useState([]);
   const [employeeView, setEmployeeView] = useState(null);
   const [rota, setRota] = useState({});
   const weeks = useMemo(
@@ -454,8 +460,9 @@ export default function App() {
         })
         .map((user) => user.id);
 
-      const names = buildEmployeeList(sortedUserIds);
-      setEMPLOYEES(names);
+      const employeeDirectory = buildEmployeeDirectory(sortedUserIds);
+      setEMPLOYEE_KEYS(employeeDirectory.map((employee) => employee.id));
+      setEMPLOYEES(employeeDirectory.map((employee) => employee.displayName));
     });
 
     const unsubRota = onSnapshot(doc(db, "rota", "master"), (snap) => {
@@ -498,11 +505,44 @@ export default function App() {
     return () => unsub && unsub();
   }, [isAdmin, page]);
 
+  const getStoredRotaEntry = ({ year, monthName, weekIndex, dayIndex, emp, empIndex }) => {
+    const employeeParts = [];
+    const addEmployeePart = (value) => {
+      if (value === undefined || value === null) return;
+      const normalized = String(value);
+      if (!normalized.length || employeeParts.includes(normalized)) return;
+      employeeParts.push(normalized);
+    };
+
+    addEmployeePart(EMPLOYEE_KEYS[empIndex]);
+    addEmployeePart(emp);
+    if (Number.isInteger(empIndex)) addEmployeePart(empIndex);
+
+    const matchedKey = employeeParts
+      .map((employeePart) => getKey(year, monthName, weekIndex, employeePart, dayIndex))
+      .find((key) => Object.prototype.hasOwnProperty.call(rota || {}, key));
+
+    const fallbackEmployeePart = employeeParts[0] ?? empIndex;
+    const resolvedKey = matchedKey ?? getKey(year, monthName, weekIndex, fallbackEmployeePart, dayIndex);
+
+    return {
+      key: resolvedKey,
+      stored: matchedKey ? rota[matchedKey] : undefined,
+    };
+  };
+
   /* ✅ Admin update (preserve leave) + log */
   const updateShift = async (emp, week, day, code) => {
-    const key = getKey(selectedYear, selectedMonth, week, emp, day);
+    const employeeName = EMPLOYEES[emp];
+    const { key, stored } = getStoredRotaEntry({
+      year: selectedYear,
+      monthName: selectedMonth,
+      weekIndex: week,
+      dayIndex: day,
+      emp: employeeName,
+      empIndex: emp,
+    });
     const defaultShift = getDefaultShift(WEEKDAYS[day]);
-    const stored = rota[key];
 
     const prevShift =
       typeof stored === "object" ? stored?.shift ?? defaultShift : stored ?? defaultShift;
@@ -523,7 +563,7 @@ export default function App() {
         });
         await addDoc(collection(db, "logs"), {
           timestamp: serverTimestamp(),
-          employee: EMPLOYEES[emp],
+          employee: employeeName,
           year: selectedYear,
           month: selectedMonth,
           day: dayNum,
@@ -576,12 +616,15 @@ export default function App() {
       week.forEach((cell, dayIndex) => {
         if (cell.isPadding) return;
         EMPLOYEES.forEach((emp, empIndex) => {
-          const key = getKey(selectedYear, selectedMonth, weekIndex, empIndex, dayIndex);
-          const stored = rota[key];
-          const defaultShift = getDefaultShift(WEEKDAYS[dayIndex]);
-          const realShift = typeof stored === "object"
-            ? (stored?.shift ?? defaultShift)
-            : (stored ?? defaultShift);
+          const { realShift } = getDayAssignment({
+            year: selectedYear,
+            monthName: selectedMonth,
+            weekIndex,
+            dayIndex,
+            defaultShift: getDefaultShift(WEEKDAYS[dayIndex]),
+            emp,
+            empIndex,
+          });
           if (realShift === "C" || realShift === "WS") {
             const dateStr = `${String(cell.day).padStart(2, "0")}-${selectedMonth}-${selectedYear}`;
             report.push({
@@ -599,7 +642,7 @@ export default function App() {
 
   useEffect(() => {
     if (page === "report") rebuildReport();
-  }, [page, rota, selectedYear, selectedMonth, EMPLOYEES]); // eslint-disable-line
+  }, [page, rota, selectedYear, selectedMonth, EMPLOYEES, EMPLOYEE_KEYS]); // eslint-disable-line
 
   const exportReportAsExcel = async () => {
     if (isExportingReport) return;
@@ -683,9 +726,14 @@ export default function App() {
   };
 
   const getDayAssignment = ({ year, monthName, weekIndex, dayIndex, defaultShift, emp, empIndex }) => {
-    const keyByName = getKey(year, monthName, weekIndex, emp, dayIndex);
-    const keyByIndex = getKey(year, monthName, weekIndex, empIndex, dayIndex);
-    const stored = rota[keyByName] !== undefined ? rota[keyByName] : rota[keyByIndex];
+    const { stored } = getStoredRotaEntry({
+      year,
+      monthName,
+      weekIndex,
+      dayIndex,
+      emp,
+      empIndex,
+    });
     const isObj = typeof stored === "object" && stored !== null;
     const raw = !isObj && typeof stored === "string" ? stored : undefined;
     const leaveApplied = isObj
@@ -1093,13 +1141,15 @@ export default function App() {
                   ) : (
                     <td key={dayIndex} className="p-1 min-w-[64px]">
                       {(() => {
-                        const defaultShift = getDefaultShift(WEEKDAYS[dayIndex]);
-                        const key = getKey(selectedYear, selectedMonth, weekIndex, empIndex, dayIndex);
-                        const stored = rota[key];
-
-                        const realShift =
-                          typeof stored === "object" ? stored?.shift ?? defaultShift : stored ?? defaultShift;
-                        const leaveApplied = typeof stored === "object" ? stored?.leave : undefined;
+                        const { leaveApplied, realShift } = getDayAssignment({
+                          year: selectedYear,
+                          monthName: selectedMonth,
+                          weekIndex,
+                          dayIndex,
+                          defaultShift: getDefaultShift(WEEKDAYS[dayIndex]),
+                          emp,
+                          empIndex,
+                        });
                         const displayCodeForColor = leaveApplied ?? realShift;
                         const displayText = leaveApplied ? leaveApplied : realShift;
                         const adminTextColor = displayCodeForColor === "B" ? "text-black" : "text-white";
@@ -1694,11 +1744,16 @@ export default function App() {
                       if (cell.isPadding) return null;
                       const week = Math.floor(i / 7);
                       const day = i % 7;
-                      const defaultShift = getDefaultShift(WEEKDAYS[day]);
-                      const key = getKey(selectedYear, selectedMonth, week, employeeView, day);
-                      const stored = rota[key];
-                      const realShift = typeof stored === "object" ? stored?.shift ?? defaultShift : stored ?? defaultShift;
-                      const leaveApplied = typeof stored === "object" ? stored?.leave : undefined;
+                      const employeeName = EMPLOYEES[employeeView];
+                      const { leaveApplied, realShift } = getDayAssignment({
+                        year: selectedYear,
+                        monthName: selectedMonth,
+                        weekIndex: week,
+                        dayIndex: day,
+                        defaultShift: getDefaultShift(WEEKDAYS[day]),
+                        emp: employeeName,
+                        empIndex: employeeView,
+                      });
                       const display = leaveApplied ? leaveApplied : realShift;
                       const colorCode = leaveApplied ?? realShift;
 
